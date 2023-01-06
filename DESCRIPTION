@@ -1,12 +1,23 @@
 Package: RAMEN
-Title: What the Package Does (One Line, Title Case)
+Title: RAMEN: Regional Association of Methylation variability with genotype and ENvironment
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+    person("Erick I.", "Navarro-Delgado", , "ericknadel98@hotmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-1040-3519"))
+Description: Package that identifies Variable Methylated Regions (VMRs) in a microarray methylation data set and, using Genotype (G) and Environmental (E) data, then identifies the independent or joint model (G, E, G + E or GxE) that best explains its variability.
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Imports: 
+    dplyr,
+    GenomicRanges,
+    IRanges,
+    magrittr,
+    S4Vectors,
+    stats,
+    stringr,
+    tibble
