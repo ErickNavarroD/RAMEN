@@ -37,13 +37,12 @@ a list with the following elements:
 highly variable probes closer thank 1 kb)
 \item $candidate_VMRs_lonely_probes: a GRanges object with highly variable probes that had no neighboring
 CpGs measured in < 1kb in the array.
-@export
 }
 }
 \description{
 Given a sorted illumina manifest and their MAD scores previously computed, identifies Variably
-Methylated Probes (VMPs) and merge them into regions.
-Note: this function uses GenomicRanges::reduce() to group the regions, which is strand-sensitive. In
+Methylated Probes (VMPs) and merge them into regions. Note: this function uses GenomicRanges::reduce()
+to group the regions, which is strand-sensitive. In
 the illumina microarrays, the MAPINFO for all the probes is usually provided as for the + strand. If
 you are using this array, we recommend to previously convert the strand of all the probes to "+".
 }

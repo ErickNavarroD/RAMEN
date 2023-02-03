@@ -2,6 +2,7 @@
 
 export("%>%")
 export(findCisSNPs)
+export(findVMRs)
 export(lmGE)
 export(medCorVMR)
 importFrom(magrittr,"%>%")

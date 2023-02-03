@@ -1,4 +1,4 @@
-#' Map revmap column to probe names after reducing a GenomicRanges object
+#'#' Map revmap column to probe names after reducing a GenomicRanges object
 #'
 #'  Given a revmap row (e.g. 1 5 6), we map those positions to their corresponding probe names
 #'  (and end up with something like "cg00000029",  "cg00000158", "cg00000165".This is a helper function
@@ -21,11 +21,12 @@ map_revmap_names = function(positions, manifest_hvp){
 }
 
 
+
 #' Define VMRs using median absolute deviation (MAD) scores in microarrays
 #'
 #' Given a sorted illumina manifest and their MAD scores previously computed, identifies Variably
-#' Methylated Probes (VMPs) and merge them into regions.
-#' Note: this function uses GenomicRanges::reduce() to group the regions, which is strand-sensitive. In
+#' Methylated Probes (VMPs) and merge them into regions. Note: this function uses GenomicRanges::reduce()
+#' to group the regions, which is strand-sensitive. In
 #' the illumina microarrays, the MAPINFO for all the probes is usually provided as for the + strand. If
 #' you are using this array, we recommend to previously convert the strand of all the probes to "+".
 #'
@@ -47,7 +48,9 @@ map_revmap_names = function(positions, manifest_hvp){
 #'   highly variable probes closer thank 1 kb)
 #'  - $candidate_VMRs_lonely_probes: a GRanges object with highly variable probes that had no neighboring
 #'  CpGs measured in < 1kb in the array.
-#'  @export
+#'
+#' @export
+#'
 findVMRs = function(array_manifest, methylation_data, MAD_threshold_percentile = 0.9, max_distance = 1000,
                     cor_threshold){
   MAD_scores = apply(methylation_data, 1, stats::mad) %>%

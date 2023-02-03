@@ -2,7 +2,7 @@
 % Please edit documentation in R/findVMRs.R
 \name{map_revmap_names}
 \alias{map_revmap_names}
-\title{Map revmap column to probe names after reducing a GenomicRanges object}
+\title{#' Map revmap column to probe names after reducing a GenomicRanges object}
 \usage{
 map_revmap_names(positions, manifest_hvp)
 }
