@@ -10,15 +10,16 @@ findCisSNPs(VMRs_df, genotyping_probes, distance = 1e+06)
 \item{VMRs_df}{A data frame converted from a Genomic Ranges object. Must contain the following columns:
 "probes", containing a list where each element contains a vector with the probes constituting a  VMR}
 
-\item{genotyping_probes}{?A data frame suitable to be converted to a Genomic Ranges object,
-containing the genomic coordinates of genotyped sites}
-
 \item{distance}{The distance threshold to be used to identify cis SNPs}
+
+\item{genotype_information}{A data frame with information about genotyped sites of interest. It must contain the following
+columns: "Chr" - Number of chromosome, "Position" - Genomic position of the chromosome, and "Name" - ID of the SNP.}
 }
 \value{
 a list with the number of SNPs per VMR and a VMR_df with a new column including the cis SNPs
 identified for each VMR.
 }
 \description{
-This function identifies genotyped SNPs close to each VMR using a distance threshold.
+Identification of genotyped SNPs close to each VMR using a distance threshold. Important: please make sure that the
+positions of the VMR data frame and the ones in the genotype information are from the same genome build.
 }
