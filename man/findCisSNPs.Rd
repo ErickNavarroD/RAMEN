@@ -4,20 +4,26 @@
 \alias{findCisSNPs}
 \title{Find cis SNPs around a set of VMRs}
 \usage{
-findCisSNPs(VMRs_df, genotyping_probes, distance = 1e+06)
+findCisSNPs(VMRs_df, genotype_information, distance = 1e+06)
 }
 \arguments{
 \item{VMRs_df}{A data frame converted from a Genomic Ranges object. Must contain the following columns:
 "probes", containing a list where each element contains a vector with the probes constituting a  VMR}
 
-\item{distance}{The distance threshold to be used to identify cis SNPs}
-
 \item{genotype_information}{A data frame with information about genotyped sites of interest. It must contain the following
 columns: "Chr" - Number of chromosome, "Position" - Genomic position of the chromosome, and "Name" - ID of the SNP.}
+
+\item{distance}{The distance threshold to be used to identify cis SNPs}
 }
 \value{
-a list with the number of SNPs per VMR and a VMR_df with a new column including the cis SNPs
-identified for each VMR.
+a list with the following elements:
+\itemize{
+\item A GenomicRanges::countOverlaps() output, which is an integer vector containing the tabulated query overlap hits.
+In other words, it is a data frame with two columns; the first one is the VMR number ID (which corresponds
+to the order of the VMRs in the VMR_df object), and a second one with the number of cis SNPs that were found. This
+is a useful object for ploting cisSNP distributions.
+\item VMR_df: a VMR_df object but now with a new column including the cis SNPs identified for each VMR.
+}
 }
 \description{
 Identification of genotyped SNPs close to each VMR using a distance threshold. Important: please make sure that the
