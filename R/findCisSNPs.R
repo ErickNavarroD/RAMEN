@@ -20,9 +20,10 @@
 findCisSNPs = function(VMRs_df, genotype_information, distance = 1e6){
   #Convert VMR and snp data into a GenomicRanges object
   VMRs_gr = GenomicRanges::makeGRangesFromDataFrame(VMRs_df, keep.extra.columns = TRUE)
+  genotype_information = genotype_information %>% arrange(Chr)
   seqnames_gr = table(genotype_information$Chr)
   genot_gr = GenomicRanges::GRanges(
-    seqnames =  S4Vectors::Rle(names(seqnames_gr), as.numeric(seqnames_gr)), #Number of chromosome
+    seqnames =  S4Vectors::Rle(names(seqnames_gr), as.numeric(seqnames_gr)), #Number of chromosome; as.numeric to convert from table to numeric vector
     ranges = IRanges::IRanges(genotype_information$Position, end = genotype_information$Position ,
                               names = genotype_information$Name))
   #Extend each VMR 1 Mb up and downstream
