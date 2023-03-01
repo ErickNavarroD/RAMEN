@@ -34,9 +34,7 @@ findCisSNPs = function(VMRs_df, genotype_information, distance = 1e6){
                                    number_of_SNPs =  GenomicRanges::countOverlaps(VMRs_extended, genot_gr))
 
   ####Identify the SNPs that are present in each VMR ####
-  ### this is just for the purpose of the preliminary analysis
-  #snps_per_vmr_find = findOverlaps(VMRs_extended, genot_gr, select = "all")
-  snps_per_vmr_find =  GenomicRanges::findOverlaps(VMRs_extended, genot_gr, select = "first")
+  snps_per_vmr_find =  GenomicRanges::findOverlaps(VMRs_extended, genot_gr, select = "all")
   rownames(genotype_information) = genotype_information$Name
   VMRs_df_with_cisSNPs = VMRs_df %>%
     tibble::rownames_to_column(var = "VMR_index") %>%
