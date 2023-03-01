@@ -6,7 +6,8 @@
 #' @param VMRs_df A data frame converted from a Genomic Ranges object. Must contain the following columns:
 #' "probes", containing a list where each element contains a vector with the probes constituting a  VMR
 #' @param genotype_information A data frame with information about genotyped sites of interest. It must contain the following
-#' columns: "Chr" - Number of chromosome, "Position" - Genomic position of the chromosome, and "Name" - ID of the SNP.
+#' columns: "Chr" - Number of chromosome, "Position" - Genomic position of the chromosome (must contain values of class int),
+#' and "Name" - ID of the SNP.
 #' @param distance The distance threshold to be used to identify cis SNPs
 #'
 #' @return a list with the following elements:
@@ -20,7 +21,7 @@
 findCisSNPs = function(VMRs_df, genotype_information, distance = 1e6){
   #Convert VMR and snp data into a GenomicRanges object
   VMRs_gr = GenomicRanges::makeGRangesFromDataFrame(VMRs_df, keep.extra.columns = TRUE)
-  genotype_information = genotype_information %>% arrange(Chr)
+  genotype_information = genotype_information %>% arrange(Chr) #important step for using Rle later when constructing the GenomicRanges object!
   seqnames_gr = table(genotype_information$Chr)
   genot_gr = GenomicRanges::GRanges(
     seqnames =  S4Vectors::Rle(names(seqnames_gr), as.numeric(seqnames_gr)), #Number of chromosome; as.numeric to convert from table to numeric vector

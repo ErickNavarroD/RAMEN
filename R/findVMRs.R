@@ -68,7 +68,7 @@ findVMRs = function(array_manifest, methylation_data, MAD_threshold_percentile =
     dplyr::left_join(MAD_scores %>% #Add MADscore information
                        tibble::rownames_to_column(var = "TargetID"), by = "TargetID") %>%
     dplyr::mutate(CHR = droplevels(CHR)) %>%
-    dplyr::arrange(CHR)
+    dplyr::arrange(CHR) #important step for using Rle later when constructing the GenomicRanges object!
   rownames(manifest_hvp) = manifest_hvp$TargetID
 
   #### Identify probes with no neighbours####
@@ -78,13 +78,13 @@ findVMRs = function(array_manifest, methylation_data, MAD_threshold_percentile =
                   !CHR %in% c("X","Y"), #Remove sexual chromosomes
                   TargetID %in% row.names(MAD_scores)) %>%  #keep only the probes where we have methylation information
     dplyr::mutate(CHR = droplevels(CHR)) %>%
-    dplyr::arrange(CHR)
+    dplyr::arrange(CHR) #important step for using Rle later when constructing the GenomicRanges object!
   rownames(full_manifest) = full_manifest$TargetID
 
   #Convert the full manifest to a GenomicRanges object
   seqnames_full_manifest_gr = table(full_manifest$CHR)
   full_manifest_gr = GenomicRanges::GRanges(
-    seqnames = S4Vectors::Rle(names(seqnames_full_manifest_gr), as.numeric(seqnames_full_manifest_gr)), #Number of chromosome
+    seqnames = S4Vectors::Rle(names(seqnames_full_manifest_gr), as.numeric(seqnames_full_manifest_gr)), #Number of chromosome; as.numeric to convert from table to numeric vector
     ranges = IRanges::IRanges(full_manifest$MAPINFO, end = full_manifest$MAPINFO ,
                               names = full_manifest$TargetID),
     strand = S4Vectors::Rle(rle(as.character(full_manifest$STRAND))$values,
@@ -104,11 +104,11 @@ findVMRs = function(array_manifest, methylation_data, MAD_threshold_percentile =
     dplyr::pull(probes) %>%
     unlist()
 
-  #### Identify candidate VMRs####
+  #### Identify VMRs####
   #convert the highly variable probes data frame to a GenomicRanges object
   seqnames_gr = table(manifest_hvp$CHR)
   gr = GenomicRanges::GRanges(
-    seqnames = S4Vectors::Rle(names(seqnames_gr), as.numeric(seqnames_gr)), #Number of chromosome
+    seqnames = S4Vectors::Rle(names(seqnames_gr), as.numeric(seqnames_gr)), #Number of chromosome; as.numeric to convert from table to numeric vector
     ranges = IRanges::IRanges(manifest_hvp$MAPINFO, end = manifest_hvp$MAPINFO ,
                               names = manifest_hvp$TargetID),
     strand = S4Vectors::Rle(rle(as.character(manifest_hvp$STRAND))$values,
