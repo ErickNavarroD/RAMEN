@@ -44,9 +44,9 @@ map_revmap_names = function(positions, manifest_hvp){
 #' @return a list with the following elements:
 #'  - $MAD_score_threshold: Threshold used to define highly variable probes.
 #'  - $highly_variable_probes a data frame with the probes that passed the MAD score threshold imposed by the user, and their MAD score
-#'  - $candidate_VMRs_strict: a GRanges object with strict candidate VMRs - regions composed of 2 or more
+#'  - $canonical_VMRs: a GRanges object with strict candidate VMRs - regions composed of 2 or more
 #'   highly variable probes closer thank 1 kb)
-#'  - $candidate_VMRs_lonely_probes: a GRanges object with highly variable probes that had no neighboring
+#'  - $non_canonical_VMRs: a GRanges object with highly variable probes that had no neighboring
 #'  CpGs measured in < 1kb in the array.
 #'
 #' @export
@@ -90,11 +90,11 @@ findVMRs = function(array_manifest, methylation_data, MAD_threshold_percentile =
     strand = S4Vectors::Rle(rle(as.character(full_manifest$STRAND))$values,
                             rle(as.character(full_manifest$STRAND))$lengths ))
 
-  #Group the probes into regions
+  #### Group the probes into regions to detect non-canonical VMRs
   regions_full_manifest = GenomicRanges::reduce(full_manifest_gr, with.revmap = TRUE, min.gapwidth = max_distance)
   #Add the number of probes in each region
   S4Vectors::mcols(regions_full_manifest)$n_probes = sapply(S4Vectors::mcols(regions_full_manifest)$revmap, length)
-  #Substitute revmap with the name of the probes in each VMR
+  #Substitute revmap with the name of the probes in each region
   S4Vectors::mcols(regions_full_manifest)$probes = sapply(S4Vectors::mcols(regions_full_manifest)$revmap, map_revmap_names, full_manifest)
   #Remove revmap mcol
   S4Vectors::mcols(regions_full_manifest)$revmap = NULL
@@ -126,7 +126,7 @@ findVMRs = function(array_manifest, methylation_data, MAD_threshold_percentile =
   #Remove revmap mcol
   S4Vectors::mcols(candidate_VMRs)$revmap = NULL
 
-  ### Capture strict VMRs ###
+  ### Capture canonical VMRs ###
   candidate_VMRs_strict = candidate_VMRs[(GenomicRanges::elementMetadata(candidate_VMRs)[,"n_VMPs"] > 1)] %>%
     #Check for correlation between probes in these strict regions #
     as.data.frame() %>% #Convert the GR to a data frame so that I can use medCorVMR() and neigbouring_check()
@@ -137,7 +137,7 @@ findVMRs = function(array_manifest, methylation_data, MAD_threshold_percentile =
     GenomicRanges::makeGRangesFromDataFrame(keep.extra.columns = TRUE) #Create a GR object again
   colnames(S4Vectors::mcols(candidate_VMRs_strict))[2] = "width" #Changing the name of one metadata variable that was modified when transforming from data frame to GR object
 
-  ### Capture lonely probes VMRs ###
+  ### Capture non-canonical VMRs ###
   candidate_VMRs_lonely_probes =  candidate_VMRs[(GenomicRanges::elementMetadata(candidate_VMRs)[,"n_VMPs"] <= 1)] #Select the VMRs with 1 probe per region
   candidate_VMRs_lonely_probes =  candidate_VMRs[(GenomicRanges::elementMetadata(candidate_VMRs)[,"probes"] %in% lonely_probes)] #Select the lonely probes
   GenomicRanges::mcols(candidate_VMRs_lonely_probes)$median_correlation = rep(NA, nrow(GenomicRanges::mcols(candidate_VMRs_lonely_probes))) #Add a column of NAs under the name of median_correlation to match the strict_VMRs
@@ -149,8 +149,8 @@ findVMRs = function(array_manifest, methylation_data, MAD_threshold_percentile =
     highly_variable_probes = MAD_scores %>%
       tibble::rownames_to_column(var = "TargetID") %>%
       dplyr::filter(TargetID %in% manifest_hvp$TargetID),
-    candidate_VMRs_strict = candidate_VMRs_strict,
-    candidate_VMRs_lonely_probes = candidate_VMRs_lonely_probes
+    canonical_VMRs = candidate_VMRs_strict,
+    non_canonical_VMRs = candidate_VMRs_lonely_probes
   ))
 }
 
