@@ -37,8 +37,11 @@ findCisSNPs = function(VMRs_df, genotype_information, distance = 1e6){
   snps_per_vmr_find =  GenomicRanges::findOverlaps(VMRs_extended, genot_gr, select = "all")
   rownames(genotype_information) = genotype_information$Name
   VMRs_df_with_cisSNPs = VMRs_df %>%
-    tibble::rownames_to_column(var = "VMR_index") %>%
     dplyr::mutate(SNP = sapply(snps_per_vmr_find, map_revmap_names, genotype_information))
+  if(!"VMR_index" %in% colnames(VMRs_df_with_cisSNPs)){ # Add a VMR index to each region if not already existing
+    VMRs_df_with_cisSNPs = VMRs_df_with_cisSNPs %>%
+      tibble::rownames_to_column(var = "VMR_index")
+  }
 
   return(list(snps_per_vmr_counts = snps_per_vmr_counts,
               VMRs_df_with_cisSNPs = VMRs_df_with_cisSNPs))
