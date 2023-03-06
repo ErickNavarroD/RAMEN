@@ -33,9 +33,9 @@ a list with the following elements:
 \itemize{
 \item $MAD_score_threshold: Threshold used to define highly variable probes.
 \item $highly_variable_probes a data frame with the probes that passed the MAD score threshold imposed by the user, and their MAD score
-\item $candidate_VMRs_strict: a GRanges object with strict candidate VMRs - regions composed of 2 or more
+\item $canonical_VMRs: a GRanges object with strict candidate VMRs - regions composed of 2 or more
 highly variable probes closer thank 1 kb)
-\item $candidate_VMRs_lonely_probes: a GRanges object with highly variable probes that had no neighboring
+\item $non_canonical_VMRs: a GRanges object with highly variable probes that had no neighboring
 CpGs measured in < 1kb in the array.
 }
 }
