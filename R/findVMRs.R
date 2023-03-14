@@ -127,7 +127,7 @@ findVMRs = function(array_manifest, methylation_data, MAD_threshold_percentile =
   S4Vectors::mcols(candidate_VMRs)$revmap = NULL
 
   ### Capture canonical VMRs ###
-  candidate_VMRs_strict = candidate_VMRs[(GenomicRanges::elementMetadata(candidate_VMRs)[,"n_VMPs"] > 1)] %>%
+  canonical_VMRs = candidate_VMRs[(GenomicRanges::elementMetadata(candidate_VMRs)[,"n_VMPs"] > 1)] %>%
     #Check for correlation between probes in these strict regions #
     as.data.frame() %>% #Convert the GR to a data frame so that I can use medCorVMR() and neigbouring_check()
     ### Check that the VMRs contain surrounding probes
@@ -135,12 +135,12 @@ findVMRs = function(array_manifest, methylation_data, MAD_threshold_percentile =
     #neighbFilterVMR() %>%
     dplyr::filter(median_correlation > cor_threshold) %>%  #Remove VMRs whose CpGs are not correlated
     GenomicRanges::makeGRangesFromDataFrame(keep.extra.columns = TRUE) #Create a GR object again
-  colnames(S4Vectors::mcols(candidate_VMRs_strict))[2] = "width" #Changing the name of one metadata variable that was modified when transforming from data frame to GR object
+  colnames(S4Vectors::mcols(canonical_VMRs))[2] = "width" #Changing the name of one metadata variable that was modified when transforming from data frame to GR object
 
   ### Capture non-canonical VMRs ###
-  candidate_VMRs_lonely_probes =  candidate_VMRs[(GenomicRanges::elementMetadata(candidate_VMRs)[,"n_VMPs"] <= 1)] #Select the VMRs with 1 probe per region
-  candidate_VMRs_lonely_probes =  candidate_VMRs[(GenomicRanges::elementMetadata(candidate_VMRs)[,"probes"] %in% lonely_probes)] #Select the lonely probes
-  GenomicRanges::mcols(candidate_VMRs_lonely_probes)$median_correlation = rep(NA, nrow(GenomicRanges::mcols(candidate_VMRs_lonely_probes))) #Add a column of NAs under the name of median_correlation to match the strict_VMRs
+  non_canonical_VMRs =  candidate_VMRs[(GenomicRanges::elementMetadata(candidate_VMRs)[,"n_VMPs"] <= 1)] #Select the VMRs with 1 probe per region
+  non_canonical_VMRs =  candidate_VMRs[(GenomicRanges::elementMetadata(candidate_VMRs)[,"probes"] %in% lonely_probes)] #Select the lonely probes
+  GenomicRanges::mcols(non_canonical_VMRs)$median_correlation = rep(NA, nrow(GenomicRanges::mcols(non_canonical_VMRs))) #Add a column of NAs under the name of median_correlation to match the strict_VMRs
 
 
 
@@ -149,8 +149,8 @@ findVMRs = function(array_manifest, methylation_data, MAD_threshold_percentile =
     highly_variable_probes = MAD_scores %>%
       tibble::rownames_to_column(var = "TargetID") %>%
       dplyr::filter(TargetID %in% manifest_hvp$TargetID),
-    canonical_VMRs = candidate_VMRs_strict,
-    non_canonical_VMRs = candidate_VMRs_lonely_probes
+    canonical_VMRs = canonical_VMRs,
+    non_canonical_VMRs = non_canonical_VMRs
   ))
 }
 
