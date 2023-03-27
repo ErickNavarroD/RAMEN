@@ -14,7 +14,7 @@ findCisSNPs(VMRs_df, genotype_information, distance = 1e+06)
 columns: "Chr" - Number of chromosome, "Position" - Genomic position of the chromosome (must contain values of class int),
 and "Name" - ID of the SNP.}
 
-\item{distance}{The distance threshold to be used to identify cis SNPs}
+\item{distance}{The distance threshold to be used to identify cis SNPs. Default is 1 Mb}
 }
 \value{
 a VMR_df: a VMR_df object but now with a new column including the cis SNPs identified for each VMR, and the number
