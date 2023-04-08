@@ -2,46 +2,48 @@
 % Please edit documentation in R/findVMRs.R
 \name{findVMRs}
 \alias{findVMRs}
-\title{Define VMRs using median absolute deviation (MAD) scores in microarrays}
+\title{Define Variable Methylated Regions using MAD scores in microarrays}
 \usage{
 findVMRs(
   array_manifest,
   methylation_data,
+  cor_threshold,
   MAD_threshold_percentile = 0.9,
-  max_distance = 1000,
-  cor_threshold
+  max_distance = 1000
 )
 }
 \arguments{
-\item{array_manifest}{Information about the probes contained in the array. Must have the columns MAPINFO (position
+\item{array_manifest}{Information about the probes on the array. Requires the columns MAPINFO (basepair position
 of the probe in the genome), CHR (chromosome), TargetID(probe name) and STRAND (this is very important to set up, since
-the VMRs will only be created on CpGs on the same strand; if the positions are reported based on a single DNA strand,
+the VMRs will only be created based on CpGs on the same strand; if the positions are reported based on a single DNA strand,
 this should contain either a vector of only "+", "-" or "*" for all of the probes).}
 
 \item{methylation_data}{A data frame containing M or B values, with samples as columns and probes as rows}
 
-\item{MAD_threshold_percentile}{The MAD score percentile to be used as cut off to define Highly Variable Probes (and
-therefore VMRs)}
-
-\item{max_distance}{Maximum distance allowed for two probes to me grouped into a region}
-
 \item{cor_threshold}{Numeric value (0-1) to be used as the median correlation threshold for identifying VMRs (i.e.
 all VMRs will have a median pairwise probe correlation of this parameter).}
+
+\item{MAD_threshold_percentile}{The MAD score percentile to be used as cut off to define Highly Variable Probes (and
+therefore VMRs). The default is 0.9 because this percentile has be traditionally used in previous studies.}
+
+\item{max_distance}{Maximum distance allowed for two probes to me grouped into a region. The default is 1000
+because this percentile has be traditionally used in previous studies.}
 }
 \value{
-a list with the following elements:
+A list with the following elements:
 \itemize{
-\item $MAD_score_threshold: Threshold used to define highly variable probes.
+\item $MAD_score_threshold: Threshold used to define Highly Variable Probes.
 \item $highly_variable_probes a data frame with the probes that passed the MAD score threshold imposed by the user, and their MAD score
 \item $canonical_VMRs: a GRanges object with strict candidate VMRs - regions composed of 2 or more
-highly variable probes closer thank 1 kb)
-\item $non_canonical_VMRs: a GRanges object with highly variable probes that had no neighboring
-CpGs measured in < 1kb in the array.
+contiguous, correlated and proximal Highly Variable Probes; thresholds depend on the ones specified
+by the user)
+\item $non_canonical_VMRs: a GRanges object with highly variable probes without neighboring
+CpGs measured in \emph{max_distance} on the array.
 }
 }
 \description{
-Given a sorted illumina manifest and their MAD scores previously computed, identifies Variably
-Methylated Probes (VMPs) and merge them into regions. Note: this function uses GenomicRanges::reduce()
+Identifies Variably Methylated Probes (VMPs) and merge them into regions, given a sorted illumina manifest and their
+median absolute deviation (MAD) scores previously computed. Note: this function uses GenomicRanges::reduce()
 to group the regions, which is strand-sensitive. In
 the illumina microarrays, the MAPINFO for all the probes is usually provided as for the + strand. If
 you are using this array, we recommend to previously convert the strand of all the probes to "+".

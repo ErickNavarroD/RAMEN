@@ -1,16 +1,16 @@
-#' Find cis SNPs around a set of VMRs
+#' Find cis SNPs around a set of Variable Methylated Regions
 #'
-#' Identification of genotyped SNPs close to each VMR using a distance threshold. Important: please make sure that the
+#' Identification of genotyped SNPs close to each VMR using a distance threshold. **Important**: please make sure that the
 #' positions of the VMR data frame and the ones in the genotype information are from the same genome build.
 #'
-#' @param VMRs_df A data frame converted from a Genomic Ranges object. Must contain the following columns:
-#' "seqnames", "start", "end".
+#' @param VMRs_df A GRanges object converted to a data frame. Must contain the following columns:
+#' "seqnames", "start", "end". These columns are present automatically when doing the object conversion.
 #' @param genotype_information A data frame with information about genotyped sites of interest. It must contain the following
-#' columns: "Chr" - Number of chromosome, "Position" - Genomic position of the chromosome (must contain values of class int),
-#' and "Name" - ID of the SNP.
+#' columns: "Chr" - chromosome number, "Position" - Genomic basepair position of SNP in the corresponding
+#' chromosome (must contain values of class int), and "Name" - SNP ID.
 #' @param distance The distance threshold to be used to identify cis SNPs. Default is 1 Mb
 #'
-#' @return a VMR_df: a VMR_df object but now with a new column including the cis SNPs identified for each VMR, and the number
+#' @return A VMR_df: a VMR_df object with a new column including the cis SNPs identified for each VMR, and the number
 #' of SNPs surrounding each VMR in the specified window
 #' @export
 

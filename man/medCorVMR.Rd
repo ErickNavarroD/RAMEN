@@ -2,20 +2,23 @@
 % Please edit documentation in R/medCorVMR.R
 \name{medCorVMR}
 \alias{medCorVMR}
-\title{Compute the median correlation of a Genomic Ranges data frame}
+\title{Compute the median probe methylation correlation for each Variable Methylated Region}
 \usage{
 medCorVMR(VMR_df, data_methylation)
 }
 \arguments{
-\item{VMR_df}{A data frame converted from a Genomic Ranges object. Must contain the following columns: "probes", containing a list where each
-element contains a vector with the probes constituting a  VMR}
-
 \item{data_methylation}{A data frame containing M or B values, with samples as columns and probes as rows}
+
+\item{VMR_dfA}{GRanges object converted to a data frame. Must contain the following columns:
+"seqnames", "start", "end"  (all of which are produced automatically when doing the object conversion)
+and "probes" (containing a list where each element contains a vector with the probes
+constituting the VMR).}
 }
 \value{
-A data frame like VMR_df, but with an extra column per region containing the median pairwise correlation
+A data frame like VMR_df with an extra column per region containing the median pairwise correlation
 }
 \description{
-Given a set of candidate VMRs, this function will compute the pairwise correlation of the probes
-in each VMR and report its median.
+This function will take a GRanges object converted into a data frame, where each row corresponds to a
+Variable Methylated Region. Then, it computes the pairwise correlation of the probes of each VMR and report
+its median value.
 }
