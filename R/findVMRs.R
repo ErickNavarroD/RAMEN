@@ -22,13 +22,15 @@ map_revmap_names = function(positions, manifest_hvp){
 
 
 
-#' Define Variable Methylated Regions using MAD scores in microarrays
+#' Identify Variable Methylated Regions in microarrays
 #'
-#' Identifies Variably Methylated Probes (VMPs) and merge them into regions, given a sorted illumina manifest and their
-#' median absolute deviation (MAD) scores previously computed. Note: this function uses GenomicRanges::reduce()
-#' to group the regions, which is strand-sensitive. In
-#' the illumina microarrays, the MAPINFO for all the probes is usually provided as for the + strand. If
-#' you are using this array, we recommend to previously convert the strand of all the probes to "+".
+#' Identifies Highly Variable Probes (HVP) and merge them into Variable Methylated Regions (VMRs),
+#' given a sorted illumina manifest. Note: this function uses GenomicRanges::reduce() to group the
+#' regions, which is strand-sensitive. In the illumina microarrays, the MAPINFO for all the probes
+#' is usually provided as for the + strand. If you are using this array, we recommend to previously
+#' convert the strand of all the probes to "+". OPTIONAL: This function supports parallel computing for increased speed. To do so, you have to set the parallel backend
+#' in your R session BEFORE running the function (e.g., doFuture::registerDoFuture()) and then the evaluation strategy (e.g., future::plan(multisession)). After that,
+#' the function can be run as usual.
 #'
 #' @param array_manifest Information about the probes on the array. Requires the columns MAPINFO (basepair position
 #' of the probe in the genome), CHR (chromosome), TargetID(probe name) and STRAND (this is very important to set up, since
@@ -37,14 +39,16 @@ map_revmap_names = function(positions, manifest_hvp){
 #' @param methylation_data A data frame containing M or B values, with samples as columns and probes as rows
 #' @param cor_threshold Numeric value (0-1) to be used as the median correlation threshold for identifying VMRs (i.e.
 #' all VMRs will have a median pairwise probe correlation of this parameter).
-#' @param MAD_threshold_percentile The MAD score percentile to be used as cut off to define Highly Variable Probes (and
+#' @param var_method Method to use to measure variability in the data set. The options are "mad" (median absolute deviation)
+#' or "variance".
+#' @param var_threshold_percentile The percentile to be used as cut off to define Highly Variable Probes (and
 #' therefore VMRs). The default is 0.9 because this percentile has be traditionally used in previous studies.
 #' @param max_distance Maximum distance allowed for two probes to me grouped into a region. The default is 1000
 #' because this percentile has be traditionally used in previous studies.
 #'
 #' @return A list with the following elements:
-#'  - $MAD_score_threshold: Threshold used to define Highly Variable Probes.
-#'  - $highly_variable_probes a data frame with the probes that passed the MAD score threshold imposed by the user, and their MAD score
+#'  - $var_score_threshold: Threshold used to define Highly Variable Probes (mad or variance, depending on the specified choice).
+#'  - $highly_variable_probes a data frame with the probes that passed the variability score threshold imposed by the user, and their variability score (MAD score or variance).
 #'  - $canonical_VMRs: a GRanges object with strict candidate VMRs - regions composed of 2 or more
 #'   contiguous, correlated and proximal Highly Variable Probes; thresholds depend on the ones specified
 #'    by the user)
@@ -56,22 +60,33 @@ map_revmap_names = function(positions, manifest_hvp){
 findVMRs = function(array_manifest,
                     methylation_data,
                     cor_threshold,
-                    MAD_threshold_percentile = 0.9,
+                    var_method,
+                    var_threshold_percentile = 0.9,
                     max_distance = 1000){
-  MAD_scores = apply(methylation_data, 1, stats::mad) %>%
-    as.data.frame() %>%
-    dplyr::rename("MAD_score" = ".")
+  if(var_method == "mad"){
+    var_scores = apply(methylation_data, 1, stats::mad) %>%
+      as.data.frame() %>%
+      dplyr::rename("var_score" = ".")
+  } else if (var_method == "variance") {
+    var_scores = apply(methylation_data, 1, stats::var) %>%
+      as.data.frame() %>%
+      dplyr::rename("var_score" = ".")
+  } else {
+    stop("The method must be either 'mad' or 'variance'. Please select one of those options")
+  }
+
   ####Identify highly variable probes ####
-  MAD_threshold = stats::quantile(MAD_scores$MAD_score, MAD_threshold_percentile)
-  #Filter the manifest to remove the probes that have no MAD score information because they were not measured/did not pass the QC and are not highly variable
+  var_threshold = stats::quantile(var_scores$var_score, var_threshold_percentile)
+  #Filter the manifest to remove the probes that have no variability score information because they were not measured/did not pass the QC and are not highly variable
   manifest_hvp = array_manifest %>%
     dplyr::select(c(TargetID, CHR, MAPINFO, STRAND)) %>%
     dplyr::filter(!is.na(MAPINFO), #Remove probes with no map info
                   !CHR %in% c("X","Y"), #Remove sexual chromosomes
-                  TargetID %in% row.names(MAD_scores %>%
-                                            dplyr::filter(MAD_scores >= MAD_threshold))) %>% #Remove probes that have no methylation information in the processed data and are not highly variable
-    dplyr::left_join(MAD_scores %>% #Add MADscore information
-                       tibble::rownames_to_column(var = "TargetID"), by = "TargetID") %>%
+                  TargetID %in% row.names(var_scores %>%
+                                            dplyr::filter(var_score >= var_threshold))) %>% #Remove probes that have no methylation information in the processed data and are not highly variable
+    dplyr::left_join(var_scores %>% #Add variability information
+                       tibble::rownames_to_column(var = "TargetID"),
+                     by = "TargetID") %>%
     dplyr::mutate(CHR = droplevels(CHR)) %>%
     dplyr::arrange(CHR) #important step for using Rle later when constructing the GenomicRanges object!
   rownames(manifest_hvp) = manifest_hvp$TargetID
@@ -81,7 +96,7 @@ findVMRs = function(array_manifest,
     dplyr::select(c(TargetID, CHR, MAPINFO, STRAND)) %>%
     dplyr::filter(!is.na(MAPINFO), #Remove probes with no map info
                   !CHR %in% c("X","Y"), #Remove sexual chromosomes
-                  TargetID %in% row.names(MAD_scores)) %>%  #keep only the probes where we have methylation information
+                  TargetID %in% row.names(var_scores)) %>%  #keep only the probes where we have methylation information
     dplyr::mutate(CHR = droplevels(CHR)) %>%
     dplyr::arrange(CHR) #important step for using Rle later when constructing the GenomicRanges object!
   rownames(full_manifest) = full_manifest$TargetID
@@ -118,7 +133,7 @@ findVMRs = function(array_manifest,
                               names = manifest_hvp$TargetID),
     strand = S4Vectors::Rle(rle(as.character(manifest_hvp$STRAND))$values,
                             rle(as.character(manifest_hvp$STRAND))$lengths ),
-    MAD_score = manifest_hvp$MAD_score) #Metadata
+    var_score = manifest_hvp$var_score) #Metadata
 
   #Create the regions
   candidate_VMRs = GenomicRanges::reduce(gr, with.revmap = TRUE, min.gapwidth = max_distance)
@@ -150,8 +165,8 @@ findVMRs = function(array_manifest,
 
 
   return(list(
-    MAD_score_threshold = MAD_threshold,
-    highly_variable_probes = MAD_scores %>%
+    var_score_threshold = var_threshold,
+    highly_variable_probes = var_scores %>%
       tibble::rownames_to_column(var = "TargetID") %>%
       dplyr::filter(TargetID %in% manifest_hvp$TargetID),
     canonical_VMRs = canonical_VMRs,

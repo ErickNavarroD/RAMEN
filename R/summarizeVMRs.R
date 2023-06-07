@@ -1,8 +1,8 @@
 #' Summarize Varaible Methylated Rregion's methylation state
 #'
 #' For each VMR in a dataset, returns an object with the representative methylation score of that region per individual.
-#' This function supports parallel computing for increased speed. To do so, you have to set the parallel backend
-#' (e.g., doFuture::registerDoFuture()) and then the evaluation strategy (e.g., future::plan(multisession)). After that,
+#' OPTIONAL: This function supports parallel computing for increased speed. To do so, you have to set the parallel backend
+#' in your R session BEFORE running the function (e.g., doFuture::registerDoFuture()) and then the evaluation strategy (e.g., future::plan(multisession)). After that,
 #' the function can be run as usual.
 #'
 #' @param VMRs_df A GRanges object converted to a data frame. Must contain the following columns:

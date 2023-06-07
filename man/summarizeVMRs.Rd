@@ -21,7 +21,7 @@ already existing based on the rownames of the VMR_df.
 }
 \description{
 For each VMR in a dataset, returns an object with the representative methylation score of that region per individual.
-This function supports parallel computing for increased speed. To do so, you have to set the parallel backend
-(e.g., doFuture::registerDoFuture()) and then the evaluation strategy (e.g., future::plan(multisession)). After that,
+OPTIONAL: This function supports parallel computing for increased speed. To do so, you have to set the parallel backend
+in your R session BEFORE running the function (e.g., doFuture::registerDoFuture()) and then the evaluation strategy (e.g., future::plan(multisession)). After that,
 the function can be run as usual.
 }

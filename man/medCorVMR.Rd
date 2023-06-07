@@ -7,12 +7,12 @@
 medCorVMR(VMR_df, data_methylation)
 }
 \arguments{
-\item{data_methylation}{A data frame containing M or B values, with samples as columns and probes as rows}
-
-\item{VMR_dfA}{GRanges object converted to a data frame. Must contain the following columns:
+\item{VMR_df}{GRanges object converted to a data frame. Must contain the following columns:
 "seqnames", "start", "end"  (all of which are produced automatically when doing the object conversion)
 and "probes" (containing a list where each element contains a vector with the probes
 constituting the VMR).}
+
+\item{data_methylation}{A data frame containing M or B values, with samples as columns and probes as rows}
 }
 \value{
 A data frame like VMR_df with an extra column per region containing the median pairwise correlation
@@ -20,5 +20,7 @@ A data frame like VMR_df with an extra column per region containing the median p
 \description{
 This function will take a GRanges object converted into a data frame, where each row corresponds to a
 Variable Methylated Region. Then, it computes the pairwise correlation of the probes of each VMR and report
-its median value.
+its median pairwise probe correlation. OPTIONAL: This function supports parallel computing for increased speed. To do so, you have to set the parallel backend
+in your R session before running the function (e.g., doFuture::registerDoFuture()) and then the evaluation strategy (e.g., future::plan(multisession)). After that,
+the function can be run as usual.
 }
