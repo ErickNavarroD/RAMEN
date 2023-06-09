@@ -31,7 +31,7 @@ or "variance".}
 therefore VMRs). The default is 0.9 because this percentile has be traditionally used in previous studies.}
 
 \item{max_distance}{Maximum distance allowed for two probes to me grouped into a region. The default is 1000
-because this percentile has be traditionally used in previous studies.}
+because this window has be traditionally used in previous studies.}
 }
 \value{
 A list with the following elements:

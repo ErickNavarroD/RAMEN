@@ -44,7 +44,7 @@ map_revmap_names = function(positions, manifest_hvp){
 #' @param var_threshold_percentile The percentile to be used as cut off to define Highly Variable Probes (and
 #' therefore VMRs). The default is 0.9 because this percentile has be traditionally used in previous studies.
 #' @param max_distance Maximum distance allowed for two probes to me grouped into a region. The default is 1000
-#' because this percentile has be traditionally used in previous studies.
+#' because this window has be traditionally used in previous studies.
 #'
 #' @return A list with the following elements:
 #'  - $var_score_threshold: Threshold used to define Highly Variable Probes (mad or variance, depending on the specified choice).
