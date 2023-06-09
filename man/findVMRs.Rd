@@ -52,5 +52,6 @@ regions, which is strand-sensitive. In the illumina microarrays, the MAPINFO for
 is usually provided as for the + strand. If you are using this array, we recommend to previously
 convert the strand of all the probes to "+". OPTIONAL: This function supports parallel computing for increased speed. To do so, you have to set the parallel backend
 in your R session BEFORE running the function (e.g., doFuture::registerDoFuture()) and then the evaluation strategy (e.g., future::plan(multisession)). After that,
-the function can be run as usual.
+the function can be run as usual. When working with big datasets, the parallel backend might throw an error if you exceed
+the maximum allowed size of globals exported for future expression. This can be fixed by increasing the allowed size (e.g. running options(future.globals.maxSize= +Inf) )
 }
