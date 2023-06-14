@@ -42,7 +42,7 @@ map_revmap_names = function(positions, manifest_hvp){
 #' all VMRs will have a median pairwise probe correlation of this parameter).
 #' @param var_method Method to use to measure variability in the data set. The options are "mad" (median absolute deviation)
 #' or "variance".
-#' @param var_threshold_percentile The percentile to be used as cut off to define Highly Variable Probes (and
+#' @param var_threshold_percentile The percentile (0-1) to be used as cut off to define Highly Variable Probes (and
 #' therefore VMRs). The default is 0.9 because this percentile has be traditionally used in previous studies.
 #' @param max_distance Maximum distance allowed for two probes to me grouped into a region. The default is 1000
 #' because this window has be traditionally used in previous studies.
@@ -64,6 +64,15 @@ findVMRs = function(array_manifest,
                     var_method,
                     var_threshold_percentile = 0.9,
                     max_distance = 1000){
+  #Check that the array manifest is in the right format
+  if(!all(c("MAPINFO","CHR","TargetID","STRAND") %in% colnames(array_manifest))){
+    stop("Please make sure the array manifest has the required columns with the appropiate names (check documentation for further information)")
+  }
+  #Check that the array strand is in the format expected by the user
+  if(base::length(base::unique(array_manifest$STRAND)) > 1){
+    warning("The manifest currently has more than one type of strands. Please note that this function is strand sensitive. So, probes in proximal coordinates but different strands on the manifest will not be grouped together. We recommend setting all of the probes to the same strand for arrays such as EPIC")
+  }
+  #Check that the method choice is correct
   if(var_method == "mad"){
     var_scores = apply(methylation_data, 1, stats::mad) %>%
       as.data.frame() %>%
@@ -77,6 +86,7 @@ findVMRs = function(array_manifest,
   }
 
   ####Identify highly variable probes ####
+  message("Identifying Highly Variable Probes...")
   var_threshold = stats::quantile(var_scores$var_score, var_threshold_percentile)
   #Filter the manifest to remove the probes that have no variability score information because they were not measured/did not pass the QC and are not highly variable
   manifest_hvp = array_manifest %>%
@@ -93,6 +103,7 @@ findVMRs = function(array_manifest,
   rownames(manifest_hvp) = manifest_hvp$TargetID
 
   #### Identify probes with no neighbours####
+  message("Identifying non canonical Variable Methylated Regions...")
   full_manifest = array_manifest %>%
     dplyr::select(c(TargetID, CHR, MAPINFO, STRAND)) %>%
     dplyr::filter(!is.na(MAPINFO), #Remove probes with no map info
@@ -126,6 +137,7 @@ findVMRs = function(array_manifest,
     unlist()
 
   #### Identify VMRs####
+  message("Identifying canonical Variable Methylated Regions...")
   #convert the highly variable probes data frame to a GenomicRanges object
   seqnames_gr = table(manifest_hvp$CHR)
   gr = GenomicRanges::GRanges(
@@ -148,12 +160,12 @@ findVMRs = function(array_manifest,
   S4Vectors::mcols(candidate_VMRs)$revmap = NULL
 
   ### Capture canonical VMRs ###
+  message("Applying correlation filter to canonical Variable Methylated Regions...")
   canonical_VMRs = candidate_VMRs[(GenomicRanges::elementMetadata(candidate_VMRs)[,"n_VMPs"] > 1)] %>%
     #Check for correlation between probes in these strict regions #
     as.data.frame() %>% #Convert the GR to a data frame so that I can use medCorVMR() and neigbouring_check()
     ### Check that the VMRs contain surrounding probes
     medCorVMR(VMR_df = ., data_methylation = methylation_data) %>% # Compute the median correlation of each region
-    #neighbFilterVMR() %>%
     dplyr::filter(median_correlation > cor_threshold) %>%  #Remove VMRs whose CpGs are not correlated
     GenomicRanges::makeGRangesFromDataFrame(keep.extra.columns = TRUE) #Create a GR object again
   colnames(S4Vectors::mcols(canonical_VMRs))[2] = "width" #Changing the name of one metadata variable that was modified when transforming from data frame to GR object
