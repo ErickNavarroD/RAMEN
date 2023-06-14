@@ -25,6 +25,11 @@ summarizeVMRs = function(VMRs_df,
       tibble::rownames_to_column(var = "VMR_index")
   }
 
+  # Check that probes is a list.
+  if(class(VMRs_df$probes) != "list"){
+    stop("Please make sure the 'probes' column in VMRs_df is a column of lists")
+  }
+
   summarized_VMRs = foreach::foreach(i = VMRs_df$VMR_index, .combine = "cbind") %dopar% {
     probes = VMRs_df %>%
       dplyr::filter(VMR_index == i) %>%
