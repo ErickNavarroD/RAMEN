@@ -27,7 +27,7 @@ all VMRs will have a median pairwise probe correlation of this parameter).}
 \item{var_method}{Method to use to measure variability in the data set. The options are "mad" (median absolute deviation)
 or "variance".}
 
-\item{var_threshold_percentile}{The percentile to be used as cut off to define Highly Variable Probes (and
+\item{var_threshold_percentile}{The percentile (0-1) to be used as cut off to define Highly Variable Probes (and
 therefore VMRs). The default is 0.9 because this percentile has be traditionally used in previous studies.}
 
 \item{max_distance}{Maximum distance allowed for two probes to me grouped into a region. The default is 1000
