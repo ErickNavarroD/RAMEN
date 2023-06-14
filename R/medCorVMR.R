@@ -18,6 +18,10 @@
 #' @export
 #'
 medCorVMR = function(VMR_df, data_methylation){
+  if(class(VMRs_df$probes) != "list"){
+    stop("Please make sure the 'probes' column in VMRs_df is a column of lists")
+  }
+
   VMR_probes = VMR_df$probes #generate a list where each element will contain a vector with the probes present in one VMR
   #Compute correlations
   median_correlation = foreach::foreach(i = seq_along(VMR_probes), # For each VMR
