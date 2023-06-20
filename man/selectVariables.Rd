@@ -20,7 +20,7 @@ selectVariables(
 
 \item{environmental_matrix}{A matrix of environmental variables. Only numeric values are supported. In case of having factors, it is recommended to encode them as numbers or re-code them into dummy variables if there are more than 2 levels.Each column should correspond to an environmental variable and each row to an individual. The ROW names must be the individual IDs.}
 
-\item{covariates}{A matrix containing the variables that will be adjusted for in the final GxE models (e.g. cell type proportions, age, etc.)-.Each column should correspond to a covariate and each row to an individual. The ROW names must be the individual IDs.}
+\item{covariates}{A matrix containing the variables that will be adjusted for in the final GxE models (e.g. cell type proportions, age, etc.)-.Each COLUMN should correspond to a covariate and each ROW to an individual. The ROW names must be the individual IDs.}
 
 \item{summarized_methyl_VMR}{A data frame containing each individual's VMR summarized region methylation. It is suggested to use the output of RAMEN::summarizeVMRs(). It must have individuals as rows, and VMRs as columns. The names of the columns must correspond to the index of said VMR, and it must match the index of VMR_df$VMR_index. The names of the ROWS must be the sample IDs, and must match with the IDs of the other matrices.}
 
