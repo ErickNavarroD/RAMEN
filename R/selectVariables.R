@@ -64,7 +64,6 @@ selectVariables = function(VMR_df,
     environ_VMRi = environmental_matrix[rownames(summVMRi),]
     environ_genot_VMRi = cbind(genot_VMRi, environ_VMRi)
     #Bind covariates data
-    .GlobalEnv$covariates = covariates
     if (!is.null(covariates)){
       covariates_VMRi = covariates[rownames(summVMRi),]
       genot_VMRi = cbind(genot_VMRi,covariates_VMRi)
