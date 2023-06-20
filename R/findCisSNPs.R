@@ -10,8 +10,9 @@
 #' chromosome (must contain values of class int), and "Name" - SNP ID.
 #' @param distance The distance threshold to be used to identify cis SNPs. Default is 1 Mb
 #'
-#' @return A VMR_df: a VMR_df object with a new column including the cis SNPs identified for each VMR, and the number
-#' of SNPs surrounding each VMR in the specified window
+#' @return a VMR_df object (A data frame compatible with GRanges conversion) with the following new columns: the cis SNPs identified for each VMR, the number
+#' of SNPs surrounding each VMR in the specified window, and VMR_index, which is created if not
+#' already existing based on the rownames of the VMR_df.
 #' @export
 
 findCisSNPs = function(VMRs_df, genotype_information, distance = 1e6){

@@ -16,7 +16,7 @@ constituting the VMR)}
 }
 \value{
 A data frame with samples as rows, and VMRs as columns. The value inside each cell corresponds to the summarized
-methylation value of said VMR in said individual. The column names correspond to the VMR_index, which is created if not
+methylation value of said VMR in the corresponding individual. The column names correspond to the VMR_index, which is created if not
 already existing based on the rownames of the VMR_df.
 }
 \description{

@@ -18,5 +18,5 @@ a vector with the names of the probes that conform one reduced region
 \description{
 Given a revmap row (e.g. 1 5 6), we map those positions to their corresponding probe names
 (and end up with something like "cg00000029",  "cg00000158", "cg00000165".This is a helper function
-of findVMRs().
+of findVMRs()).
 }

@@ -12,7 +12,7 @@
 #' @param methylation_data A data frame containing M or B values, with samples as columns and probes as rows
 #'
 #' @return A data frame with samples as rows, and VMRs as columns. The value inside each cell corresponds to the summarized
-#' methylation value of said VMR in said individual. The column names correspond to the VMR_index, which is created if not
+#' methylation value of said VMR in the corresponding individual. The column names correspond to the VMR_index, which is created if not
 #' already existing based on the rownames of the VMR_df.
 #'
 #' @importFrom foreach %dopar%
@@ -26,7 +26,7 @@ summarizeVMRs = function(VMRs_df,
   }
 
   # Check that probes is a list.
-  if(class(VMRs_df$probes) != "list"){
+  if(!is.list(VMRs_df$probes)){
     stop("Please make sure the 'probes' column in VMRs_df is a column of lists")
   }
 

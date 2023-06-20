@@ -18,7 +18,7 @@
 #' @export
 #'
 medCorVMR = function(VMR_df, data_methylation){
-  if(class(VMRs_df$probes) != "list"){
+  if(!is.list(VMRs_df$probes)){
     stop("Please make sure the 'probes' column in VMRs_df is a column of lists")
   }
 
@@ -42,7 +42,7 @@ medCorVMR = function(VMR_df, data_methylation){
                                           method= "pearson"))
         }
       }
-      median_correlation = median(VMR_correlation)
+      median_correlation = stats::median(VMR_correlation)
     }
   }
 
