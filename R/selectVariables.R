@@ -17,6 +17,7 @@
 #'
 #' @importFrom doRNG %dorng%
 #' @export
+#'
 selectVariables = function(VMR_df,
                            genotype_matrix,
                            environmental_matrix,
