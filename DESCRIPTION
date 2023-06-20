@@ -13,10 +13,13 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Imports: 
+    doRNG,
     dplyr,
     foreach,
     GenomicRanges,
+    glmnet,
     IRanges,
+    iterators,
     magrittr,
     S4Vectors,
     stats,
