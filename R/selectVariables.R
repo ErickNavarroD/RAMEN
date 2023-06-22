@@ -56,6 +56,10 @@ selectVariables = function(VMR_df,
        VMR_i$SNP %in% list("") |
        VMR_i$SNP %in% list(NA) ){
       genot_VMRi = c()
+    } else if (length(VMR_i$SNP[[1]]) == 1){ #Special case of sub-setting if SNP is only one because the result is a vector and not a matrix
+      genot_VMRi = genotype_matrix[unlist(VMR_i$SNP), rownames(summVMRi)] %>%
+        as.matrix()
+      colnames(genot_VMRi) = VMR_i$SNP[[1]]
     } else {
       genot_VMRi = genotype_matrix[unlist(VMR_i$SNP), rownames(summVMRi)] %>%
         t()
