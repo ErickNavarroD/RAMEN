@@ -1,6 +1,6 @@
 #' Selection of substantial environment and genotype variables for Variable Methylated Regions
 #'
-#' For each Variable Methylated Region, this functoon selects the relevant genotype and environment variables using LASSO. OPTIONAL: This function supports parallel computing for increased speed. To do so, you have to set the parallel backend in your R session BEFORE running the function (e.g., doFuture::registerDoFuture()) and then the evaluation strategy (e.g., future::plan(multisession)). After that, the function can be run as usual.
+#' For each Variable Methylated Region, this function selects the relevant genotype and environment variables using LASSO. OPTIONAL: This function supports parallel computing for increased speed. To do so, you have to set the parallel backend in your R session BEFORE running the function (e.g., doFuture::registerDoFuture()) and then the evaluation strategy (e.g., future::plan(multisession)). After that, the function can be run as usual.
 #'
 #' This function uses LASSO, which is an embedded variable selection method that penalizes models that are more complex (i.e., that contain more variables) in favor of simpler models (i.e. that contain less variables), but not at the expense of reducing predictive power. Using LASSO's variable screening property (with high probability, the Lasso estimated model includes the substantial covariates and drops the redundant ones) this function can identify the relevant genotype and environment variables in the Variable Methylated Region (VMR) dataset. For each VMR, LASSO is ran three times: 1) Including only the genotype variables for the selection step, 2) Including only the environmental variables for the selection step, and 3) Including both the genotype and environmental variables in the selection step. This is done to ensure that the function captures the variables that are relevant with the variables of their own category (e.g. SNPs that are strongly associated with the DNAme levels of a VMR in the presence of the rest of the SNPs) or in the presence of the covariates of the other category (e.g. SNPs that are strongly associated with the DNAme levels of a VMR in the presence of the rest of BOTH the SNPs AND environmental variables).
 #'
@@ -26,25 +26,23 @@ selectVariables = function(VMR_df,
                            seed = NULL) {
   ## Arguments check
   # Check that genotype_matrix, environmental_matrix, covariate matrix (in case it is provided) and summarized_methyl_VMR have the same samples
-  if(!all(rownames(summarized_methyl_VMR) %in% colnames(genotype_matrix))){stop("Individual IDs in summarized_methyl_VMR do not match individual IDs in genotype_matrix")}
-  if (!all(rownames(summarized_methyl_VMR) %in% rownames(environmental_matrix))) {stop("Individual IDs in summarized_methyl_VMR do not match individual IDs in environmental_matrix")}
+  if(!all(rownames(summarized_methyl_VMR) %in% colnames(genotype_matrix))) stop("Individual IDs in summarized_methyl_VMR do not match individual IDs in genotype_matrix")
+  if (!all(rownames(summarized_methyl_VMR) %in% rownames(environmental_matrix))) stop("Individual IDs in summarized_methyl_VMR do not match individual IDs in environmental_matrix")
   if(!is.null(covariates)){
-    if (!all(rownames(summarized_methyl_VMR) %in% rownames(covariates))){stop("Individual IDs in summarized_methyl_VMR do not match individual IDs in the covariates matrix")}}
+    if (!all(rownames(summarized_methyl_VMR) %in% rownames(covariates)))stop("Individual IDs in summarized_methyl_VMR do not match individual IDs in the covariates matrix")}
   #Check that VMR_df has index and SNP column
-  if(!all(c("VMR_index","SNP") %in% colnames(VMR_df))){stop("Please make sure the VMR data frame (VMR_df) contains the columns 'SNP' and 'VMR_index'.")}
+  if(!all(c("VMR_index","SNP") %in% colnames(VMR_df))) stop("Please make sure the VMR data frame (VMR_df) contains the columns 'SNP' and 'VMR_index'.")
   #Check that the SNP column on VMRs_df is a list
-  if(!is.list(VMR_df$SNP)){stop("Please make sure the 'SNP' column in VMRs_df is a column of lists")}
-  if(!is.character(VMR_df$VMR_index)){stop("Please make sure the 'VMR_index' column in VMRs_df is a column of characters")}
+  if(!is.list(VMR_df$SNP)) stop("Please make sure the 'SNP' column in VMRs_df is a column of lists")
+  if(!is.character(VMR_df$VMR_index)) stop("Please make sure the 'VMR_index' column in VMRs_df is a column of characters")
   #Check that genotype, environment and covariates are matrices
-  if (!is.matrix(genotype_matrix)){stop("Please make sure the genotype data is provided as a matrix.")}
-  if (!is.matrix(environmental_matrix)){stop("Please make sure the environmental data is provided as a matrix.")}
+  if (!is.matrix(genotype_matrix)) stop("Please make sure the genotype data is provided as a matrix.")
+  if (!is.matrix(environmental_matrix)) stop("Please make sure the environmental data is provided as a matrix.")
   if (!is.null(covariates)){
-    if (!is.matrix(covariates)){ stop("Please make sure the covariates data is provided as a matrix.")}}
+    if (!is.matrix(covariates)) stop("Please make sure the covariates data is provided as a matrix.")}
 
   ## Set the seed
-  if(!is.null(seed)){
-    set.seed(seed)
-  }
+  if(!is.null(seed)) set.seed(seed)
 
   lasso_results = foreach::foreach(VMR_i = iterators::iter(VMR_df, by = "row"), .combine = "rbind") %dorng%{
     #Select summarized VMR information
