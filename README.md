@@ -33,11 +33,16 @@ library(RAMEN)
 ## Variations to the standard workflow 
 
 ## How to get help for RAMEN
+If you have any question about RAMEN usage, please post an issue in this github repository so that future users also benefit from the feedback. As an alternative option, you can contact Erick Navarro-Delgado at erick.navarrodelgado@bcchr.ca.
 
 ## Acknowledgments
+I want to thank Dr. Keegan Korthauer and Dr. Michael Kobor for their supervision, feedback and support throughout the development of this package. Also, I want to thank the members of the Kobor and Korthauer lab for their comments and discussion, specially to Dr. Sarah Merrill. 
 
 ## Funding 
+This work was supported by the University of British Columbia, the BC Children's Hospital Research Institute and the Social Exposome Cluster. 
 
 ## Citing RAMEN
+The manuscript detailing RAMEN and its use is currently under preparation. For more information about this please contact Erick I. Navarro-Delgado at erick.navarrodelgado@bcchr.ca.
 
 ## Licence
+GPL (>= 3)
