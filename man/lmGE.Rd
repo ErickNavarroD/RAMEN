@@ -55,13 +55,19 @@ For each VMR, this function computes a set of models using the variables indicat
 \item E: Environmental model - fitted one environmental variable at a time.
 \item G+E: Additive model - fitted for each pairwise combination of G and E variables indicated in selected_variables.
 \item GxE: Interaction model - fitted for each pairwise combination of G and E variables indicated in selected_variables.
+}
+
 \strong{Model selection}
+
 Following the model fitting stage, the best model PER GROUP is selected using Akaike Information Criterion (AIC) or Bayesian Information Criteron (BIC). Both of these metrics are statistical approaches to select the right model in the same data set. Both of these metrics have strengths and limitations that make them excel in different situations.
 Even though BIC is more useful in selecting a correct model, which is the goal of this tool, rather than finding the best model for predicting future observations, where the AIC is more appropriate, we recommend the use of AIC. This is because BIC assumes that the true model is in the set of compared models. Since we are fitting models with individual variables, and we assume that DNAme variability is more likely to be influenced by more than one single SNP/environmental exposure at a time, we hypothetize that in most cases, the true model will not be in the set of compared models. On the other hand, AIC excels in those problems where all models in the model space are incorrect or there is at most one correct model in the model space, and AIC is preferentially used in cases where f(x) is unknown and our selected model could belong to a very large class of functions since the relationship could be pretty complex. However, both metrics tend to pick the same model in a large number of scenarios. We suggest the users to read Arijit Chakrabarti and Jayanta K. Ghosh (2011) for further information about the difference between these metrics.
+
 After selecting the best model per group (G,E,G+E pr GxE), the model with the lowest AIC or BIC is declared as the winning model. The delta AIC/BIC and difference of R2 is computed relative to the model with the second lowest AIC/BIC (i.e., the best model from a different group to the winning one), and reported in the final object.
+
 \strong{Analysis of variance and variance decomposition}
+
 After defining the best explanatory model for each VMR, an ANOVA test is conducted to test whether this model is significantly better at explaining the DNAme variability of the respective region than the basal model (i.e., the model including only the specified covariates). The respective F and p value is reported in the final returned object. Additionally, a False Discovery Rate method is applied to the p values to address the multiple hypothesis testing.
 Finally, the variance is decomposed and the relative R2 contribution of each of the variables of interest (G, E and GxE) is reported. This decomposition is done using the relaimpo R package, using the Lindeman, Merenda and Gold (lmg) method, which is based on the heuristic approach of averaging the relative R contribution of each variable over all input orders in the linear model. For further information, we suggest the users to read the documentation and publication of the relaimpo R package.
+
 Disclaimer: When the winning model is an interaction one, the relative R2 contribution is estimated keeping the covariates always in the model (i.e., they do not change orders); this can lead to an underestimation of the G,E and GxE relative contribution, but estimating these in interaction models is very computationally intensive in the presence of a medium to high number of covariates in the model. Therefore, since this package is designed to handle genome-wide data sets, we favor speed in this scenario.
-}
 }
