@@ -21,6 +21,7 @@ Imports:
     IRanges,
     iterators,
     magrittr,
+    relaimpo,
     S4Vectors,
     stats,
     stringr,

@@ -1,90 +1,249 @@
-#' Compute G/E/G+E/GxE linear models for a VMRs
+
+#' Selection of the best VMR explanatory G, E, G+E or GxE model
 #'
-#' This will be coupled with apply(VMR_df, 1, FUN = g_e_modelling,...)
-#' metadata and environmental objects must have a column named "SubjectNumber" that match the individuals
+#' For each Variable Methylated Region (VMR), this function fits a set of genotype (G), environment (E), pairwise additive (G + E) or pairwise interaction (G x E) models, one variable at a time, and selects the best fitting one. Additional information for each winning model is provided, such as its R2, its significance from an F test comparing it to a basal model (i.e., only the covariates), the delta AIC/BIC to the next best model from a different category, and the explained variance decomposed for the G, E and GxE components (when applicable).
 #'
-#' @param VMR ?a single VMR that comes from a VMR_df object. This VMR_df must have ?
-#' @param methylation_data ?A data frame where each row is a probe and each column is an individual.
-#' The names of the individuals (i.e. colnames) must be the same as the "SubjectNumber" in the metadata
-#' and environmental objects
-#' @param environmental_data A data frame with one sample per row. The first column must be the "SubjectNumber",
-#' and the second one a single environmental variable of choice.
-#' @param genotyping_data A data frame with one sample per row. It must contain the columns "SubjectNumber"
-#' and "genotype_encoded", which corresponds to the genotypes recoded into a count of 0, 1 or 2 (as characters)
-#' representing the number of minor allele copies.
-#' @param covariates A data frame with all the covariate information. It must have a "SubjectNumber" column with
-#' the individual ID, which matches with the column in genotyping data and environmental data.
-#' @param formula_covariates A string containing the covariates to be used in the models separated by a "+"
-#' sign (e.g., Sex + Sample_Age_Days + counts.CD4T + counts.NK + counts.Bcell + ...)
+#' For each VMR, this function computes a set of models using the variables indicated in the selected_variables object. From the indicated G and E variables, lmGE() fits four groups of models:
+#'  - G: Genetics model - fitted one SNP at a time.
+#'  - E: Environmental model - fitted one environmental variable at a time.
+#'  - G+E: Additive model - fitted for each pairwise combination of G and E variables indicated in selected_variables.
+#'  - GxE: Interaction model - fitted for each pairwise combination of G and E variables indicated in selected_variables.
+#' **Model selection**
+#' Following the model fitting stage, the best model PER GROUP is selected using Akaike Information Criterion (AIC) or Bayesian Information Criteron (BIC). Both of these metrics are statistical approaches to select the right model in the same data set. Both of these metrics have strengths and limitations that make them excel in different situations.
+#' Even though BIC is more useful in selecting a correct model, which is the goal of this tool, rather than finding the best model for predicting future observations, where the AIC is more appropriate, we recommend the use of AIC. This is because BIC assumes that the true model is in the set of compared models. Since we are fitting models with individual variables, and we assume that DNAme variability is more likely to be influenced by more than one single SNP/environmental exposure at a time, we hypothetize that in most cases, the true model will not be in the set of compared models. On the other hand, AIC excels in those problems where all models in the model space are incorrect or there is at most one correct model in the model space, and AIC is preferentially used in cases where f(x) is unknown and our selected model could belong to a very large class of functions since the relationship could be pretty complex. However, both metrics tend to pick the same model in a large number of scenarios. We suggest the users to read Arijit Chakrabarti and Jayanta K. Ghosh (2011) for further information about the difference between these metrics.
+#' After selecting the best model per group (G,E,G+E pr GxE), the model with the lowest AIC or BIC is declared as the winning model. The delta AIC/BIC and difference of R2 is computed relative to the model with the second lowest AIC/BIC (i.e., the best model from a different group to the winning one), and reported in the final object.
+#' **Analysis of variance and variance decomposition**
+#' After defining the best explanatory model for each VMR, an ANOVA test is conducted to test whether this model is significantly better at explaining the DNAme variability of the respective region than the basal model (i.e., the model including only the specified covariates). The respective F and p value is reported in the final returned object. Additionally, a False Discovery Rate method is applied to the p values to address the multiple hypothesis testing.
+#' Finally, the variance is decomposed and the relative R2 contribution of each of the variables of interest (G, E and GxE) is reported. This decomposition is done using the relaimpo R package, using the Lindeman, Merenda and Gold (lmg) method, which is based on the heuristic approach of averaging the relative R contribution of each variable over all input orders in the linear model. For further information, we suggest the users to read the documentation and publication of the relaimpo R package.
+#' Disclaimer: When the winning model is an interaction one, the relative R2 contribution is estimated keeping the covariates always in the model (i.e., they do not change orders); this can lead to an underestimation of the G,E and GxE relative contribution, but estimating these in interaction models is very computationally intensive in the presence of a medium to high number of covariates in the model. Therefore, since this package is designed to handle genome-wide data sets, we favor speed in this scenario.
 #'
-#' @return ?a list with the following elements:
-#'  - VMR_index
-#'  - tagCpG
-#'  - SNP
-#'  - environment
-#'  - statistics
-#'  - winning_model
+#' @param selected_variables A data frame obtained with RAMEN::selectVariables(). This data frame must contain three columns: 'VMR_index' with characters of an unique ID of each VMR; ´selected_genot' and 'selected_env' with the SNPs and environmental variables, respectively, that will be used for fitting the genotype (G), environment (E), additive (G + E) or interaction (G x E) models. The columns 'selected_env' and 'selected_genot' must contain lists as elements; VMRs with no environmental or genotype selected variables must contain an empty list with NULL, NA or "" inside.
+#' @param environmental_matrix A matrix of environmental variables. Only numeric values are supported. In case of having factors, it is recommended to encode them as numbers or re-code them into dummy variables if there are more than 2 levels.Each column should correspond to an environmental variable and each row to an individual. The ROW names must be the individual IDs.
+#' @param genotype_matrix A matrix of number-encoded genotypes. Each column should correspond to a sample, and each row to a SNP site. The suggested encoding is 2 (AA), 1 (AB) and 0 (BB). The COLUMN names must correspond with individual IDs.
+#' @param summarized_methyl_VMR A data frame containing each individual's VMR summarized region methylation. It is suggested to use the output of RAMEN::summarizeVMRs(). It must have individuals as rows, and VMRs as columns. The names of the columns must correspond to the index of said VMR, and it must match the index of VMR_df$VMR_index. The names of the ROWS must be the sample IDs, and must match with the IDs of the other matrices.
+#' @param covariates A matrix containing the variables that will be adjusted for in the final GxE models (e.g. cell type proportions, age, etc.)-.Each column should correspond to a covariate and each row to an individual. The ROW names must be the individual IDs.
+#' @param model_selection Which metric to use to select the best model for each VMR. Supported options are "AIC" or BIC". More information about which one to use can be found in the Details section.
+#' @return A data frame with the following columns:
+#'  - VMR_index: The unique ID of the VMR
+#'  - model_group: The group to which the winning model belongs to (i.e., G, E, G+E or GxE)
+#'  - variables: The variable(s) that are present in the winning model (excluding the covariates, which are included in all the models)
+#'  - F_val: F value from the ANOVA test comparing the basal model (i.e., only covariates) to the full model (i.e., including the G/E/G+E/G+E+GxE variables of the winning model respectively)
+#'  - p_val: p value from the ANOVA testing whether the more complex/full model is significantly better at capturing the data than the simpler/basal model (i.e., only the covariates) . If the resulting p-value is sufficiently low (usually less than 0.05), we can interpret that the more complex model is significantly better than the basal model, and thus favor the G/E/G+E/GxE model. If the p-value is not sufficiently low (usually greater than 0.05), we should favor the basal model.
+#'  - FDR: False Discovery Rate applied to the ANOVA p values of the winning models. This controls the expected proportion of rejected null hypotheses that are false (incorrect rejections of the null) in a multiple hypothesis testing setting (i.e., one test per VMR).
+#'  - tot_r_squared: R squared of the winning model
+#'  - g_r_squared: Estimated R2 allocated to the G in the winning model, if applicable.
+#'  - e_r_squared: Estimated R2 allocated to the E in the winning model, if applicable.
+#'  - gxe_r_squared: Estimated R2 allocated to the interaction in the winning model (GxE), if applicable.
+#'  - AIC/BIC: Model comparison value used to select the best model in each VMR (depending on the option specified in the argument model_selection).
+#'  - second_winner: The second group that possess the next best model after the winning one (i.e., G, E, G+E or GxE). This column may have NA if the variables selected in selected variables correspond only to one group (G or E), so that there is no different group to compare to.
+#'  - delta_aic/delta_bic: The difference of AIC or BIC value (depending on the option specified in the argument model_selection) of the winning model and the best model from the second_winner group (i.e., G, E, G+E or GxE). This column may have NA if the variables selected in selected variables correspond only to one group (G or E), so that there is no different group to compare to.
+#'  - delta_r_squared: The R2 of the winning model - R2 of the second winner model.This column may have NA if the variables selected in selected variables correspond only to one group (G or E), so that there is no different group to compare to.
+#' @importFrom foreach %dopar%
+#' @importFrom foreach %do%
 #' @export
+#'
+lmGE = function(selected_variables,
+                  summarized_methyl_VMR,
+                  genotype_matrix,
+                  environmental_matrix,
+                  covariates = NULL,
+                  model_selection = "AIC"){
+  #Check arguments
+  # Check that genotype_matrix, environmental_matrix, covariate matrix (in case it is provided) and summarized_methyl_VMR have the same samples
+  if(!all(rownames(summarized_methyl_VMR) %in% colnames(genotype_matrix))) stop("Individual IDs in summarized_methyl_VMR do not match individual IDs in genotype_matrix")
+  if (!all(rownames(summarized_methyl_VMR) %in% rownames(environmental_matrix))) stop("Individual IDs in summarized_methyl_VMR do not match individual IDs in environmental_matrix")
+  if(!is.null(covariates)){
+    if (!all(rownames(summarized_methyl_VMR) %in% rownames(covariates)))stop("Individual IDs in summarized_methyl_VMR do not match individual IDs in the covariates matrix")}
+  #Check that selected_variables has the right columns
+  if(!all(c("VMR_index","selected_genot", "selected_env") %in% colnames(selected_variables))) stop("Please make sure the selected_variables data frame contains the columns 'VMR_index', 'selected_genot' and 'selected_env'.")
+  #Check that the selected_genot and selected_env columns on selected_variables is a list and the index is characters
+  if(!is.list(selected_variables$selected_genot)) stop("Please make sure the 'selected_genot' column in selected_variables contains lists as elements")
+  if(!is.list(selected_variables$selected_env)) stop("Please make sure the 'selected_env' column in selected_variables contains lists as elements")
+  if(!is.character(selected_variables$VMR_index)) stop("Please make sure the 'VMR_index' column in selected_variables contains characters")
+  #Check that genotype, environment and covariates are matrices
+  if (!is.matrix(genotype_matrix)) stop("Please make sure the genotype data is provided as a matrix.")
+  if (!is.matrix(environmental_matrix)) stop("Please make sure the environmental data is provided as a matrix.")
+  if (!is.null(covariates)){
+    if (!is.matrix(covariates)) stop("Please make sure the covariates data is provided as a matrix.")}
+  if(!model_selection %in% c("AIC", "BIC")) stop("Please make sure your model_selection method is 'AIC' or 'BIC'")
 
-lmGE = function(VMR, #VMRs_df_with_cisSNPs
-                methylation_data,#methylation data
-                environmental_data,
-                genotyping_data,
-                covariates,
-                formula_covariates){
+  #Select the winning model
+  winning_models = foreach::foreach(VMR_i = iterators::iter(selected_vars, by = "row"),
+                                    .combine = "rbind") %dopar% { #For every VMR
+                                      #Create the data frame with all the information for each VMR
+                                      summ_vmr_i = as.matrix(summarized_methyl_VMR[,VMR_i$VMR_index])
+                                      colnames(summ_vmr_i) = "DNAme"
+                                      if(length(VMR_i$selected_env[[1]]) == 1){
+                                        env_i = environmental_matrix[rownames(summarized_methyl_VMR), unlist(VMR_i$selected_env)] %>%
+                                          as.matrix()
+                                        colnames(env_i) = unlist(VMR_i$selected_env)
+                                      } else env_i = environmental_matrix[rownames(summarized_methyl_VMR), unlist(VMR_i$selected_env)]
+                                      if(length(VMR_i$selected_genot[[1]]) == 1 ){
+                                        genot_i = genotype_matrix[unlist(VMR_i$selected_genot),rownames(summarized_methyl_VMR)] %>%
+                                          as.matrix()
+                                        colnames(genot_i) = unlist(VMR_i$selected_genot)
+                                      } else {
+                                        genot_i = genotype_matrix[unlist(VMR_i$selected_genot),rownames(summarized_methyl_VMR)] %>%
+                                          t()
+                                      }
+                                      covariates_i = covariates[rownames(summarized_methyl_VMR),]
+                                      full_data_vmr_i = cbind(summ_vmr_i, env_i, genot_i, covariates_i)
+                                      colnames(full_data_vmr_i) = make.names(colnames(full_data_vmr_i))
+                                      #Set the basal model (only covariates)
+                                      basal_model_formula = colnames(covariates) %>%
+                                        make.names() %>%
+                                        paste( collapse = " + ")
 
-  #Step 1: create a dataframe that contains all the information
-  condensated_df =
-    #### Query the methylation data
-    methylation_data %>%
-    tibble::rownames_to_column(var = "probe") %>%
-    dplyr::filter(probe %in% VMR["probes"]) %>%
-    dplyr::mutate(probe = "tagCpG") %>%
-    tibble::column_to_rownames(var = "probe") %>%
-    t() %>%
-    data.frame() %>%
-    tibble::rownames_to_column(var = "SubjectNumber") %>%
-    #### Query the genotyping data
-    dplyr:: left_join(genotyping_data %>%
-                        dplyr::filter(SNP.Name == VMR["SNP"]),
-                      dplyr::select(SubjectNumber, genotype_encoded),
-                      by = "SubjectNumber") %>%
-    #### Query the environmental data
-    dplyr::left_join(environmental_data,
-                     by = "SubjectNumber") %>%
-    #### Query the covariates
-    dplyr::left_join(covariates,
-                     by = "SubjectNumber")
-  #Model G
-  g_lm = stats::lm(data = condensated_df, formula = stringr::str_glue("tagCpG ~ genotype_encoded + ", formula_covariates) )
+                                      ## Fit models involving G if G has selected variables
+                                      if (!VMR_i$selected_genot %in% c(list(NULL), list(""), list(NA))) {
+                                        models_g_involving_df = foreach::foreach(SNP = unlist(VMR_i$selected_genot),
+                                                                                 .combine = "rbind") %do% { #For each SNP
+                                                                                   ### Fit G models
+                                                                                   model_g =  stats::lm(data = as.data.frame(full_data_vmr_i), formula = stringr::str_glue("DNAme ~ ",  make.names(SNP), " + ", basal_model_formula) )
 
-  #Model E
-  e_lm = stats::lm(data = condensated_df, formula = stringr::str_glue("tagCpG ~ ", colnames(environmental_data[2]), " + ", formula_covariates) )
+                                                                                   #Create data frame structure for the results
+                                                                                   model_g_df = data.frame(model_group = "G")
+                                                                                   model_g_df$variables = list(SNP)
+                                                                                   if(model_selection == "AIC") model_g_df$AIC = stats::AIC(model_g)
+                                                                                   if(model_selection == "BIC") model_g_df$BIC == stats::BIC(model_g)
+                                                                                   model_g_df$tot_r_squared = summary(model_g)$r.squared
+                                                                                   #model_g_df$tot_adj_r_squared = summary(model_g)$adj.r.squared
 
-  #Model G + E
-  g_e_lm = stats::lm(data = condensated_df, formula = stringr::str_glue("tagCpG ~ genotype_encoded + ", colnames(environmental_data[2]), " + ", formula_covariates) )
+                                                                                   if (!VMR_i$selected_env %in% c(list(NULL), list(""), list(NA))){
+                                                                                     ### Fit GxE and G+E models if E is not empty
+                                                                                     models_joint_df = foreach::foreach(env = unlist(VMR_i$selected_env),  #For every env var
+                                                                                                               .combine = "rbind") %do% {
+                                                                                                                 #Fit G + E
+                                                                                                                 model_ge = stats::lm(data = as.data.frame(full_data_vmr_i), formula = stringr::str_glue("DNAme ~ ",  make.names(SNP), " + ", make.names(env), " + ", basal_model_formula) )
 
-  #Model G x E
-  gxe_lm = stats::lm(data = condensated_df, formula = stringr::str_glue("tagCpG ~ genotype_encoded + ", colnames(environmental_data[2]), " +  genotype_encoded*",colnames(environmental_data[2]), " + ", formula_covariates) )
+                                                                                                                 #Create data frame structure for the results
+                                                                                                                 model_ge_df = data.frame(model_group = "G+E")
+                                                                                                                 model_ge_df$variables = list(c(SNP, env))
+                                                                                                                 if(model_selection == "AIC") model_ge_df$AIC = stats::AIC(model_ge)
+                                                                                                                 if(model_selection == "BIC") model_ge_df$BIC == stats::BIC(model_ge)
+                                                                                                                 model_ge_df$tot_r_squared = summary(model_ge)$r.squared
+                                                                                                                 #Fit GxE
+                                                                                                                 model_gxe = stats::lm(data = as.data.frame(full_data_vmr_i), formula = stringr::str_glue("DNAme ~ ",  make.names(SNP), " + ", make.names(env), " + ",  make.names(SNP), "*", make.names(env), " + ", basal_model_formula) )
 
-  #AIC and other statistics
-  results = stats::AIC(g_lm, e_lm, g_e_lm, gxe_lm) %>%
-    dplyr::mutate(r.squared = c(summary(g_lm)$r.squared,
-                                summary(e_lm)$r.squared,
-                                summary(g_e_lm)$r.squared,
-                                summary(gxe_lm)$r.squared),
-                  adj.r.squared = c(summary(g_lm)$adj.r.squared,
-                                    summary(e_lm)$adj.r.squared,
-                                    summary(g_e_lm)$adj.r.squared,
-                                    summary(gxe_lm)$adj.r.squared))
-  winning_model = rownames(results %>% dplyr::arrange(AIC))[1]
+                                                                                                                 #Create data frame structure for the results
+                                                                                                                 model_gxe_df = data.frame(model_group = "GxE")
+                                                                                                                 model_gxe_df$variables = list(c(SNP, env))
+                                                                                                                 if(model_selection == "AIC") model_gxe_df$AIC = stats::AIC(model_gxe)
+                                                                                                                 if(model_selection == "BIC") model_gxe_df$BIC == stats::BIC(model_gxe)
+                                                                                                                 model_gxe_df$tot_r_squared = summary(model_gxe)$r.squared
 
-  return(list(VMR_index = VMR["VMR_index"],
-              tagCpG = VMR["probes"],
-              SNP = VMR["SNP"],
-              environment = colnames(environmental_data)[2],
-              statistics = results,
-              winning_model = winning_model
-              #Pvalue of the F test comparing the tests
-  ))
+                                                                                                                 #Return joint models
+                                                                                                                 temp_models_joint = rbind(model_gxe_df, model_ge_df)
+                                                                                                                 temp_models_joint
+                                                                                                               }
+                                                                                   } else (models_joint_df = NULL)
+
+                                                                                   #Return object with all the G-involved models
+                                                                                   temp_models_g_involving = rbind(model_g_df, models_joint_df)
+                                                                                   temp_models_g_involving
+                                                                                 }
+                                      } else (models_g_involving_df = NULL)
+
+                                      ### Compute E models if E is not empty
+                                      if (!VMR_i$selected_env %in% c(list(NULL), list(""), list(NA))){ #For each env var
+                                        models_e_df = foreach::foreach(env = unlist(VMR_i$selected_env),  #For every env var
+                                                              .combine = "rbind") %do% {
+                                                                #Fit E models
+                                                                model_e = stats::lm(data = as.data.frame(full_data_vmr_i), formula = stringr::str_glue("DNAme ~ ", make.names(env), " + ", basal_model_formula) )
+
+                                                                #Create data frame structure for the results
+                                                                model_e_df = data.frame(model_group = "E")
+                                                                model_e_df$variables = list(c(env))
+                                                                if(model_selection == "AIC") model_e_df$AIC = stats::AIC(model_e)
+                                                                if(model_selection == "BIC") model_e_df$BIC == stats::BIC(model_e)
+                                                                model_e_df$tot_r_squared = summary(model_e)$r.squared
+                                                                #Return the final object
+                                                                model_e_df
+                                                              }
+                                      } else (models_e_df = NULL)
+
+                                      #Create object with the metrics for all the fitted models
+                                      all_models_VMR_i = rbind(models_g_involving_df, models_e_df)
+
+                                      #Select the best model per category (G,E,GxE,G+E) and compute its delta AIC/BIC
+                                      if(model_selection == "AIC"){
+                                        best_models_VMR_i = all_models_VMR_i %>%
+                                          dplyr::group_by(model_group) %>%
+                                          dplyr::filter(AIC == min(AIC)) %>%
+                                          dplyr::arrange(AIC) %>%
+                                          dplyr::ungroup() %>%
+                                          dplyr::mutate(delta_aic = abs(AIC - dplyr::lead(AIC)))
+                                      } else if (model_selection == "BIC"){
+                                        best_models_VMR_i = all_models_VMR_i %>%
+                                          dplyr::group_by(model_group) %>%
+                                          dplyr::filter(BIC == min(BIC)) %>%
+                                          dplyr::arrange(BIC) %>%
+                                          dplyr::ungroup() %>%
+                                          dplyr::mutate(delta_bic = abs(BIC - dplyr::lead(BIC)))
+                                      }
+
+                                      #Create the final object that will be returned
+                                      winning_model_VMR_i = best_models_VMR_i %>%
+                                        dplyr::filter(AIC == min(AIC)) %>%
+                                        dplyr::mutate(second_winner = best_models_VMR_i$model_group[2],
+                                               delta_r_squared = best_models_VMR_i$tot_r_squared[1] - best_models_VMR_i$tot_r_squared[2])
+
+                                      #Test the winning model against the basal one and decompose variance for the G, E and GxE components
+                                      model_basal = stats::lm(data = as.data.frame(full_data_vmr_i), formula = stringr::str_glue("DNAme ~ ", basal_model_formula) ) #set the basal model for comparing the rest
+                                      if(winning_model_VMR_i$model_group == "G"){
+                                        winning_lm = stats::lm(data = as.data.frame(full_data_vmr_i), formula = stringr::str_glue("DNAme ~ ", make.names(unlist(winning_model_VMR_i$variables)), " + ", basal_model_formula) )
+                                        winning_model_VMR_i$F_val = stats::anova( winning_lm, model_basal)$F[2]
+                                        winning_model_VMR_i$p_val = stats::anova( winning_lm, model_basal)$`Pr(>F)`[2]
+                                        r_decomp = relaimpo::calc.relimp.lm(object =  winning_lm ,
+                                                                            rela = FALSE,
+                                                                            type = "lmg")
+                                        winning_model_VMR_i$g_r_squared = r_decomp$lmg[make.names(unlist(winning_model_VMR_i$variables))[1]]
+                                        winning_model_VMR_i$e_r_squared = NA_real_
+                                        winning_model_VMR_i$gxe_r_squared = NA_real_
+                                      }else if (winning_model_VMR_i$model_group == "E"){
+                                        winning_lm = stats::lm(data = as.data.frame(full_data_vmr_i), formula = stringr::str_glue("DNAme ~ ", make.names(unlist(winning_model_VMR_i$variables))[1], " + ", basal_model_formula) )
+                                        winning_model_VMR_i$F_val = stats::anova( winning_lm, model_basal)$F[2]
+                                        winning_model_VMR_i$p_val = stats::anova( winning_lm, model_basal)$`Pr(>F)`[2]
+                                        r_decomp = relaimpo::calc.relimp.lm(object =  winning_lm,
+                                                                            rela = FALSE,
+                                                                            type = "lmg")
+                                        winning_model_VMR_i$g_r_squared = NA_real_
+                                        winning_model_VMR_i$e_r_squared = r_decomp$lmg[make.names(unlist(winning_model_VMR_i$variables))[1]]
+                                        winning_model_VMR_i$gxe_r_squared = NA_real_
+                                      }else if (winning_model_VMR_i$model_group == "G+E"){
+                                        winning_lm = stats::lm(data = as.data.frame(full_data_vmr_i), formula = stringr::str_glue("DNAme ~ ", make.names(unlist(winning_model_VMR_i$variables))[1], " + ",make.names(unlist(winning_model_VMR_i$variables))[2], " + ", basal_model_formula) )
+                                        winning_model_VMR_i$F_val = stats::anova( winning_lm, model_basal)$F[2]
+                                        winning_model_VMR_i$p_val = stats::anova( winning_lm, model_basal)$`Pr(>F)`[2]
+                                        r_decomp = relaimpo::calc.relimp.lm(object =  winning_lm,
+                                                                            rela = FALSE,
+                                                                            type = "lmg")
+                                        winning_model_VMR_i$g_r_squared = r_decomp$lmg[make.names(unlist(winning_model_VMR_i$variables))[1]]
+                                        winning_model_VMR_i$e_r_squared = r_decomp$lmg[make.names(unlist(winning_model_VMR_i$variables))[2]]
+                                        winning_model_VMR_i$gxe_r_squared = NA_real_
+                                      }else if (winning_model_VMR_i$model_group == "GxE"){
+                                        winning_lm = stats::lm(data = as.data.frame(full_data_vmr_i), formula = stringr::str_glue("DNAme ~ ", make.names(unlist(winning_model_VMR_i$variables))[1], " + ",make.names(unlist(winning_model_VMR_i$variables))[2], " + ", make.names(unlist(winning_model_VMR_i$variables))[1], "*",make.names(unlist(winning_model_VMR_i$variables))[2], " + ", basal_model_formula) )
+                                        winning_model_VMR_i$F_val = stats::anova( winning_lm, model_basal)$F[2]
+                                        winning_model_VMR_i$p_val = stats::anova( winning_lm, model_basal)$`Pr(>F)`[2]
+                                        r_decomp = relaimpo::calc.relimp.lm(object =  winning_lm,
+                                                                            rela = FALSE,
+                                                                            type = "lmg",
+                                                                            always = colnames(covariates_i)) #This slightly underestimates the relative importance compared to not using the covariates as the basal model, but in the interaction option the computational time is greatly increased if the relative contribution of all the other covariates is also estimated (which we dont look at anyways). So, because of the high dimensional nature of this package, this option will be used.
+                                        winning_model_VMR_i$g_r_squared = r_decomp$lmg[make.names(unlist(winning_model_VMR_i$variables))[1]]
+                                        winning_model_VMR_i$e_r_squared = r_decomp$lmg[make.names(unlist(winning_model_VMR_i$variables))[2]]
+                                        winning_model_VMR_i$gxe_r_squared = r_decomp$lmg[stringr::str_glue(make.names(unlist(winning_model_VMR_i$variables))[1], ":",make.names(unlist(winning_model_VMR_i$variables))[2])]
+                                      }
+
+                                      winning_model_VMR_i$VMR_index = VMR_i$VMR_index
+                                      #Return final object
+                                      winning_model_VMR_i
+                                    }
+
+  #Compute FDR and rearrange columns
+  winning_models = winning_models %>%
+    dplyr::mutate(FDR = stats::p.adjust(p_val, method = "fdr")) %>%
+    dplyr::select(VMR_index, model_group, variables, F_val, p_val, FDR, tot_r_squared, g_r_squared, e_r_squared, gxe_r_squared, AIC, second_winner, delta_aic, delta_r_squared) %>%
+    as.data.frame()
+
+  return(winning_models)
 }
+
