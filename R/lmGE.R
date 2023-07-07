@@ -75,6 +75,11 @@ lmGE = function(selected_variables,
     if (!is.matrix(covariates)) stop("Please make sure the covariates data is provided as a matrix.")}
   if(!model_selection %in% c("AIC", "BIC")) stop("Please make sure your model_selection method is 'AIC' or 'BIC'")
 
+  #Remove VMRs that have no selected G and no selected E
+  selected_variables = selected_variables %>%
+    dply::filter(!(selected_env %in% c(list(NULL), list(""), list(NA)) &
+                     selected_genot %in% c(list(NULL), list(""), list(NA))))
+
   #Select the winning model
   winning_models = foreach::foreach(VMR_i = iterators::iter(selected_variables, by = "row"),
                                     .combine = "rbind") %dopar% { #For every VMR
@@ -148,13 +153,13 @@ lmGE = function(selected_variables,
                                                                                                                  temp_models_joint = rbind(model_gxe_df, model_ge_df)
                                                                                                                  temp_models_joint
                                                                                                                }
-                                                                                   } else (models_joint_df = NULL)
+                                                                                   } else models_joint_df = NULL
 
                                                                                    #Return object with all the G-involved models
                                                                                    temp_models_g_involving = rbind(model_g_df, models_joint_df)
                                                                                    temp_models_g_involving
                                                                                  }
-                                      } else (models_g_involving_df = NULL)
+                                      } else models_g_involving_df = NULL
 
                                       ### Compute E models if E is not empty
                                       if (!VMR_i$selected_env %in% c(list(NULL), list(""), list(NA))){ #For each env var
@@ -172,7 +177,7 @@ lmGE = function(selected_variables,
                                                                 #Return the final object
                                                                 model_e_df
                                                               }
-                                      } else (models_e_df = NULL)
+                                      } else models_e_df = NULL
 
                                       #Create object with the metrics for all the fitted models
                                       all_models_VMR_i = rbind(models_g_involving_df, models_e_df)
@@ -182,7 +187,7 @@ lmGE = function(selected_variables,
                                         best_models_VMR_i = all_models_VMR_i %>%
                                           dplyr::group_by(model_group) %>%
                                           dplyr::filter(AIC == min(AIC)) %>%
-                                          dplyr::slice(ceiling(n()/2)) %>%  #In case there are more than one model per group with the exact same AIC, pick the one in the middle. This scenario usually happens with SNPs in LD. Since they are arranged in order corresponding to the 1MB (default of findCisSNPs) window, the one in the middle is the most likely to be closest to the VMR. Then, this one is preferred.
+                                          dplyr::slice(ceiling(dplyr::n()/2)) %>%  #In case there are more than one model per group with the exact same AIC, pick the one in the middle. This scenario usually happens with SNPs in LD. Since they are arranged in order corresponding to the 1MB (default of findCisSNPs) window, the one in the middle is the most likely to be closest to the VMR. Then, this one is preferred.
                                           dplyr::arrange(AIC) %>%
                                           dplyr::ungroup() %>%
                                           dplyr::mutate(delta_aic = abs(AIC - dplyr::lead(AIC)))
@@ -190,7 +195,7 @@ lmGE = function(selected_variables,
                                         best_models_VMR_i = all_models_VMR_i %>%
                                           dplyr::group_by(model_group) %>%
                                           dplyr::filter(BIC == min(BIC)) %>%
-                                          dplyr::slice(ceiling(n()/2)) %>% #In case there are more than one model per group with the exact same AIC, pick the one in the middle. This scenario usually happens with SNPs in LD. Since they are arranged in order corresponding to the 1MB (default of findCisSNPs) window, the one in the middle is the most likely to be closest to the VMR. Then, this one is preferred.
+                                          dplyr::slice(ceiling(dplyr::n()/2)) %>% #In case there are more than one model per group with the exact same AIC, pick the one in the middle. This scenario usually happens with SNPs in LD. Since they are arranged in order corresponding to the 1MB (default of findCisSNPs) window, the one in the middle is the most likely to be closest to the VMR. Then, this one is preferred.
                                           dplyr::arrange(BIC) %>%
                                           dplyr::ungroup() %>%
                                           dplyr::mutate(delta_bic = abs(BIC - dplyr::lead(BIC)))
