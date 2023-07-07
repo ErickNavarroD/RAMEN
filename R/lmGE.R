@@ -41,7 +41,7 @@
 #'  - e_r_squared: Estimated R2 allocated to the E in the winning model, if applicable.
 #'  - gxe_r_squared: Estimated R2 allocated to the interaction in the winning model (GxE), if applicable.
 #'  - AIC/BIC: Model comparison value used to select the best model in each VMR (depending on the option specified in the argument model_selection).
-#'  - second_winner: The second group that possess the next best model after the winning one (i.e., G, E, G+E or GxE). This column may have NA if the variables selected in selected variables correspond only to one group (G or E), so that there is no different group to compare to.
+#'  - second_winner: The second group that possesses the next best model after the winning one (i.e., G, E, G+E or GxE). This column may have NA if the variables selected in selected variables correspond only to one group (G or E), so that there is no different group to compare to.
 #'  - delta_aic/delta_bic: The difference of AIC or BIC value (depending on the option specified in the argument model_selection) of the winning model and the best model from the second_winner group (i.e., G, E, G+E or GxE). This column may have NA if the variables selected in selected variables correspond only to one group (G or E), so that there is no different group to compare to.
 #'  - delta_r_squared: The R2 of the winning model - R2 of the second winner model.This column may have NA if the variables selected in selected variables correspond only to one group (G or E), so that there is no different group to compare to.
 #' @importFrom foreach %dopar%
@@ -74,7 +74,7 @@ lmGE = function(selected_variables,
   if(!model_selection %in% c("AIC", "BIC")) stop("Please make sure your model_selection method is 'AIC' or 'BIC'")
 
   #Select the winning model
-  winning_models = foreach::foreach(VMR_i = iterators::iter(selected_vars, by = "row"),
+  winning_models = foreach::foreach(VMR_i = iterators::iter(selected_variables, by = "row"),
                                     .combine = "rbind") %dopar% { #For every VMR
                                       #Create the data frame with all the information for each VMR
                                       summ_vmr_i = as.matrix(summarized_methyl_VMR[,VMR_i$VMR_index])
