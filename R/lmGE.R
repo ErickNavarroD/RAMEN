@@ -1,7 +1,9 @@
 
 #' Selection of the best VMR explanatory G, E, G+E or GxE model
 #'
-#' For each Variable Methylated Region (VMR), this function fits a set of genotype (G), environment (E), pairwise additive (G + E) or pairwise interaction (G x E) models, one variable at a time, and selects the best fitting one. Additional information for each winning model is provided, such as its R2, its significance from an F test comparing it to a basal model (i.e., only the covariates), the delta AIC/BIC to the next best model from a different category, and the explained variance decomposed for the G, E and GxE components (when applicable).
+#' For each Variable Methylated Region (VMR), this function fits a set of genotype (G), environment (E), pairwise additive (G + E) or pairwise interaction (G x E) models, one variable at a time, and selects the best fitting one. Additional information for each winning model is provided, such as its R2, its significance from an F test comparing it to a basal model (i.e., only the covariates), the delta AIC/BIC to the next best model from a different category, and the explained variance decomposed for the G, E and GxE components (when applicable). OPTIONAL: This function supports parallel computing for increased speed. To do so, you have to set the parallel backend
+#' in your R session before running the function (e.g., doFuture::registerDoFuture()) and then the evaluation strategy (e.g., future::plan(multisession)). After that,
+#' the function can be run as usual. It is recommended to also set options(future.globals.maxSize= +Inf).
 #'
 #' For each VMR, this function computes a set of models using the variables indicated in the selected_variables object. From the indicated G and E variables, lmGE() fits four groups of models:
 #'  - G: Genetics model - fitted one SNP at a time.
@@ -79,19 +81,23 @@ lmGE = function(selected_variables,
                                       #Create the data frame with all the information for each VMR
                                       summ_vmr_i = as.matrix(summarized_methyl_VMR[,VMR_i$VMR_index])
                                       colnames(summ_vmr_i) = "DNAme"
-                                      if(length(VMR_i$selected_env[[1]]) == 1){
-                                        env_i = environmental_matrix[rownames(summarized_methyl_VMR), unlist(VMR_i$selected_env)] %>%
-                                          as.matrix()
-                                        colnames(env_i) = unlist(VMR_i$selected_env)
-                                      } else env_i = environmental_matrix[rownames(summarized_methyl_VMR), unlist(VMR_i$selected_env)]
-                                      if(length(VMR_i$selected_genot[[1]]) == 1 ){
-                                        genot_i = genotype_matrix[unlist(VMR_i$selected_genot),rownames(summarized_methyl_VMR)] %>%
-                                          as.matrix()
-                                        colnames(genot_i) = unlist(VMR_i$selected_genot)
-                                      } else {
-                                        genot_i = genotype_matrix[unlist(VMR_i$selected_genot),rownames(summarized_methyl_VMR)] %>%
-                                          t()
-                                      }
+                                      if (!VMR_i$selected_env %in% c(list(NULL), list(""), list(NA))) {
+                                        if(length(VMR_i$selected_env[[1]]) == 1){
+                                          env_i = environmental_matrix[rownames(summarized_methyl_VMR), unlist(VMR_i$selected_env)] %>%
+                                            as.matrix()
+                                          colnames(env_i) = unlist(VMR_i$selected_env)
+                                        } else env_i = environmental_matrix[rownames(summarized_methyl_VMR), unlist(VMR_i$selected_env)]
+                                      } else env_i = NULL
+                                      if (!VMR_i$selected_genot %in% c(list(NULL), list(""), list(NA))) {
+                                        if(length(VMR_i$selected_genot[[1]]) == 1 ){
+                                          genot_i = genotype_matrix[unlist(VMR_i$selected_genot),rownames(summarized_methyl_VMR)] %>%
+                                            as.matrix()
+                                          colnames(genot_i) = unlist(VMR_i$selected_genot)
+                                        } else {
+                                          genot_i = genotype_matrix[unlist(VMR_i$selected_genot),rownames(summarized_methyl_VMR)] %>%
+                                            t()
+                                        }
+                                      } else genot_i = NULL
                                       covariates_i = covariates[rownames(summarized_methyl_VMR),]
                                       full_data_vmr_i = cbind(summ_vmr_i, env_i, genot_i, covariates_i)
                                       colnames(full_data_vmr_i) = make.names(colnames(full_data_vmr_i))
