@@ -182,6 +182,7 @@ lmGE = function(selected_variables,
                                         best_models_VMR_i = all_models_VMR_i %>%
                                           dplyr::group_by(model_group) %>%
                                           dplyr::filter(AIC == min(AIC)) %>%
+                                          dplyr::slice(ceiling(n()/2)) %>%  #In case there are more than one model per group with the exact same AIC, pick the one in the middle. This scenario usually happens with SNPs in LD. Since they are arranged in order corresponding to the 1MB (default of findCisSNPs) window, the one in the middle is the most likely to be closest to the VMR. Then, this one is preferred.
                                           dplyr::arrange(AIC) %>%
                                           dplyr::ungroup() %>%
                                           dplyr::mutate(delta_aic = abs(AIC - dplyr::lead(AIC)))
@@ -189,10 +190,12 @@ lmGE = function(selected_variables,
                                         best_models_VMR_i = all_models_VMR_i %>%
                                           dplyr::group_by(model_group) %>%
                                           dplyr::filter(BIC == min(BIC)) %>%
+                                          dplyr::slice(ceiling(n()/2)) %>% #In case there are more than one model per group with the exact same AIC, pick the one in the middle. This scenario usually happens with SNPs in LD. Since they are arranged in order corresponding to the 1MB (default of findCisSNPs) window, the one in the middle is the most likely to be closest to the VMR. Then, this one is preferred.
                                           dplyr::arrange(BIC) %>%
                                           dplyr::ungroup() %>%
                                           dplyr::mutate(delta_bic = abs(BIC - dplyr::lead(BIC)))
                                       }
+
 
                                       #Create the final object that will be returned
                                       winning_model_VMR_i = best_models_VMR_i %>%
