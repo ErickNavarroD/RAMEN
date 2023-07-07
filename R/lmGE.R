@@ -77,7 +77,7 @@ lmGE = function(selected_variables,
 
   #Remove VMRs that have no selected G and no selected E
   selected_variables = selected_variables %>%
-    dply::filter(!(selected_env %in% c(list(NULL), list(""), list(NA)) &
+    dplyr::filter(!(selected_env %in% c(list(NULL), list(""), list(NA)) &
                      selected_genot %in% c(list(NULL), list(""), list(NA))))
 
   #Select the winning model
