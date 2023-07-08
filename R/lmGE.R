@@ -11,6 +11,8 @@
 #'  - G+E: Additive model - fitted for each pairwise combination of G and E variables indicated in selected_variables.
 #'  - GxE: Interaction model - fitted for each pairwise combination of G and E variables indicated in selected_variables.
 #'
+#'  These models are fit only if the VMR has G or E variables in the selected_variables object. If a VMR does not have neither G nor E variables, that VMR will be ignored and will not be returned in the output object
+#'
 #' **Model selection**
 #'
 #' Following the model fitting stage, the best model PER GROUP is selected using Akaike Information Criterion (AIC) or Bayesian Information Criteron (BIC). Both of these metrics are statistical approaches to select the right model in the same data set. Both of these metrics have strengths and limitations that make them excel in different situations.
@@ -23,7 +25,7 @@
 #' After defining the best explanatory model for each VMR, an ANOVA test is conducted to test whether this model is significantly better at explaining the DNAme variability of the respective region than the basal model (i.e., the model including only the specified covariates). The respective F and p value is reported in the final returned object. Additionally, a False Discovery Rate method is applied to the p values to address the multiple hypothesis testing.
 #' Finally, the variance is decomposed and the relative R2 contribution of each of the variables of interest (G, E and GxE) is reported. This decomposition is done using the relaimpo R package, using the Lindeman, Merenda and Gold (lmg) method, which is based on the heuristic approach of averaging the relative R contribution of each variable over all input orders in the linear model. For further information, we suggest the users to read the documentation and publication of the relaimpo R package.
 #'
-#' Disclaimer: When the winning model is an interaction one, the relative R2 contribution is estimated keeping the covariates always in the model (i.e., they do not change orders); this can lead to an underestimation of the G,E and GxE relative contribution, but estimating these in interaction models is very computationally intensive in the presence of a medium to high number of covariates in the model. Therefore, since this package is designed to handle genome-wide data sets, we favor speed in this scenario.
+#' Note: When the winning model is an interaction one, the relative R2 contribution is estimated keeping the covariates always in the model (i.e., they do not change orders); this can lead to an underestimation of the G,E and GxE relative contribution, but estimating these in interaction models is very computationally intensive in the presence of a medium to high number of covariates in the model. Therefore, since this package is designed to handle genome-wide data sets, we favor speed in this scenario.
 #'
 #' @param selected_variables A data frame obtained with RAMEN::selectVariables(). This data frame must contain three columns: 'VMR_index' with characters of an unique ID of each VMR; ´selected_genot' and 'selected_env' with the SNPs and environmental variables, respectively, that will be used for fitting the genotype (G), environment (E), additive (G + E) or interaction (G x E) models. The columns 'selected_env' and 'selected_genot' must contain lists as elements; VMRs with no environmental or genotype selected variables must contain an empty list with NULL, NA or "" inside.
 #' @param environmental_matrix A matrix of environmental variables. Only numeric values are supported. In case of having factors, it is recommended to encode them as numbers or re-code them into dummy variables if there are more than 2 levels.Each column should correspond to an environmental variable and each row to an individual. The ROW names must be the individual IDs.
@@ -188,7 +190,7 @@ lmGE = function(selected_variables,
                                           dplyr::group_by(model_group) %>%
                                           dplyr::filter(AIC == min(AIC)) %>%
                                           dplyr::slice(ceiling(dplyr::n()/2)) %>%  #In case there are more than one model per group with the exact same AIC, pick the one in the middle. This scenario usually happens with SNPs in LD. Since they are arranged in order corresponding to the 1MB (default of findCisSNPs) window, the one in the middle is the most likely to be closest to the VMR. Then, this one is preferred.
-                                          dplyr::arrange(AIC) %>%
+                                          dplyr::arrange(AIC, dplyr::desc(tot_r_squared)) %>%
                                           dplyr::ungroup() %>%
                                           dplyr::mutate(delta_aic = abs(AIC - dplyr::lead(AIC)))
                                       } else if (model_selection == "BIC"){
@@ -196,7 +198,7 @@ lmGE = function(selected_variables,
                                           dplyr::group_by(model_group) %>%
                                           dplyr::filter(BIC == min(BIC)) %>%
                                           dplyr::slice(ceiling(dplyr::n()/2)) %>% #In case there are more than one model per group with the exact same AIC, pick the one in the middle. This scenario usually happens with SNPs in LD. Since they are arranged in order corresponding to the 1MB (default of findCisSNPs) window, the one in the middle is the most likely to be closest to the VMR. Then, this one is preferred.
-                                          dplyr::arrange(BIC) %>%
+                                          dplyr::arrange(BIC,dplyr::desc(tot_r_squared) ) %>%
                                           dplyr::ungroup() %>%
                                           dplyr::mutate(delta_bic = abs(BIC - dplyr::lead(BIC)))
                                       }
@@ -205,6 +207,8 @@ lmGE = function(selected_variables,
                                       #Create the final object that will be returned
                                       winning_model_VMR_i = best_models_VMR_i %>%
                                         dplyr::filter(AIC == min(AIC)) %>%
+                                        #In case there is more than one model with the exact same AIC from different groups, pick the one with the highest tot_r_squared
+                                        dplyr::slice(1) %>%
                                         dplyr::mutate(second_winner = best_models_VMR_i$model_group[2],
                                                delta_r_squared = best_models_VMR_i$tot_r_squared[1] - best_models_VMR_i$tot_r_squared[2])
 
