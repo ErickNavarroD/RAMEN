@@ -124,7 +124,7 @@ lmGE = function(selected_variables,
                                                                                    model_g_df = data.frame(model_group = "G")
                                                                                    model_g_df$variables = list(SNP)
                                                                                    if(model_selection == "AIC") model_g_df$AIC = stats::AIC(model_g)
-                                                                                   if(model_selection == "BIC") model_g_df$BIC == stats::BIC(model_g)
+                                                                                   if(model_selection == "BIC") model_g_df$BIC = stats::BIC(model_g)
                                                                                    model_g_df$tot_r_squared = summary(model_g)$r.squared
                                                                                    #model_g_df$tot_adj_r_squared = summary(model_g)$adj.r.squared
 
@@ -205,12 +205,21 @@ lmGE = function(selected_variables,
 
 
                                       #Create the final object that will be returned
-                                      winning_model_VMR_i = best_models_VMR_i %>%
-                                        dplyr::filter(AIC == min(AIC)) %>%
-                                        #In case there is more than one model with the exact same AIC from different groups, pick the one with the highest tot_r_squared
-                                        dplyr::slice(1) %>%
-                                        dplyr::mutate(second_winner = best_models_VMR_i$model_group[2],
-                                               delta_r_squared = best_models_VMR_i$tot_r_squared[1] - best_models_VMR_i$tot_r_squared[2])
+                                      if(model_selection == "AIC"){
+                                        winning_model_VMR_i = best_models_VMR_i %>%
+                                          dplyr::filter(AIC == min(AIC)) %>%
+                                          #In case there is more than one model with the exact same AIC from different groups, pick the one with the highest tot_r_squared
+                                          dplyr::slice(1) %>%
+                                          dplyr::mutate(second_winner = best_models_VMR_i$model_group[2],
+                                                        delta_r_squared = best_models_VMR_i$tot_r_squared[1] - best_models_VMR_i$tot_r_squared[2])
+                                      }else if(model_selection == "BIC"){
+                                        winning_model_VMR_i = best_models_VMR_i %>%
+                                          dplyr::filter(BIC == min(BIC)) %>%
+                                          #In case there is more than one model with the exact same AIC from different groups, pick the one with the highest tot_r_squared
+                                          dplyr::slice(1) %>%
+                                          dplyr::mutate(second_winner = best_models_VMR_i$model_group[2],
+                                                        delta_r_squared = best_models_VMR_i$tot_r_squared[1] - best_models_VMR_i$tot_r_squared[2])
+                                      }
 
                                       #Test the winning model against the basal one and decompose variance for the G, E and GxE components
                                       model_basal = stats::lm(data = as.data.frame(full_data_vmr_i), formula = stringr::str_glue("DNAme ~ ", basal_model_formula) ) #set the basal model for comparing the rest
@@ -263,10 +272,17 @@ lmGE = function(selected_variables,
                                     }
 
   #Compute FDR and rearrange columns
-  winning_models = winning_models %>%
-    dplyr::mutate(FDR = stats::p.adjust(p_val, method = "fdr")) %>%
-    dplyr::select(VMR_index, model_group, variables, F_val, p_val, FDR, tot_r_squared, g_r_squared, e_r_squared, gxe_r_squared, AIC, second_winner, delta_aic, delta_r_squared) %>%
-    as.data.frame()
+  if (model_selection == "AIC"){
+    winning_models = winning_models %>%
+      dplyr::mutate(FDR = stats::p.adjust(p_val, method = "fdr")) %>%
+      dplyr::select(VMR_index, model_group, variables, F_val, p_val, FDR, tot_r_squared, g_r_squared, e_r_squared, gxe_r_squared, AIC, second_winner, delta_aic, delta_r_squared) %>%
+      as.data.frame()
+  } else if (model_selection == "BIC"){
+    winning_models = winning_models %>%
+      dplyr::mutate(FDR = stats::p.adjust(p_val, method = "fdr")) %>%
+      dplyr::select(VMR_index, model_group, variables, F_val, p_val, FDR, tot_r_squared, g_r_squared, e_r_squared, gxe_r_squared, BIC, second_winner, delta_bic, delta_r_squared) %>%
+      as.data.frame()
+  }
 
   return(winning_models)
 }
