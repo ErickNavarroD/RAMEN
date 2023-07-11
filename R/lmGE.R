@@ -139,7 +139,7 @@ lmGE = function(selected_variables,
                                                                                                                  model_ge_df = data.frame(model_group = "G+E")
                                                                                                                  model_ge_df$variables = list(c(SNP, env))
                                                                                                                  if(model_selection == "AIC") model_ge_df$AIC = stats::AIC(model_ge)
-                                                                                                                 if(model_selection == "BIC") model_ge_df$BIC == stats::BIC(model_ge)
+                                                                                                                 if(model_selection == "BIC") model_ge_df$BIC = stats::BIC(model_ge)
                                                                                                                  model_ge_df$tot_r_squared = summary(model_ge)$r.squared
                                                                                                                  #Fit GxE
                                                                                                                  model_gxe = stats::lm(data = as.data.frame(full_data_vmr_i), formula = stringr::str_glue("DNAme ~ ",  make.names(SNP), " + ", make.names(env), " + ",  make.names(SNP), "*", make.names(env), " + ", basal_model_formula) )
@@ -148,7 +148,7 @@ lmGE = function(selected_variables,
                                                                                                                  model_gxe_df = data.frame(model_group = "GxE")
                                                                                                                  model_gxe_df$variables = list(c(SNP, env))
                                                                                                                  if(model_selection == "AIC") model_gxe_df$AIC = stats::AIC(model_gxe)
-                                                                                                                 if(model_selection == "BIC") model_gxe_df$BIC == stats::BIC(model_gxe)
+                                                                                                                 if(model_selection == "BIC") model_gxe_df$BIC = stats::BIC(model_gxe)
                                                                                                                  model_gxe_df$tot_r_squared = summary(model_gxe)$r.squared
 
                                                                                                                  #Return joint models
@@ -174,7 +174,7 @@ lmGE = function(selected_variables,
                                                                 model_e_df = data.frame(model_group = "E")
                                                                 model_e_df$variables = list(c(env))
                                                                 if(model_selection == "AIC") model_e_df$AIC = stats::AIC(model_e)
-                                                                if(model_selection == "BIC") model_e_df$BIC == stats::BIC(model_e)
+                                                                if(model_selection == "BIC") model_e_df$BIC = stats::BIC(model_e)
                                                                 model_e_df$tot_r_squared = summary(model_e)$r.squared
                                                                 #Return the final object
                                                                 model_e_df
