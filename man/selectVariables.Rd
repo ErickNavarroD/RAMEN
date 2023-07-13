@@ -2,7 +2,7 @@
 % Please edit documentation in R/selectVariables.R
 \name{selectVariables}
 \alias{selectVariables}
-\title{Selection of substantial environment and genotype variables for Variable Methylated Regions}
+\title{Selection of environment and genotype variables for Variable Methylated Regions (VMRs)}
 \usage{
 selectVariables(
   VMR_df,
@@ -10,30 +10,38 @@ selectVariables(
   environmental_matrix,
   covariates = NULL,
   summarized_methyl_VMR,
-  seed = NULL
+  seed = 1
 )
 }
 \arguments{
-\item{VMR_df}{A data frame converted from a Genomic Ranges object. Recommended to use the output of \emph{RAMEN::findCisSNPs()}. Must have one VMR per row, and contain the following columns: VMR_index" (an unique ID for each VMR in VMR_df AS CHARACTERS) and "SNP" (a column with a list as observation, containing the name of the SNPs surrounding the corresponding VMR).  The SNPs contained in the "SNP" column must be present in the object that is indicated in the genotype_matrix argument, and it must contain all the VMRs contained in summarized_methyl_VMR. VMRs with no surrounding SNPs must have an empty list in the SNP column (either list(NULL), list(NA) or list("")).}
+\item{VMR_df}{A data frame converted from a GRanges object. Recommended to use the output of \emph{RAMEN::findCisSNPs()}. Must have one VMR per row, and contain the following columns: "VMR_index" (a unique ID for each VMR in VMR_df AS CHARACTERS) and "SNP" (a column with a list as observation, containing the name of the SNPs surrounding the corresponding VMR).  The SNPs contained in the "SNP" column must be present in the object that is indicated in the genotype_matrix argument, and it must contain all the VMRs contained in summarized_methyl_VMR. VMRs with no surrounding SNPs must have an empty list in the SNP column (either list(NULL), list(NA) or list("")).}
 
-\item{genotype_matrix}{A matrix of number-encoded genotypes. Each column should correspond to a sample, and each row to a SNP site. The suggested encoding is 2 (AA), 1 (AB) and 0 (BB). The COLUMN names must correspond with individual IDs.}
+\item{genotype_matrix}{A matrix of number-encoded genotypes. Columns must correspond to samples, and rows to SNPs. We suggest using a gene-dosage model, which would encode the SNPs ordinally depending on the genotype allele charge, such as 2 (AA), 1 (AB) and 0 (BB). The column names must correspond with individual IDs.}
 
-\item{environmental_matrix}{A matrix of environmental variables. Only numeric values are supported. In case of having factors, it is recommended to encode them as numbers or re-code them into dummy variables if there are more than 2 levels.Each column should correspond to an environmental variable and each row to an individual. The ROW names must be the individual IDs.}
+\item{environmental_matrix}{A matrix of environmental variables. Only numeric values are supported. In case of factor variables, it is recommended to encode them as numbers or re-code them into dummy variables if there are more than two levels. Columns must correspond to environmental variables and rows to individuals. Row names must be the individual IDs.}
 
-\item{covariates}{A matrix containing the variables that will be adjusted for in the final GxE models (e.g. cell type proportions, age, etc.)-.Each column should correspond to a covariate and each row to an individual. The ROW names must be the individual IDs.}
+\item{covariates}{A matrix containing the variables that will be adjusted for in the final GxE models (e.g., cell type proportions, age, etc.). Each column should correspond to a covariate and each row to an individual. Row names must correspond to the individual IDs.}
 
-\item{summarized_methyl_VMR}{A data frame containing each individual's VMR summarized region methylation. It is suggested to use the output of RAMEN::summarizeVMRs(). It must have individuals as rows, and VMRs as columns. The names of the columns must correspond to the index of said VMR, and it must match the index of VMR_df$VMR_index. The names of the ROWS must be the sample IDs, and must match with the IDs of the other matrices.}
+\item{summarized_methyl_VMR}{A data frame containing each individual's VMR summarized region methylation. It is suggested to use the output of RAMEN::summarizeVMRs().Rows must reflects individuals, and columns VMRs The names of the columns must correspond to the index of said VMR, and it must match the index of VMR_df$VMR_index. The names of the rows must correspond to the sample IDs, and must match with the IDs of the other matrices.}
 
 \item{seed}{An integer number that initializes a pseudo-random number generator. Random numbers in this function are created during the lambda cross validation and the LASSO stages.}
 }
 \value{
-A data frame with three columns: VMR_index, selected_genot and selected_env. The two last columns contain lists with a vector inside containing the variables that were selected using the LASSO strategy.
+A data frame with three columns:
+\itemize{
+\item VMR_index: Unique VMR ID.
+\item selected_genot: List-containing column with the selected SNPs.
+\item selected_env: List-containing column with the selected environmental variables.
+}
 }
 \description{
-For each Variable Methylated Region, this function selects the relevant genotype and environment variables using LASSO. OPTIONAL: This function supports parallel computing for increased speed. To do so, you have to set the parallel backend in your R session BEFORE running the function (e.g., doFuture::registerDoFuture()) and then the evaluation strategy (e.g., future::plan(multisession)). After that, the function can be run as usual.
+For each VMR, this function selects genotype and environmental variables using LASSO.
 }
 \details{
-This function uses LASSO, which is an embedded variable selection method that penalizes models that are more complex (i.e., that contain more variables) in favor of simpler models (i.e. that contain less variables), but not at the expense of reducing predictive power. Using LASSO's variable screening property (with high probability, the Lasso estimated model includes the substantial covariates and drops the redundant ones) this function can identify the relevant genotype and environment variables in the Variable Methylated Region (VMR) dataset. For each VMR, LASSO is ran three times: 1) Including only the genotype variables for the selection step, 2) Including only the environmental variables for the selection step, and 3) Including both the genotype and environmental variables in the selection step. This is done to ensure that the function captures the variables that are relevant with the variables of their own category (e.g. SNPs that are strongly associated with the DNAme levels of a VMR in the presence of the rest of the SNPs) or in the presence of the covariates of the other category (e.g. SNPs that are strongly associated with the DNAme levels of a VMR in the presence of the rest of BOTH the SNPs AND environmental variables).
+This function supports parallel computing for increased speed. To do so, you have to set the parallel backend
+in your R session before running the function (e.g., doFuture::registerDoFuture()) and then the evaluation strategy (e.g., future::plan(multisession)). After that, the function can be run as usual. It is recommended to also set options(future.globals.maxSize= +Inf).
 
-Each LASSO model uses a tuned lambda that minimizes the 5-fold cross-validation error within its corresponding data. This function uses the lambda.min value in contrast to lambda.1se because its goal within the RAMEN package is to use LASSO to reduce the number of variables that are going to be used next for fitting pairwise interaction models in \emph{lmGE()}. Since at this step variables are being selected base only on main effects, it is preferable to cast a "wider net" and select a slightly higher number of variables that could potentially have a strong interaction effect when paired with another variable. Furthermore, since LASSO is being used in this case as a screening procedure to select variables that will be fit separately in independent models and compared, the overfitting issue of using lambda.min does not impose a big concern. After finding the best lambda value, the sequence of models is fit by coordinate descent using \emph{glmnet()}.
+lmGE() uses LASSO, which is an embedded variable selection method that penalizes models that are more complex (i.e., that contain more variables) in favor of simpler models (i.e. that contain less variables), but not at the expense of reducing predictive power. Using LASSO's variable screening property (with high probability, the LASSO estimated model includes the substantial covariates and drops the redundant ones) this function selects genotype and environment variables with potential relevance in the Variable Methylated Region (VMR) dataset (see also Bühlmann and van de Geer, 2011). For each VMR, LASSO is run three times: 1) including only the genotype variables for the selection step, 2) including only the environmental variables for the selection step, and 3) Including both the genotype and environmental variables in the selection step. This is done to ensure that the function captures the variables that are relevant within their own category (e.g., SNPs that are strongly associated with the DNAme levels of a VMR in the presence of the rest of the SNPs) or in the presence of the covariates of the other category (e.g. SNPs that are strongly associated with the DNAme levels of a VMR in the presence of the rest of BOTH the SNPs AND environmental variables).
+
+Each LASSO model uses a tuned lambda that minimizes the 5-fold cross-validation error within its corresponding data. This function uses the lambda.min value in contrast to lambda.1se because its goal within the RAMEN package is to use LASSO to reduce the number of variables that are going to be used next for fitting pairwise interaction models in \emph{lmGE()}. Since at this step variables are being selected based only on main effects, it is preferable to cast a "wider net" and select a slightly higher number of variables that could potentially have a strong interaction effect when paired with another variable. Furthermore, since in this case LASSO is being used as a screening procedure to select variables that will be fit separately in independent models and compared, the overfitting issue of using lambda.min does not impose a big concern. After finding the best lambda value, the sequence of models is fit by coordinate descent using \emph{glmnet()}.
 }
