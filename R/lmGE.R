@@ -188,7 +188,7 @@ lmGE = function(selected_variables,
                                         best_models_VMR_i = all_models_VMR_i %>%
                                           dplyr::group_by(model_group) %>%
                                           dplyr::filter(AIC == min(AIC)) %>%
-                                          dplyr::slice(ceiling(dplyr::n()/2)) %>%  #In case there are more than one model per group with the exact same AIC, pick the one in the middle. This scenario usually happens with SNPs in LD. Since they are arranged in order corresponding to the 1MB (default of findCisSNPs) window, the one in the middle is the most likely to be closest to the VMR. Then, this one is preferred.
+                                          dplyr::slice(1) %>%  #In case there are more than one model per group with the exact same AIC, pick the first one
                                           dplyr::arrange(AIC, dplyr::desc(tot_r_squared)) %>%
                                           dplyr::ungroup() %>%
                                           dplyr::mutate(delta_aic = abs(AIC - dplyr::lead(AIC)))
@@ -196,7 +196,7 @@ lmGE = function(selected_variables,
                                         best_models_VMR_i = all_models_VMR_i %>%
                                           dplyr::group_by(model_group) %>%
                                           dplyr::filter(BIC == min(BIC)) %>%
-                                          dplyr::slice(ceiling(dplyr::n()/2)) %>% #In case there are more than one model per group with the exact same AIC, pick the one in the middle. This scenario usually happens with SNPs in LD. Since they are arranged in order corresponding to the 1MB (default of findCisSNPs) window, the one in the middle is the most likely to be closest to the VMR. Then, this one is preferred.
+                                          dplyr::slice(1) %>% #In case there are more than one model per group with the exact same AIC, pick the first one
                                           dplyr::arrange(BIC,dplyr::desc(tot_r_squared) ) %>%
                                           dplyr::ungroup() %>%
                                           dplyr::mutate(delta_bic = abs(BIC - dplyr::lead(BIC)))
@@ -228,8 +228,8 @@ lmGE = function(selected_variables,
                                         winning_model_VMR_i$p_val = stats::anova( winning_lm, model_basal)$`Pr(>F)`[2]
                                         r_decomp = relaimpo::calc.relimp.lm(object =  winning_lm ,
                                                                             rela = FALSE,
-                                                                            type = "lmg")
-                                        winning_model_VMR_i$g_r_squared = r_decomp$lmg[make.names(unlist(winning_model_VMR_i$variables))[1]]
+                                                                            type = "last") #This would be the equivalent to using lmg and setting always = covariates.
+                                        winning_model_VMR_i$g_r_squared = r_decomp$last[make.names(unlist(winning_model_VMR_i$variables))[1]]
                                         winning_model_VMR_i$e_r_squared = NA_real_
                                         winning_model_VMR_i$gxe_r_squared = NA_real_
                                       }else if (winning_model_VMR_i$model_group == "E"){
@@ -238,9 +238,9 @@ lmGE = function(selected_variables,
                                         winning_model_VMR_i$p_val = stats::anova( winning_lm, model_basal)$`Pr(>F)`[2]
                                         r_decomp = relaimpo::calc.relimp.lm(object =  winning_lm,
                                                                             rela = FALSE,
-                                                                            type = "lmg")
+                                                                            type = "last") #This would be the equivalent to using lmg and setting always = covariates.
                                         winning_model_VMR_i$g_r_squared = NA_real_
-                                        winning_model_VMR_i$e_r_squared = r_decomp$lmg[make.names(unlist(winning_model_VMR_i$variables))[1]]
+                                        winning_model_VMR_i$e_r_squared = r_decomp$last[make.names(unlist(winning_model_VMR_i$variables))[1]]
                                         winning_model_VMR_i$gxe_r_squared = NA_real_
                                       }else if (winning_model_VMR_i$model_group == "G+E"){
                                         winning_lm = stats::lm(data = as.data.frame(full_data_vmr_i), formula = stringr::str_glue("DNAme ~ ", make.names(unlist(winning_model_VMR_i$variables))[1], " + ",make.names(unlist(winning_model_VMR_i$variables))[2], " + ", basal_model_formula) )
@@ -248,7 +248,8 @@ lmGE = function(selected_variables,
                                         winning_model_VMR_i$p_val = stats::anova( winning_lm, model_basal)$`Pr(>F)`[2]
                                         r_decomp = relaimpo::calc.relimp.lm(object =  winning_lm,
                                                                             rela = FALSE,
-                                                                            type = "lmg")
+                                                                            type = "lmg",
+                                                                            always = colnames(covariates_i))
                                         winning_model_VMR_i$g_r_squared = r_decomp$lmg[make.names(unlist(winning_model_VMR_i$variables))[1]]
                                         winning_model_VMR_i$e_r_squared = r_decomp$lmg[make.names(unlist(winning_model_VMR_i$variables))[2]]
                                         winning_model_VMR_i$gxe_r_squared = NA_real_
