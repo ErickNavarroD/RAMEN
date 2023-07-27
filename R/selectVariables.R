@@ -5,7 +5,7 @@
 #' This function supports parallel computing for increased speed. To do so, you have to set the parallel backend
 #' in your R session before running the function (e.g., doFuture::registerDoFuture()) and then the evaluation strategy (e.g., future::plan(multisession)). After that, the function can be run as usual. It is recommended to also set options(future.globals.maxSize= +Inf).
 #'
-#' lmGE() uses LASSO, which is an embedded variable selection method that penalizes models that are more complex (i.e., that contain more variables) in favor of simpler models (i.e. that contain less variables), but not at the expense of reducing predictive power. Using LASSO's variable screening property (with high probability, the LASSO estimated model includes the substantial covariates and drops the redundant ones) this function selects genotype and environment variables with potential relevance in the Variable Methylated Region (VMR) dataset (see also Bühlmann and van de Geer, 2011). For each VMR, LASSO is run three times: 1) including only the genotype variables for the selection step, 2) including only the environmental variables for the selection step, and 3) Including both the genotype and environmental variables in the selection step. This is done to ensure that the function captures the variables that are relevant within their own category (e.g., SNPs that are strongly associated with the DNAme levels of a VMR in the presence of the rest of the SNPs) or in the presence of the covariates of the other category (e.g. SNPs that are strongly associated with the DNAme levels of a VMR in the presence of the rest of BOTH the SNPs AND environmental variables).
+#' lmGE() uses LASSO, which is an embedded variable selection method that penalizes models that are more complex (i.e., that contain more variables) in favor of simpler models (i.e. that contain less variables), but not at the expense of reducing predictive power. Using LASSO's variable screening property (with high probability, the LASSO estimated model includes the substantial covariates and drops the redundant ones) this function selects genotype and environment variables with potential relevance in the Variable Methylated Region (VMR) dataset (see also Bühlmann and van de Geer, 2011). For each VMR, LASSO is run three times: 1) including only the genotype variables for the selection step, 2) including only the environmental variables for the selection step, and 3) Including both the genotype and environmental variables in the selection step. This is done to ensure that the function captures the variables that are relevant within their own category (e.g., SNPs that are strongly associated with the DNAme levels of a VMR in the presence of the rest of the SNPs) or in the presence of the covariates of the other category (e.g. SNPs that are strongly associated with the DNAme levels of a VMR in the presence of the rest of BOTH the SNPs AND environmental variables). Every time LASSO is run, the basal covariates indicated in the argument *covariates* are not penalized (i.e., those variables are always included in the models and their coefficients are not subjected to shrinkage). That way, only the most promising E and G variables in the presence of the covariates will be selected.
 #'
 #' Each LASSO model uses a tuned lambda that minimizes the 5-fold cross-validation error within its corresponding data. This function uses the lambda.min value in contrast to lambda.1se because its goal within the RAMEN package is to use LASSO to reduce the number of variables that are going to be used next for fitting pairwise interaction models in *lmGE()*. Since at this step variables are being selected based only on main effects, it is preferable to cast a "wider net" and select a slightly higher number of variables that could potentially have a strong interaction effect when paired with another variable. Furthermore, since in this case LASSO is being used as a screening procedure to select variables that will be fit separately in independent models and compared, the overfitting issue of using lambda.min does not impose a big concern. After finding the best lambda value, the sequence of models is fit by coordinate descent using *glmnet()*.
 #'
@@ -76,56 +76,51 @@ selectVariables = function(VMR_df,
       genot_VMRi = cbind(genot_VMRi,covariates_VMRi)
       environ_VMRi = cbind(environ_VMRi, covariates_VMRi)
       environ_genot_VMRi = cbind(environ_genot_VMRi, covariates_VMRi)
-    }
+      ncol_covariates = ncol(covariates_VMRi)
+    } else ncol_covariates = 0
 
     ### Run LASSOs
     ## Genotype only
-    #conduct k-fold cross-validation to find optimal lambda value
-    lambda_genot <- glmnet::cv.glmnet(x = genot_VMRi, #Variables
-                              y = summVMRi[,VMR_i$VMR_index], #Response
-                              alpha = 1,
-                              nfolds = 5)$lambda.min
+    #Get coefficients with the optimal lambda found by k-fold cross-validation
+    coef_genot = stats::coef(glmnet::cv.glmnet(x = genot_VMRi, #Variables
+                                               y = summVMRi[,VMR_i$VMR_index], #Response
+                                               alpha = 1,
+                                               nfolds = 5,
+                                               penalty.factor = c(rep(1, ncol(genot_VMRi)- ncol_covariates),
+                                                                rep(0, ncol_covariates))), #Unpenalize the variables in covariates (i.e., force LASSO to keep them in all the situations)
+                           s = "lambda.min")
     #Select the variables with a coefficient > 0
-    lasso_genot <- glmnet::glmnet(x = genot_VMRi, #Variables
-                          y = summVMRi[,VMR_i$VMR_index], #Response
-                          alpha = 1,
-                          lambda = lambda_genot)
-    coef_genot = stats::coef(lasso_genot)
     coef_genot = coef_genot[coef_genot[,1] > 0,]
     selected_vars_genot = names(coef_genot)[-1]
-    selected_vars_genot = selected_vars_genot[!selected_vars_genot %in% colnames(covariates)] #Remove covariates in case they are selected
+    selected_vars_genot = selected_vars_genot[!selected_vars_genot %in% colnames(covariates)] #Remove covariates from selected variables
 
     #Environment only
-    #conduct k-fold cross-validation to find optimal lambda value
-    lambda_env <- glmnet::cv.glmnet(x = environ_VMRi, #Variables
-                            y = summVMRi[,VMR_i$VMR_index], #Response
-                            alpha = 1,
-                            nfolds = 5)$lambda.min
+    #Get coefficients with the optimal lambda found by k-fold cross-validation
+    coef_env = stats::coef(glmnet::cv.glmnet(x = environ_VMRi, #Variables
+                                      y = summVMRi[,VMR_i$VMR_index], #Response
+                                      alpha = 1,
+                                      nfolds = 5,
+                                      penalty.factor = c(rep(1, ncol(environ_VMRi)- ncol_covariates), #Unpenalize the variables in covariates (i.e., force LASSO to keep them in all the situations)
+                                                         rep(0, ncol_covariates))),
+                    s = "lambda.min")
     #Select the variables with a coefficient > 0
-    lasso_env <- glmnet::glmnet(x = environ_VMRi, #Variables
-                        y = summVMRi[,VMR_i$VMR_index], #Response
-                        alpha = 1,
-                        lambda = lambda_env)
-    coef_env = stats::coef(lasso_env)
     coef_env = coef_env[coef_env[,1]>0,]
     selected_vars_env = names(coef_env)[-1] #Remove the intercept from the variables
-    selected_vars_env = selected_vars_env[!selected_vars_env %in% colnames(covariates)] #Remove covariates in case they are selected
+    selected_vars_env = selected_vars_env[!selected_vars_env %in% colnames(covariates)] #Remove covariates from selected variables
 
     #Joint (environment + genotype)
-    #conduct k-fold cross-validation to find optimal lambda value
-    lambda_joint <- glmnet::cv.glmnet(x = environ_genot_VMRi, #Variables
-                              y = summVMRi[,VMR_i$VMR_index], #Response
-                              alpha = 1,
-                              nfolds = 5)$lambda.min
+    #Get coefficients with the optimal lambda found by k-fold cross-validation
+    coef_joint = stats::coef(glmnet::cv.glmnet(x = environ_genot_VMRi, #Variables
+                                               y = summVMRi[,VMR_i$VMR_index], #Response
+                                               alpha = 1,
+                                               nfolds = 5,
+                                               penalty.factor = c(rep(1, ncol(environ_genot_VMRi) - ncol_covariates),
+                                                                  rep(0, ncol_covariates))), #Unpenalize the variables in covariates (i.e., force LASSO to keep them in all the situations)
+                             s = "lambda.min")
     #Select the variables with a coefficient > 0
-    lasso_joint <- glmnet::glmnet(x = environ_genot_VMRi, #Variables
-                          y = summVMRi[,VMR_i$VMR_index], #Response
-                          alpha = 1,
-                          lambda = lambda_joint)
-    coef_joint = stats::coef(lasso_joint)
     coef_joint = coef_joint[coef_joint[,1]>0,]
     selected_vars_joint = names(coef_joint)[-1] #Remove the intercept from the variables
-    selected_vars_joint = selected_vars_joint[!selected_vars_joint %in% colnames(covariates)] #Remove covariates in case they are selected
+    selected_vars_joint = selected_vars_joint[!selected_vars_joint %in% colnames(covariates)] #Remove covariates from selected variables
 
     #Merge results
     selected_union_genot = c(selected_vars_genot, selected_vars_joint) %>%
