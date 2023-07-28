@@ -14,7 +14,7 @@ lmGE(
 )
 }
 \arguments{
-\item{selected_variables}{A data frame obtained with \emph{RAMEN::selectVariables()}. This data frame must contain three columns: 'VMR_index' with characters of an unique ID of each VMR; ´selected_genot' and 'selected_env' with the SNPs and environmental variables, respectively, that will be used for fitting the genotype (G), environment (E), additive (G + E) or interaction (G x E) models. The columns 'selected_env' and 'selected_genot' must contain lists as elements; VMRs with no environmental or genotype selected variables must contain an empty list with NULL, NA or "" inside.}
+\item{selected_variables}{A data frame obtained with \emph{RAMEN::selectVariables()}. This data frame must contain three columns: 'VMR_index' with characters of an unique ID of each VMR; ´selected_genot' and 'selected_env' with the SNPs and environmental variables, respectively, that will be used for fitting the genotype (G), environment (E), additive (G + E) or interaction (G x E) models. The columns 'selected_env' and 'selected_genot' must contain lists as elements; VMRs with no environmental or genotype selected variables must contain an empty list with NULL, NA , character(0) or "" inside.}
 
 \item{summarized_methyl_VMR}{A data frame containing each individual's VMR summarized region methylation. It is suggested to use the output of RAMEN::summarizeVMRs().Rows must reflects individuals, and columns VMRs The names of the columns must correspond to the index of said VMR, and it must match the index of VMR_df$VMR_index. The names of the rows must correspond to the sample IDs, and must match with the IDs of the other matrices.}
 

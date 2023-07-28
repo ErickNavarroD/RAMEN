@@ -26,7 +26,7 @@
 #' After defining the best explanatory model for each VMR, an ANOVA test is conducted to test whether this model is significantly better at explaining the DNAme variability of the respective region than the basal model (i.e., the model including only the specified covariates). The respective F- and p-values are reported in the final returned object. Additionally, a False Discovery Rate (FDR) method is applied to the p-values to address the multiple hypothesis testing.
 #' Finally, the variance is decomposed and the relative R2 contribution of each of the variables of interest (G, E and GxE) is reported. This decomposition is done using the relaimpo R package, using the Lindeman, Merenda and Gold (lmg) method, which is based on the heuristic approach of averaging the relative R contribution of each variable over all input orders in the linear model. The estimation of the partitioned R2 of each factor in the models was conducted keeping the covariates always in the model as first entry (i.e., the variables specified in covariates did not change order). For further information, we suggest the users to read the documentation and publication of the relaimpo R package (Grömping, 2006).
 #'
-#' @param selected_variables A data frame obtained with *RAMEN::selectVariables()*. This data frame must contain three columns: 'VMR_index' with characters of an unique ID of each VMR; ´selected_genot' and 'selected_env' with the SNPs and environmental variables, respectively, that will be used for fitting the genotype (G), environment (E), additive (G + E) or interaction (G x E) models. The columns 'selected_env' and 'selected_genot' must contain lists as elements; VMRs with no environmental or genotype selected variables must contain an empty list with NULL, NA or "" inside.
+#' @param selected_variables A data frame obtained with *RAMEN::selectVariables()*. This data frame must contain three columns: 'VMR_index' with characters of an unique ID of each VMR; ´selected_genot' and 'selected_env' with the SNPs and environmental variables, respectively, that will be used for fitting the genotype (G), environment (E), additive (G + E) or interaction (G x E) models. The columns 'selected_env' and 'selected_genot' must contain lists as elements; VMRs with no environmental or genotype selected variables must contain an empty list with NULL, NA , character(0) or "" inside.
 #' @param environmental_matrix A matrix of environmental variables. Only numeric values are supported. In case of factor variables, it is recommended to encode them as numbers or re-code them into dummy variables if there are more than two levels. Columns must correspond to environmental variables and rows to individuals. Row names must be the individual IDs.
 #' @param genotype_matrix A matrix of number-encoded genotypes. Columns must correspond to samples, and rows to SNPs. We suggest using a gene-dosage model, which would encode the SNPs ordinally depending on the genotype allele charge, such as 2 (AA), 1 (AB) and 0 (BB). The column names must correspond with individual IDs.
 #' @param summarized_methyl_VMR A data frame containing each individual's VMR summarized region methylation. It is suggested to use the output of RAMEN::summarizeVMRs().Rows must reflects individuals, and columns VMRs The names of the columns must correspond to the index of said VMR, and it must match the index of VMR_df$VMR_index. The names of the rows must correspond to the sample IDs, and must match with the IDs of the other matrices.
@@ -78,8 +78,8 @@ lmGE = function(selected_variables,
 
   #Remove VMRs that have no selected G and no selected E
   selected_variables = selected_variables %>%
-    dplyr::filter(!(selected_env %in% c(list(NULL), list(""), list(NA)) &
-                     selected_genot %in% c(list(NULL), list(""), list(NA))))
+    dplyr::filter(!(selected_env %in% c(list(NULL), list(""), list(NA), list(character(0))) &
+                     selected_genot %in% c(list(NULL), list(""), list(NA), list(character(0)))))
 
   #Select the winning model
   winning_models = foreach::foreach(VMR_i = iterators::iter(selected_variables, by = "row"),
@@ -87,14 +87,14 @@ lmGE = function(selected_variables,
                                       #Create the data frame with all the information for each VMR
                                       summ_vmr_i = as.matrix(summarized_methyl_VMR[,VMR_i$VMR_index])
                                       colnames(summ_vmr_i) = "DNAme"
-                                      if (!VMR_i$selected_env %in% c(list(NULL), list(""), list(NA))) {
+                                      if (!VMR_i$selected_env %in% c(list(NULL), list(""), list(NA), list(character(0)))) {
                                         if(length(VMR_i$selected_env[[1]]) == 1){
                                           env_i = environmental_matrix[rownames(summarized_methyl_VMR), unlist(VMR_i$selected_env)] %>%
                                             as.matrix()
                                           colnames(env_i) = unlist(VMR_i$selected_env)
                                         } else env_i = environmental_matrix[rownames(summarized_methyl_VMR), unlist(VMR_i$selected_env)]
                                       } else env_i = NULL
-                                      if (!VMR_i$selected_genot %in% c(list(NULL), list(""), list(NA))) {
+                                      if (!VMR_i$selected_genot %in% c(list(NULL), list(""), list(NA), list(character(0)))) {
                                         if(length(VMR_i$selected_genot[[1]]) == 1 ){
                                           genot_i = genotype_matrix[unlist(VMR_i$selected_genot),rownames(summarized_methyl_VMR)] %>%
                                             as.matrix()
@@ -113,7 +113,7 @@ lmGE = function(selected_variables,
                                         paste( collapse = " + ")
 
                                       ## Fit models involving G if G has selected variables
-                                      if (!VMR_i$selected_genot %in% c(list(NULL), list(""), list(NA))) {
+                                      if (!VMR_i$selected_genot %in% c(list(NULL), list(""), list(NA), list(character(0)))) {
                                         models_g_involving_df = foreach::foreach(SNP = unlist(VMR_i$selected_genot),
                                                                                  .combine = "rbind") %do% { #For each SNP
                                                                                    ### Fit G models
@@ -127,7 +127,7 @@ lmGE = function(selected_variables,
                                                                                    model_g_df$tot_r_squared = summary(model_g)$r.squared
                                                                                    #model_g_df$tot_adj_r_squared = summary(model_g)$adj.r.squared
 
-                                                                                   if (!VMR_i$selected_env %in% c(list(NULL), list(""), list(NA))){
+                                                                                   if (!VMR_i$selected_env %in% c(list(NULL), list(""), list(NA), list(character(0)))){
                                                                                      ### Fit GxE and G+E models if E is not empty
                                                                                      models_joint_df = foreach::foreach(env = unlist(VMR_i$selected_env),  #For every env var
                                                                                                                .combine = "rbind") %do% {
@@ -163,7 +163,7 @@ lmGE = function(selected_variables,
                                       } else models_g_involving_df = NULL
 
                                       ### Compute E models if E is not empty
-                                      if (!VMR_i$selected_env %in% c(list(NULL), list(""), list(NA))){ #For each env var
+                                      if (!VMR_i$selected_env %in% c(list(NULL), list(""), list(NA), list(character(0)))){ #For each env var
                                         models_e_df = foreach::foreach(env = unlist(VMR_i$selected_env),  #For every env var
                                                               .combine = "rbind") %do% {
                                                                 #Fit E models
