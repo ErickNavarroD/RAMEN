@@ -61,13 +61,16 @@ selectVariables = function(VMR_df,
        VMR_i$SNP %in% list(NA) |
        VMR_i$SNP %in% list(character(0))){
       genot_VMRi = c()
+      any_snp = FALSE
     } else if (length(VMR_i$SNP[[1]]) == 1){ #Special case of sub-setting if SNP is only one because the result is a vector and not a matrix
       genot_VMRi = genotype_matrix[unlist(VMR_i$SNP), rownames(summVMRi)] %>%
         as.matrix()
       colnames(genot_VMRi) = VMR_i$SNP[[1]]
+      any_snp = TRUE
     } else {
       genot_VMRi = genotype_matrix[unlist(VMR_i$SNP), rownames(summVMRi)] %>%
         t()
+      any_snp = TRUE
     }
     environ_VMRi = environmental_matrix[rownames(summVMRi),]
     environ_genot_VMRi = cbind(genot_VMRi, environ_VMRi)
@@ -83,7 +86,7 @@ selectVariables = function(VMR_df,
     ### Run LASSOs
     ## Genotype only
     #Get coefficients with the optimal lambda found by k-fold cross-validation
-    if (!is.null(genot_VMRi)){ #Catch cases when VMRs dont have surrounding genotyped SNPs
+    if (any_snp){ #Catch cases when VMRs dont have surrounding genotyped SNPs
       coef_genot = stats::coef(glmnet::cv.glmnet(x = genot_VMRi, #Variables
                                                  y = summVMRi[,VMR_i$VMR_index], #Response
                                                  alpha = 1,
@@ -112,7 +115,7 @@ selectVariables = function(VMR_df,
       selected_vars_env = names(coef_env)[-1] #Remove the intercept from the variables
       selected_vars_env = selected_vars_env[!selected_vars_env %in% colnames(covariates)] #Remove covariates from selected variables
 
-      if (!is.null(genot_VMRi)){
+      if (any_snp){
         #Joint (environment + genotype) only when we have Genotype and Environmental variables.
         #Get coefficients with the optimal lambda found by k-fold cross-validation
         coef_joint = stats::coef(glmnet::cv.glmnet(x = environ_genot_VMRi, #Variables
@@ -130,7 +133,7 @@ selectVariables = function(VMR_df,
     } else {
       selected_vars_env = character(0)
       selected_vars_joint = character(0)
-      }
+    }
 
     #Merge results
     selected_union_genot = c(selected_vars_genot, selected_vars_joint) %>%
@@ -147,5 +150,6 @@ selectVariables = function(VMR_df,
     selected_variables_final$selected_env = list(selected_union_env)
     selected_variables_final
   }
+
   return(lasso_results)
 }
