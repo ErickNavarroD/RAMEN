@@ -9,7 +9,7 @@
 #'
 #' Each LASSO model uses a tuned lambda that minimizes the 5-fold cross-validation error within its corresponding data. This function uses the lambda.min value in contrast to lambda.1se because its goal within the RAMEN package is to use LASSO to reduce the number of variables that are going to be used next for fitting pairwise interaction models in *lmGE()*. Since at this step variables are being selected based only on main effects, it is preferable to cast a "wider net" and select a slightly higher number of variables that could potentially have a strong interaction effect when paired with another variable. Furthermore, since in this case LASSO is being used as a screening procedure to select variables that will be fit separately in independent models and compared, the overfitting issue of using lambda.min does not impose a big concern. After finding the best lambda value, the sequence of models is fit by coordinate descent using *glmnet()*.
 #'
-#' @param VMR_df A data frame converted from a GRanges object. Recommended to use the output of *RAMEN::findCisSNPs()*. Must have one VMR per row, and contain the following columns: "VMR_index" (a unique ID for each VMR in VMR_df AS CHARACTERS) and "SNP" (a column with a list as observation, containing the name of the SNPs surrounding the corresponding VMR).  The SNPs contained in the "SNP" column must be present in the object that is indicated in the genotype_matrix argument, and it must contain all the VMRs contained in summarized_methyl_VMR. VMRs with no surrounding SNPs must have an empty list in the SNP column (either list(NULL), list(NA) or list("")).
+#' @param VMR_df A data frame converted from a GRanges object. Recommended to use the output of *RAMEN::findCisSNPs()*. Must have one VMR per row, and contain the following columns: "VMR_index" (a unique ID for each VMR in VMR_df AS CHARACTERS) and "SNP" (a column with a list as observation, containing the name of the SNPs surrounding the corresponding VMR).  The SNPs contained in the "SNP" column must be present in the object that is indicated in the genotype_matrix argument, and it must contain all the VMRs contained in summarized_methyl_VMR. VMRs with no surrounding SNPs must have an empty list in the SNP column (either list(NULL), list(NA), list("") or list(character(0)) ).
 #' @param environmental_matrix A matrix of environmental variables. Only numeric values are supported. In case of factor variables, it is recommended to encode them as numbers or re-code them into dummy variables if there are more than two levels. Columns must correspond to environmental variables and rows to individuals. Row names must be the individual IDs.
 #' @param genotype_matrix A matrix of number-encoded genotypes. Columns must correspond to samples, and rows to SNPs. We suggest using a gene-dosage model, which would encode the SNPs ordinally depending on the genotype allele charge, such as 2 (AA), 1 (AB) and 0 (BB). The column names must correspond with individual IDs.
 #' @param summarized_methyl_VMR A data frame containing each individual's VMR summarized region methylation. It is suggested to use the output of RAMEN::summarizeVMRs().Rows must reflects individuals, and columns VMRs The names of the columns must correspond to the index of said VMR, and it must match the index of VMR_df$VMR_index. The names of the rows must correspond to the sample IDs, and must match with the IDs of the other matrices.
@@ -58,7 +58,8 @@ selectVariables = function(VMR_df,
     #subset the genotyping data and match genotype, environment and DNAme IDs
     if(VMR_i$SNP %in% list(NULL) | # Catch VMRs with no surrounding SNPs
        VMR_i$SNP %in% list("") |
-       VMR_i$SNP %in% list(NA) ){
+       VMR_i$SNP %in% list(NA) |
+       VMR_i$SNP %in% list(character(0))){
       genot_VMRi = c()
     } else if (length(VMR_i$SNP[[1]]) == 1){ #Special case of sub-setting if SNP is only one because the result is a vector and not a matrix
       genot_VMRi = genotype_matrix[unlist(VMR_i$SNP), rownames(summVMRi)] %>%
@@ -82,45 +83,54 @@ selectVariables = function(VMR_df,
     ### Run LASSOs
     ## Genotype only
     #Get coefficients with the optimal lambda found by k-fold cross-validation
-    coef_genot = stats::coef(glmnet::cv.glmnet(x = genot_VMRi, #Variables
-                                               y = summVMRi[,VMR_i$VMR_index], #Response
-                                               alpha = 1,
-                                               nfolds = 5,
-                                               penalty.factor = c(rep(1, ncol(genot_VMRi)- ncol_covariates),
-                                                                rep(0, ncol_covariates))), #Unpenalize the variables in covariates (i.e., force LASSO to keep them in all the situations)
-                           s = "lambda.min")
-    #Select the variables with a coefficient > 0
-    coef_genot = coef_genot[coef_genot[,1] > 0,]
-    selected_vars_genot = names(coef_genot)[-1]
-    selected_vars_genot = selected_vars_genot[!selected_vars_genot %in% colnames(covariates)] #Remove covariates from selected variables
+    if (!is.null(genot_VMRi)){ #Catch cases when VMRs dont have surrounding genotyped SNPs
+      coef_genot = stats::coef(glmnet::cv.glmnet(x = genot_VMRi, #Variables
+                                                 y = summVMRi[,VMR_i$VMR_index], #Response
+                                                 alpha = 1,
+                                                 nfolds = 5,
+                                                 penalty.factor = c(rep(1, ncol(genot_VMRi)- ncol_covariates),
+                                                                    rep(0, ncol_covariates))), #Unpenalize the variables in covariates (i.e., force LASSO to keep them in all the situations)
+                               s = "lambda.min")
+      #Select the variables with a coefficient > 0
+      coef_genot = coef_genot[abs(coef_genot[,1]) > 0,]
+      selected_vars_genot = names(coef_genot)[-1]
+      selected_vars_genot = selected_vars_genot[!selected_vars_genot %in% colnames(covariates)] #Remove covariates from selected variables
+    } else selected_vars_genot = character(0)
 
     #Environment only
     #Get coefficients with the optimal lambda found by k-fold cross-validation
-    coef_env = stats::coef(glmnet::cv.glmnet(x = environ_VMRi, #Variables
-                                      y = summVMRi[,VMR_i$VMR_index], #Response
-                                      alpha = 1,
-                                      nfolds = 5,
-                                      penalty.factor = c(rep(1, ncol(environ_VMRi)- ncol_covariates), #Unpenalize the variables in covariates (i.e., force LASSO to keep them in all the situations)
-                                                         rep(0, ncol_covariates))),
-                    s = "lambda.min")
-    #Select the variables with a coefficient > 0
-    coef_env = coef_env[coef_env[,1]>0,]
-    selected_vars_env = names(coef_env)[-1] #Remove the intercept from the variables
-    selected_vars_env = selected_vars_env[!selected_vars_env %in% colnames(covariates)] #Remove covariates from selected variables
-
-    #Joint (environment + genotype)
-    #Get coefficients with the optimal lambda found by k-fold cross-validation
-    coef_joint = stats::coef(glmnet::cv.glmnet(x = environ_genot_VMRi, #Variables
+    if (!is.null(environ_VMRi)){ #catch scenario where users would not add environmental variables
+      coef_env = stats::coef(glmnet::cv.glmnet(x = environ_VMRi, #Variables
                                                y = summVMRi[,VMR_i$VMR_index], #Response
                                                alpha = 1,
                                                nfolds = 5,
-                                               penalty.factor = c(rep(1, ncol(environ_genot_VMRi) - ncol_covariates),
-                                                                  rep(0, ncol_covariates))), #Unpenalize the variables in covariates (i.e., force LASSO to keep them in all the situations)
+                                               penalty.factor = c(rep(1, ncol(environ_VMRi)- ncol_covariates), #Unpenalize the variables in covariates (i.e., force LASSO to keep them in all the situations)
+                                                                  rep(0, ncol_covariates))),
                              s = "lambda.min")
-    #Select the variables with a coefficient > 0
-    coef_joint = coef_joint[coef_joint[,1]>0,]
-    selected_vars_joint = names(coef_joint)[-1] #Remove the intercept from the variables
-    selected_vars_joint = selected_vars_joint[!selected_vars_joint %in% colnames(covariates)] #Remove covariates from selected variables
+      #Select the variables with a coefficient > 0
+      coef_env = coef_env[abs(coef_env[,1]) > 0,]
+      selected_vars_env = names(coef_env)[-1] #Remove the intercept from the variables
+      selected_vars_env = selected_vars_env[!selected_vars_env %in% colnames(covariates)] #Remove covariates from selected variables
+
+      if (!is.null(genot_VMRi)){
+        #Joint (environment + genotype) only when we have Genotype and Environmental variables.
+        #Get coefficients with the optimal lambda found by k-fold cross-validation
+        coef_joint = stats::coef(glmnet::cv.glmnet(x = environ_genot_VMRi, #Variables
+                                                   y = summVMRi[,VMR_i$VMR_index], #Response
+                                                   alpha = 1,
+                                                   nfolds = 5,
+                                                   penalty.factor = c(rep(1, ncol(environ_genot_VMRi) - ncol_covariates),
+                                                                      rep(0, ncol_covariates))), #Unpenalize the variables in covariates (i.e., force LASSO to keep them in all the situations)
+                                 s = "lambda.min")
+        #Select the variables with an abs(coefficient) > 0
+        coef_joint = coef_joint[abs(coef_joint[,1]) > 0,]
+        selected_vars_joint = names(coef_joint)[-1] #Remove the intercept from the variables
+        selected_vars_joint = selected_vars_joint[!selected_vars_joint %in% colnames(covariates)] #Remove covariates from selected variables
+      } else selected_vars_joint = character(0)
+    } else {
+      selected_vars_env = character(0)
+      selected_vars_joint = character(0)
+      }
 
     #Merge results
     selected_union_genot = c(selected_vars_genot, selected_vars_joint) %>%

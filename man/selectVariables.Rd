@@ -14,7 +14,7 @@ selectVariables(
 )
 }
 \arguments{
-\item{VMR_df}{A data frame converted from a GRanges object. Recommended to use the output of \emph{RAMEN::findCisSNPs()}. Must have one VMR per row, and contain the following columns: "VMR_index" (a unique ID for each VMR in VMR_df AS CHARACTERS) and "SNP" (a column with a list as observation, containing the name of the SNPs surrounding the corresponding VMR).  The SNPs contained in the "SNP" column must be present in the object that is indicated in the genotype_matrix argument, and it must contain all the VMRs contained in summarized_methyl_VMR. VMRs with no surrounding SNPs must have an empty list in the SNP column (either list(NULL), list(NA) or list("")).}
+\item{VMR_df}{A data frame converted from a GRanges object. Recommended to use the output of \emph{RAMEN::findCisSNPs()}. Must have one VMR per row, and contain the following columns: "VMR_index" (a unique ID for each VMR in VMR_df AS CHARACTERS) and "SNP" (a column with a list as observation, containing the name of the SNPs surrounding the corresponding VMR).  The SNPs contained in the "SNP" column must be present in the object that is indicated in the genotype_matrix argument, and it must contain all the VMRs contained in summarized_methyl_VMR. VMRs with no surrounding SNPs must have an empty list in the SNP column (either list(NULL), list(NA), list("") or list(character(0)) ).}
 
 \item{genotype_matrix}{A matrix of number-encoded genotypes. Columns must correspond to samples, and rows to SNPs. We suggest using a gene-dosage model, which would encode the SNPs ordinally depending on the genotype allele charge, such as 2 (AA), 1 (AB) and 0 (BB). The column names must correspond with individual IDs.}
 
