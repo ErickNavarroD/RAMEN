@@ -19,9 +19,9 @@ knitr::opts_chunk$set(
 
 <!-- badges: end -->
 
-## Introduction
+## Overview
 
-Regional Association of Methylation variability with genotype and ENvironment (RAMEN) is an R package whose goal is to identify Variable Methylated Regions (VMRs) in microarray DNA methylation data. Additionally, using Genotype (G) and Environmental (E) data, it can identify which G, E, G + E or GxE model better explains this variability.
+Regional Association of Methylation variability with genotype and ENvironment (RAMEN) is an R package whose goal is to identify Variable Methylated Regions (VMRs) in microarray DNA methylation data. Additionally, using Genotype (G) and Environmental (E) data, it can identify which G, E, G+E or GxE model better explains this variability.
 
 ## Installation
 
@@ -48,7 +48,7 @@ Altogether, these functions create a pipeline that takes a set of individuals wi
 
 ## Usage
 
-This is a basic example which shows you how to solve a common problem:
+The creation of a package vignette is currently in progress. However, the documentation of the functions is already completed and provide detailed information about their use. 
 
 ```{r example}
 library(RAMEN)
@@ -57,13 +57,20 @@ library(RAMEN)
 
 ## Variations to the standard workflow
 
+Besides using RAMEN for completing the analysis mentioned above, the package provides individual functions that could help users in other tasks, such as: 
+
+  -   Reduction of tests prior to an EWAS or differential methylation analysis (i.e., conducting the analyses on identified VMRs to reduce redundant tests by grouping nearby correlated CpGs and to avoid tests in non-variant regions)
+  -   Fit additive and interaction models given a set of variables of interest and select the best explanatory model for DNAme data. 
+  -   Quickly identify SNPs in *cis* of CpG probes for variable reduction during mQTL analyses.
+  -   Get the median correlation of probes in regions of interest (with `medCorVMR()`).
+
 ## How to get help for RAMEN
 
-If you have any question about RAMEN usage, please post an issue in this github repository so that future users also benefit from the feedback. As an alternative option, you can contact Erick Navarro-Delgado at [erick.navarrodelgado\@bcchr.ca](mailto:erick.navarrodelgado@bcchr.ca){.email}.
+If you have any question about RAMEN usage, please post an issue in this github repository so that future users also benefit from the discussion As an alternative option, you can contact Erick Navarro-Delgado at [erick.navarrodelgado\@bcchr.ca](mailto:erick.navarrodelgado@bcchr.ca){.email}.
 
 ## Acknowledgments
 
-I want to thank Dr. Keegan Korthauer and Dr. Michael Kobor for their supervision, feedback and support throughout the development of this package. Also, I want to thank the members of the Kobor and Korthauer lab for their comments and discussion.
+I want to thank Dr. Keegan Korthauer and Dr. Michael S. Kobor for their supervision, feedback and support throughout the development of this package. Also, I want to thank the members of the Kobor and Korthauer lab for their comments and discussion.
 
 The RAMEN package logo was created by Carlos Cortés-Quiñones and Dorothy Lin. Carlos created the drawing, and Dorothy refined the logo and did the lettering.
 
