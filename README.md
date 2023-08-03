@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# RAMEN <a href="https://github.com/ErickNavarroD/RAMEN"><img src="man/figures/logo.png" align="right" height="138"/></a>
+# RAMEN <a href="https://github.com/ErickNavarroD/RAMEN"><img src="man/figures/logo.png" align="right" height="150"/></a>
 
 <!-- badges: start -->
 <!-- badges: end -->
