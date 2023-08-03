@@ -45,7 +45,9 @@ information, and generates an estimation of the contribution of the
 genotype and environment to its DNA methylation variability.
 
 <center>
-<img src="man/figures/RAMEN_pipeline.png" width="350"/>
+
+<img src="man/figures/RAMEN_pipeline.png" width="400"/>
+
 </center>
 
 ## Usage
