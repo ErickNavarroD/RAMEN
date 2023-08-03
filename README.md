@@ -45,7 +45,11 @@ individuals with genotype, environmental exposure and DNA methylation
 information, and generates an estimation of the contribution of the
 genotype and environment to its DNA methylation variability.
 
-<a href="man/figures/RAMEN_pipeline.png" width="50%">RAMEN workflow</a>
+<figure>
+<img src="man/figures/RAMEN_pipeline.png" style="width:50.0%"
+alt="RAMEN workflow" />
+<figcaption aria-hidden="true">RAMEN workflow</figcaption>
+</figure>
 
 ## Usage
 
