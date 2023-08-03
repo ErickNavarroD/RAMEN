@@ -27,13 +27,33 @@ devtools::install_github("ErickNavarroD/RAMEN")
 
 ## Core functions
 
+RAMEN consists of five main functions:
+
+- `findVMRs()` identifies Variable Methylated Regions (VMRs) in
+  microarrays
+- `summarizeVMRs()`summarizes the regional methylation state of each VMR
+- `findCisSNPs()` identifies the SNPs in *cis* of each VMR
+- `selectVariables()` conducts a LASSO-based variable selection strategy
+  to identify potentially relevant *cis* SNPs and environmental
+  variables
+- `lmGE()` fits linear single-variable genetic (G) and environmental
+  (E), and pairwise additive (G+E) and interaction (GxE) linear models
+  and select the best explanatory model per VMR.
+
+Altogether, these functions create a pipeline that takes a set of
+individuals with genotype, environmental exposure and DNA methylation
+information, and generates an estimation of the contribution of the
+genotype and environment to its DNA methylation variability.
+
+![RAMEN workflow](%22man/figures/RAMEN_pipeline.png%22)
+
 ## Usage
 
 This is a basic example which shows you how to solve a common problem:
 
 ``` r
 library(RAMEN)
-## basic example code
+## Vignette in progress
 ```
 
 ## Variations to the standard workflow
@@ -50,7 +70,11 @@ As an alternative option, you can contact Erick Navarro-Delgado at
 I want to thank Dr. Keegan Korthauer and Dr. Michael Kobor for their
 supervision, feedback and support throughout the development of this
 package. Also, I want to thank the members of the Kobor and Korthauer
-lab for their comments and discussion, specially to Dr. Sarah Merrill.
+lab for their comments and discussion.
+
+The RAMEN package logo was created by Carlos Cortés-Quiñones and Dorothy
+Lin. Carlos created the drawing, and Dorothy refined the logo and did
+the lettering.
 
 ## Funding
 
