@@ -42,7 +42,7 @@ RAMEN consists of five main functions:
 -   `selectVariables()` conducts a LASSO-based variable selection strategy to identify potentially relevant *cis* SNPs and environmental variables
 -   `lmGE()` fits linear single-variable genetic (G) and environmental (E), and pairwise additive (G+E) and interaction (GxE) linear models and select the best explanatory model per VMR.
 
-Altogether, these functions create a pipeline that takes a set of individuals with genotype, environmental exposure and DNA methylation information, and generates an estimation of the contribution of the genotype and environment to its DNA methylation variability.
+Altogether, these functions create a pipeline that takes a set of individuals with genotype, environmental exposure and DNA methylation information, and generates an estimation of the contribution of the genotype and environment to its DNA methylation variability. Functions that conduct computationally intensive tasks are compatible with parallel computing. 
 
 <img src="man/figures/RAMEN_pipeline.png" width="600"/>
 

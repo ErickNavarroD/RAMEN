@@ -42,7 +42,9 @@ RAMEN consists of five main functions:
 Altogether, these functions create a pipeline that takes a set of
 individuals with genotype, environmental exposure and DNA methylation
 information, and generates an estimation of the contribution of the
-genotype and environment to its DNA methylation variability.
+genotype and environment to its DNA methylation variability. Functions
+that conduct computationally intensive tasks are compatible with
+parallel computing.
 
 <img src="man/figures/RAMEN_pipeline.png" width="600"/>
 
