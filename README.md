@@ -12,8 +12,7 @@ Regional Association of Methylation variability with genotype and
 ENvironment (RAMEN) is an R package whose goal is to identify Variable
 Methylated Regions (VMRs) in microarray DNA methylation data.
 Additionally, using Genotype (G) and Environmental (E) data, it can
-identify which G, E, G + E or GxE model better explains this
-variability.
+identify which G, E, G+E or GxE model better explains this variability.
 
 ## Installation
 
@@ -45,15 +44,9 @@ individuals with genotype, environmental exposure and DNA methylation
 information, and generates an estimation of the contribution of the
 genotype and environment to its DNA methylation variability.
 
-<center>
-
-<figure>
-<img src="man/figures/RAMEN_pipeline.png" style="width:50.0%"
-alt="RAMEN workflow" />
-<figcaption aria-hidden="true">RAMEN workflow</figcaption>
-</figure>
-
-</center>
+<p style="text-align:center">
+<img src="man/figures/RAMEN_pipeline.png" width="350" align="center"/>
+</p>
 
 ## Usage
 
