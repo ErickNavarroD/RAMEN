@@ -43,7 +43,7 @@ map_revmap_names = function(positions, manifest_hvp){
 #' of the probe in the genome), CHR (chromosome), TargetID (probe name) and STRAND (this is very important to set up, since
 #' the VMRs will only be created based on CpGs on the same strand; if the positions are reported based on a single DNA strand,
 #' this should contain either a vector of only "+", "-" or "*" for all of the probes).
-#' @param methylation_data A data frame containing M or B values, with samples as columns and probes as rows.
+#' @param methylation_data A data frame containing M or B values, with samples as columns and probes as rows. Data is expected to have already passed through quality control and cleaning steps.
 #' @param cor_threshold Numeric value (0-1) to be used as the median pearson correlation threshold for identifying VMRs (i.e.
 #' all VMRs will have a median pairwise probe correlation of this parameter).
 #' @param var_method Method to use to measure variability in the data set. The options are "mad" (median absolute deviation)
