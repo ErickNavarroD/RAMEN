@@ -222,6 +222,11 @@ lmGE = function(selected_variables,
 
                                       #Test the winning model against the basal one and decompose variance for the G, E and GxE components
                                       model_basal = stats::lm(data = as.data.frame(full_data_vmr_i), formula = stringr::str_glue("DNAme ~ ", basal_model_formula) ) #set the basal model for comparing the rest
+                                      if (model_selection == "AIC"){
+                                        winning_model_VMR_i$basal_AIC = stats::AIC(model_basal)
+                                      } else if(model_selection == "BIC"){
+                                        winning_model_VMR_i$basal_BIC = stats::BIC(model_basal)}
+                                      winning_model_VMR_i$basal_R2 = summary(model_basal)$r.squared
                                       if(winning_model_VMR_i$model_group == "G"){
                                         winning_lm = stats::lm(data = as.data.frame(full_data_vmr_i), formula = stringr::str_glue("DNAme ~ ", make.names(unlist(winning_model_VMR_i$variables)), " + ", basal_model_formula) )
                                         winning_model_VMR_i$F_val = stats::anova( winning_lm, model_basal)$F[2]
@@ -275,12 +280,12 @@ lmGE = function(selected_variables,
   if (model_selection == "AIC"){
     winning_models = winning_models %>%
       dplyr::mutate(FDR = stats::p.adjust(p_val, method = "fdr")) %>%
-      dplyr::select(VMR_index, model_group, variables, F_val, p_val, FDR, tot_r_squared, g_r_squared, e_r_squared, gxe_r_squared, AIC, second_winner, delta_aic, delta_r_squared) %>%
+      dplyr::select(VMR_index, model_group, variables, F_val, p_val, FDR, tot_r_squared, g_r_squared, e_r_squared, gxe_r_squared, AIC, second_winner, delta_aic, delta_r_squared, basal_AIC, basal_R2) %>%
       as.data.frame()
   } else if (model_selection == "BIC"){
     winning_models = winning_models %>%
       dplyr::mutate(FDR = stats::p.adjust(p_val, method = "fdr")) %>%
-      dplyr::select(VMR_index, model_group, variables, F_val, p_val, FDR, tot_r_squared, g_r_squared, e_r_squared, gxe_r_squared, BIC, second_winner, delta_bic, delta_r_squared) %>%
+      dplyr::select(VMR_index, model_group, variables, F_val, p_val, FDR, tot_r_squared, g_r_squared, e_r_squared, gxe_r_squared, BIC, second_winner, delta_bic, delta_r_squared, basal_BIC, basal_R2) %>%
       as.data.frame()
   }
 
