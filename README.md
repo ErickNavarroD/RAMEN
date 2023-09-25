@@ -51,7 +51,7 @@ parallel computing.
 ## Usage
 
 The creation of a package vignette is currently in progress. However,
-the documentation of the functions is already completed and provides
+the documentation of the functions is already complete and provides
 detailed information about their use.
 
 ``` r
