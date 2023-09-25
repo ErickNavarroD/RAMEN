@@ -30,15 +30,12 @@
 #' @param environmental_matrix A matrix of environmental variables. Only numeric values are supported. In case of factor variables, it is recommended to encode them as numbers or re-code them into dummy variables if there are more than two levels. Columns must correspond to environmental variables and rows to individuals. Row names must be the individual IDs.
 #' @param genotype_matrix A matrix of number-encoded genotypes. Columns must correspond to samples, and rows to SNPs. We suggest using a gene-dosage model, which would encode the SNPs ordinally depending on the genotype allele charge, such as 2 (AA), 1 (AB) and 0 (BB). The column names must correspond with individual IDs.
 #' @param summarized_methyl_VMR A data frame containing each individual's VMR summarized region methylation. It is suggested to use the output of RAMEN::summarizeVMRs().Rows must reflects individuals, and columns VMRs The names of the columns must correspond to the index of said VMR, and it must match the index of VMR_df$VMR_index. The names of the rows must correspond to the sample IDs, and must match with the IDs of the other matrices.
-#' @param covariates A matrix containing the variables that will be adjusted for in the final GxE models (e.g. cell type proportions, age, etc.).Column must correspond to covariates and rows to individuals. Row names must be the individual IDs.
+#' @param covariates A matrix containing the concomitant variables that will always be adjusted for in the final G/E/G+E/GxE models (e.g. cell type proportions, age, etc.).Column must correspond to covariates and rows to individuals. Row names must be the individual IDs.
 #' @param model_selection Which metric to use to select the best model for each VMR. Supported options are "AIC" or BIC". More information about which one to use can be found in the Details section.
 #' @return A data frame with the following columns:
 #'  - VMR_index: The unique ID of the VMR
 #'  - model_group: The group to which the winning model belongs to (i.e., G, E, G+E or GxE)
 #'  - variables: The variable(s) that are present in the winning model (excluding the covariates, which are included in all the models)
-#'  - F_val: F value from the ANOVA test comparing the basal model (i.e., only covariates) to the full model (i.e., including the G/E/G+E/G+E+GxE variables of the winning model respectively)
-#'  - p_val: p value from the ANOVA testing whether the more complex/full model is significantly better at capturing the data than the simpler/basal model (i.e., only the covariates). If the resulting p-value is sufficiently low (usually less than 0.05), we can interpret that the more complex model is significantly better than the basal model, and thus favor the G/E/G+E/GxE model. If the p-value is not sufficiently low (usually greater than 0.05), we should favor the basal model.
-#'  - FDR: False Discovery Rate applied to the ANOVA p values of the winning models. This controls the expected proportion of rejected null hypotheses that are false (incorrect rejections of the null) in a multiple hypothesis testing setting (i.e., one test per VMR).
 #'  - tot_r_squared: R squared of the winning model
 #'  - g_r_squared: Estimated R2 allocated to the G in the winning model, if applicable.
 #'  - e_r_squared: Estimated R2 allocated to the E in the winning model, if applicable.
@@ -47,6 +44,8 @@
 #'  - second_winner: The second group that possesses the next best model after the winning one (i.e., G, E, G+E or GxE). This column may have NA if the variables in selected_variables correspond only to one group (G or E), so that there is no other groups to compare to.
 #'  - delta_aic/delta_bic: The difference of AIC or BIC value (depending on the option specified in the argument model_selection) of the winning model and the best model from the second_winner group (i.e., G, E, G+E or GxE). This column may have NA if the variables in selected_variables correspond only to one group (G or E), so that there is no other groups to compare to.
 #'  - delta_r_squared: The R2 of the winning model - R2 of the second winner model. This column may have NA if the variables in selected_variables correspond only to one group (G or E), so that there is no other groups to compare to.
+#'  - basal_AIC/basal_BIC: AIC or BIC of the basal model (i.e., model fitted only with the concomitant variables specified in the *covariates* argument)
+#'  - basal_rsquared: The R2 of the basal model (i.e., model fitted only with the concomitant variables specified in the *covariates* argument)
 #' @importFrom foreach %dopar%
 #' @importFrom foreach %do%
 #' @export
@@ -226,11 +225,9 @@ lmGE = function(selected_variables,
                                         winning_model_VMR_i$basal_AIC = stats::AIC(model_basal)
                                       } else if(model_selection == "BIC"){
                                         winning_model_VMR_i$basal_BIC = stats::BIC(model_basal)}
-                                      winning_model_VMR_i$basal_R2 = summary(model_basal)$r.squared
+                                      winning_model_VMR_i$basal_rsquared = summary(model_basal)$r.squared
                                       if(winning_model_VMR_i$model_group == "G"){
                                         winning_lm = stats::lm(data = as.data.frame(full_data_vmr_i), formula = stringr::str_glue("DNAme ~ ", make.names(unlist(winning_model_VMR_i$variables)), " + ", basal_model_formula) )
-                                        winning_model_VMR_i$F_val = stats::anova( winning_lm, model_basal)$F[2]
-                                        winning_model_VMR_i$p_val = stats::anova( winning_lm, model_basal)$`Pr(>F)`[2]
                                         r_decomp = relaimpo::calc.relimp.lm(object =  winning_lm ,
                                                                             rela = FALSE,
                                                                             type = "last") #This would be the equivalent to using lmg and setting always = covariates.
@@ -239,8 +236,6 @@ lmGE = function(selected_variables,
                                         winning_model_VMR_i$gxe_r_squared = NA_real_
                                       }else if (winning_model_VMR_i$model_group == "E"){
                                         winning_lm = stats::lm(data = as.data.frame(full_data_vmr_i), formula = stringr::str_glue("DNAme ~ ", make.names(unlist(winning_model_VMR_i$variables))[1], " + ", basal_model_formula) )
-                                        winning_model_VMR_i$F_val = stats::anova( winning_lm, model_basal)$F[2]
-                                        winning_model_VMR_i$p_val = stats::anova( winning_lm, model_basal)$`Pr(>F)`[2]
                                         r_decomp = relaimpo::calc.relimp.lm(object =  winning_lm,
                                                                             rela = FALSE,
                                                                             type = "last") #This would be the equivalent to using lmg and setting always = covariates.
@@ -249,8 +244,6 @@ lmGE = function(selected_variables,
                                         winning_model_VMR_i$gxe_r_squared = NA_real_
                                       }else if (winning_model_VMR_i$model_group == "G+E"){
                                         winning_lm = stats::lm(data = as.data.frame(full_data_vmr_i), formula = stringr::str_glue("DNAme ~ ", make.names(unlist(winning_model_VMR_i$variables))[1], " + ",make.names(unlist(winning_model_VMR_i$variables))[2], " + ", basal_model_formula) )
-                                        winning_model_VMR_i$F_val = stats::anova( winning_lm, model_basal)$F[2]
-                                        winning_model_VMR_i$p_val = stats::anova( winning_lm, model_basal)$`Pr(>F)`[2]
                                         r_decomp = relaimpo::calc.relimp.lm(object =  winning_lm,
                                                                             rela = FALSE,
                                                                             type = "lmg",
@@ -260,8 +253,6 @@ lmGE = function(selected_variables,
                                         winning_model_VMR_i$gxe_r_squared = NA_real_
                                       }else if (winning_model_VMR_i$model_group == "GxE"){
                                         winning_lm = stats::lm(data = as.data.frame(full_data_vmr_i), formula = stringr::str_glue("DNAme ~ ", make.names(unlist(winning_model_VMR_i$variables))[1], " + ",make.names(unlist(winning_model_VMR_i$variables))[2], " + ", make.names(unlist(winning_model_VMR_i$variables))[1], "*",make.names(unlist(winning_model_VMR_i$variables))[2], " + ", basal_model_formula) )
-                                        winning_model_VMR_i$F_val = stats::anova( winning_lm, model_basal)$F[2]
-                                        winning_model_VMR_i$p_val = stats::anova( winning_lm, model_basal)$`Pr(>F)`[2]
                                         r_decomp = relaimpo::calc.relimp.lm(object =  winning_lm,
                                                                             rela = FALSE,
                                                                             type = "lmg",
@@ -279,13 +270,11 @@ lmGE = function(selected_variables,
   #Compute FDR and rearrange columns
   if (model_selection == "AIC"){
     winning_models = winning_models %>%
-      dplyr::mutate(FDR = stats::p.adjust(p_val, method = "fdr")) %>%
-      dplyr::select(VMR_index, model_group, variables, F_val, p_val, FDR, tot_r_squared, g_r_squared, e_r_squared, gxe_r_squared, AIC, second_winner, delta_aic, delta_r_squared, basal_AIC, basal_R2) %>%
+      dplyr::select(VMR_index, model_group, variables, tot_r_squared, g_r_squared, e_r_squared, gxe_r_squared, AIC, second_winner, delta_aic, delta_r_squared, basal_AIC, basal_rsquared) %>%
       as.data.frame()
   } else if (model_selection == "BIC"){
     winning_models = winning_models %>%
-      dplyr::mutate(FDR = stats::p.adjust(p_val, method = "fdr")) %>%
-      dplyr::select(VMR_index, model_group, variables, F_val, p_val, FDR, tot_r_squared, g_r_squared, e_r_squared, gxe_r_squared, BIC, second_winner, delta_bic, delta_r_squared, basal_BIC, basal_R2) %>%
+      dplyr::select(VMR_index, model_group, variables, tot_r_squared, g_r_squared, e_r_squared, gxe_r_squared, BIC, second_winner, delta_bic, delta_r_squared, basal_BIC, basal_rsquared) %>%
       as.data.frame()
   }
 

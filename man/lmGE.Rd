@@ -22,7 +22,7 @@ lmGE(
 
 \item{environmental_matrix}{A matrix of environmental variables. Only numeric values are supported. In case of factor variables, it is recommended to encode them as numbers or re-code them into dummy variables if there are more than two levels. Columns must correspond to environmental variables and rows to individuals. Row names must be the individual IDs.}
 
-\item{covariates}{A matrix containing the variables that will be adjusted for in the final GxE models (e.g. cell type proportions, age, etc.).Column must correspond to covariates and rows to individuals. Row names must be the individual IDs.}
+\item{covariates}{A matrix containing the concomitant variables that will always be adjusted for in the final G/E/G+E/GxE models (e.g. cell type proportions, age, etc.).Column must correspond to covariates and rows to individuals. Row names must be the individual IDs.}
 
 \item{model_selection}{Which metric to use to select the best model for each VMR. Supported options are "AIC" or BIC". More information about which one to use can be found in the Details section.}
 }
@@ -32,9 +32,6 @@ A data frame with the following columns:
 \item VMR_index: The unique ID of the VMR
 \item model_group: The group to which the winning model belongs to (i.e., G, E, G+E or GxE)
 \item variables: The variable(s) that are present in the winning model (excluding the covariates, which are included in all the models)
-\item F_val: F value from the ANOVA test comparing the basal model (i.e., only covariates) to the full model (i.e., including the G/E/G+E/G+E+GxE variables of the winning model respectively)
-\item p_val: p value from the ANOVA testing whether the more complex/full model is significantly better at capturing the data than the simpler/basal model (i.e., only the covariates). If the resulting p-value is sufficiently low (usually less than 0.05), we can interpret that the more complex model is significantly better than the basal model, and thus favor the G/E/G+E/GxE model. If the p-value is not sufficiently low (usually greater than 0.05), we should favor the basal model.
-\item FDR: False Discovery Rate applied to the ANOVA p values of the winning models. This controls the expected proportion of rejected null hypotheses that are false (incorrect rejections of the null) in a multiple hypothesis testing setting (i.e., one test per VMR).
 \item tot_r_squared: R squared of the winning model
 \item g_r_squared: Estimated R2 allocated to the G in the winning model, if applicable.
 \item e_r_squared: Estimated R2 allocated to the E in the winning model, if applicable.
@@ -43,6 +40,8 @@ A data frame with the following columns:
 \item second_winner: The second group that possesses the next best model after the winning one (i.e., G, E, G+E or GxE). This column may have NA if the variables in selected_variables correspond only to one group (G or E), so that there is no other groups to compare to.
 \item delta_aic/delta_bic: The difference of AIC or BIC value (depending on the option specified in the argument model_selection) of the winning model and the best model from the second_winner group (i.e., G, E, G+E or GxE). This column may have NA if the variables in selected_variables correspond only to one group (G or E), so that there is no other groups to compare to.
 \item delta_r_squared: The R2 of the winning model - R2 of the second winner model. This column may have NA if the variables in selected_variables correspond only to one group (G or E), so that there is no other groups to compare to.
+\item basal_AIC/basal_BIC: AIC or BIC of the basal model (i.e., model fitted only with the concomitant variables specified in the \emph{covariates} argument)
+\item basal_rsquared: The R2 of the basal model (i.e., model fitted only with the concomitant variables specified in the \emph{covariates} argument)
 }
 }
 \description{
