@@ -70,6 +70,5 @@ After selecting the best model per group (G,E,G+E pr GxE), the model with the lo
 
 \strong{Analysis of variance and variance decomposition}
 
-After defining the best explanatory model for each VMR, an ANOVA test is conducted to test whether this model is significantly better at explaining the DNAme variability of the respective region than the basal model (i.e., the model including only the specified covariates). The respective F- and p-values are reported in the final returned object. Additionally, a False Discovery Rate (FDR) method is applied to the p-values to address the multiple hypothesis testing.
 Finally, the variance is decomposed and the relative R2 contribution of each of the variables of interest (G, E and GxE) is reported. This decomposition is done using the relaimpo R package, using the Lindeman, Merenda and Gold (lmg) method, which is based on the heuristic approach of averaging the relative R contribution of each variable over all input orders in the linear model. The estimation of the partitioned R2 of each factor in the models was conducted keeping the covariates always in the model as first entry (i.e., the variables specified in covariates did not change order). For further information, we suggest the users to read the documentation and publication of the relaimpo R package (Grömping, 2006).
 }
