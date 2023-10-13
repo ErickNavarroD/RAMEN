@@ -50,7 +50,7 @@ nullDistGE = function(VMR_df,
     colnames(permutated_environment) = colnames(environmental_matrix)
 
     # Run RAMEN
-    selected_variables = RAMEN::selectVariables(VMR_df = cis_snps,
+    selected_variables = RAMEN::selectVariables(VMR_df = VMR_df,
                                                 genotype_matrix = permutated_genotype,
                                                 environmental_matrix = permutated_environment,
                                                 covariates = covariates,
