@@ -171,7 +171,7 @@ findVMRs = function(array_manifest,
     #Check for correlation between probes in these strict regions #
     as.data.frame() %>% #Convert the GR to a data frame so that I can use medCorVMR() and neigbouring_check()
     ### Check that the VMRs contain surrounding probes
-    medCorVMR(VMR_df = ., data_methylation = methylation_data) %>% # Compute the median correlation of each region
+    medCorVMR(VMR_df = ., methylation_data = methylation_data) %>% # Compute the median correlation of each region
     dplyr::filter(median_correlation > cor_threshold) %>%  #Remove VMRs whose CpGs are not correlated
     GenomicRanges::makeGRangesFromDataFrame(keep.extra.columns = TRUE) #Create a GR object again
   colnames(S4Vectors::mcols(canonical_VMRs))[2] = "width" #Changing the name of one metadata variable that was modified when transforming from data frame to GR object
