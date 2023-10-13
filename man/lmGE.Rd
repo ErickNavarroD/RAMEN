@@ -22,7 +22,7 @@ lmGE(
 
 \item{environmental_matrix}{A matrix of environmental variables. Only numeric values are supported. In case of factor variables, it is recommended to encode them as numbers or re-code them into dummy variables if there are more than two levels. Columns must correspond to environmental variables and rows to individuals. Row names must be the individual IDs.}
 
-\item{covariates}{A matrix containing the concomitant variables that will always be adjusted for in the final G/E/G+E/GxE models (e.g. cell type proportions, age, etc.).Column must correspond to covariates and rows to individuals. Row names must be the individual IDs.}
+\item{covariates}{A matrix containing the covariates (i.e., concomitant variables / variables that are not the ones you are interested in) that will be adjusted for in the final GxE models (e.g., cell type proportions, age, etc.). Each column should correspond to a covariate and each row to an individual. Row names must correspond to the individual IDs.}
 
 \item{model_selection}{Which metric to use to select the best model for each VMR. Supported options are "AIC" or BIC". More information about which one to use can be found in the Details section.}
 }

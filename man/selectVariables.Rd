@@ -24,7 +24,7 @@ selectVariables(
 
 \item{summarized_methyl_VMR}{A data frame containing each individual's VMR summarized region methylation. It is suggested to use the output of RAMEN::summarizeVMRs().Rows must reflects individuals, and columns VMRs The names of the columns must correspond to the index of said VMR, and it must match the index of VMR_df$VMR_index. The names of the rows must correspond to the sample IDs, and must match with the IDs of the other matrices.}
 
-\item{seed}{An integer number that initializes a pseudo-random number generator. Random numbers in this function are created during the lambda cross validation and the LASSO stages. Setting a seed is highly encouraged for result reproducibility. Please note that setting a seed in this function modifies the seed globally.}
+\item{seed}{An integer number that initializes a pseudo-random number generator. Random numbers in this function are created during the lambda cross validation and the LASSO stages. Setting a seed is highly encouraged for result reproducibility. \strong{Please note that setting a seed in this function modifies the seed globally}.}
 }
 \value{
 A data frame with three columns:

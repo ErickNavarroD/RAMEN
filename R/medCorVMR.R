@@ -8,18 +8,13 @@
 #' in your R session before running the function (e.g., doFuture::registerDoFuture()) and then the evaluation strategy (e.g., future::plan(multisession)). After that,
 #' the function can be run as usual. It is recommended to also set options(future.globals.maxSize= +Inf).
 #'
-#' @param VMR_df GRanges object converted to a data frame. Must contain the following columns:
-#' "seqnames", "start", "end"  (all of which are produced automatically when doing the object conversion)
-#' and "probes" (containing a list in which each element contains a vector with the probes
-#' constituting the VMR).
-#' @param data_methylation A data frame containing M or B values, with samples as columns and probes as rows.
-#'
+#' @inheritParams findVMRs
 #' @return A data frame like VMR_df with an extra column per region containing the median pairwise correlation.
 #'
 #' @importFrom foreach %dopar%
 #' @export
 #'
-medCorVMR = function(VMR_df, data_methylation){
+medCorVMR = function(VMR_df, methylation_data){
   if(!is.list(VMRs_df$probes)){
     stop("Please make sure the 'probes' column in VMRs_df is a column of lists")
   }
@@ -39,8 +34,8 @@ medCorVMR = function(VMR_df, data_methylation){
         for (probe_y_i in (probe_x_i+1):length(VMR_probes[[i]])){ #compute the pairwise correlation with the downstream probes
           secondary_probe = VMR_probes[[i]][probe_y_i]
           VMR_correlation =  c(VMR_correlation,
-                               stats::cor(unlist(data_methylation[primary_probe,]), #unlist added to make the subset df a vector
-                                          unlist(data_methylation[secondary_probe,]),
+                               stats::cor(unlist(methylation_data[primary_probe,]), #unlist added to make the subset df a vector
+                                          unlist(methylation_data[secondary_probe,]),
                                           method= "pearson"))
         }
       }
