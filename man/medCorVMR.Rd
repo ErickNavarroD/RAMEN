@@ -7,6 +7,10 @@
 medCorVMR(VMR_df, methylation_data)
 }
 \arguments{
+\item{VMR_df}{GRanges object converted to a data frame. Must contain the following columns:
+"seqnames", "start", "end"  (all of which are produced automatically when doing the object conversion) and "probes" (containing a list in which each element contains a vector with the probes
+constituting the VMR).}
+
 \item{methylation_data}{A data frame containing M or B values, with samples as columns and probes as rows. Data is expected to have already passed through quality control and cleaning steps.}
 }
 \value{

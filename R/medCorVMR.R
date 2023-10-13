@@ -8,6 +8,9 @@
 #' in your R session before running the function (e.g., doFuture::registerDoFuture()) and then the evaluation strategy (e.g., future::plan(multisession)). After that,
 #' the function can be run as usual. It is recommended to also set options(future.globals.maxSize= +Inf).
 #'
+#' @param VMR_df GRanges object converted to a data frame. Must contain the following columns:
+#' "seqnames", "start", "end"  (all of which are produced automatically when doing the object conversion) and "probes" (containing a list in which each element contains a vector with the probes
+#' constituting the VMR).
 #' @inheritParams findVMRs
 #' @return A data frame like VMR_df with an extra column per region containing the median pairwise correlation.
 #'
@@ -15,8 +18,8 @@
 #' @export
 #'
 medCorVMR = function(VMR_df, methylation_data){
-  if(!is.list(VMRs_df$probes)){
-    stop("Please make sure the 'probes' column in VMRs_df is a column of lists")
+  if(!is.list(VMR_df$probes)){
+    stop("Please make sure the 'probes' column in VMR_df is a column of lists")
   }
 
   VMR_probes = VMR_df$probes #generate a list where each element will contain a vector with the probes present in one VMR
