@@ -38,6 +38,9 @@ RAMEN consists of five main functions:
 - `lmGE()` fits linear single-variable genetic (G) and environmental
   (E), and pairwise additive (G+E) and interaction (GxE) linear models
   and select the best explanatory model per VMR.
+- `nullDistGE()` simulates a delta R squared null distribution of G and
+  E effects on DNAme variability. Useful for filtering out
+  poor-performing best explanatory models selected by *lmGE()*.
 
 Altogether, these functions create a pipeline that takes a set of
 individuals with genotype, environmental exposure and DNA methylation
@@ -51,7 +54,7 @@ parallel computing.
 ## Usage
 
 The creation of a package vignette is currently in progress. However,
-the documentation of the functions is already complete and provides
+the documentation of the functions is already completed and provide
 detailed information about their use.
 
 ``` r

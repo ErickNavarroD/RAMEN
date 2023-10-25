@@ -41,6 +41,7 @@ RAMEN consists of five main functions:
 -   `findCisSNPs()` identifies the SNPs in *cis* of each VMR
 -   `selectVariables()` conducts a LASSO-based variable selection strategy to identify potentially relevant *cis* SNPs and environmental variables
 -   `lmGE()` fits linear single-variable genetic (G) and environmental (E), and pairwise additive (G+E) and interaction (GxE) linear models and select the best explanatory model per VMR.
+-   `nullDistGE()` simulates a delta R squared null distribution of G and E effects on DNAme variability. Useful for filtering out poor-performing best explanatory models selected by *lmGE()*.
 
 Altogether, these functions create a pipeline that takes a set of individuals with genotype, environmental exposure and DNA methylation information, and generates an estimation of the contribution of the genotype and environment to its DNA methylation variability. Functions that conduct computationally intensive tasks are compatible with parallel computing. 
 
