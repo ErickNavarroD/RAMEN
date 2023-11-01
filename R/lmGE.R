@@ -99,7 +99,12 @@ lmGE = function(selected_variables,
                                             t()
                                         }
                                       } else genot_i = NULL
-                                      covariates_i = covariates[rownames(summarized_methyl_VMR),]
+                                      if (!is.null(covariates)){
+                                        if (ncol(covariates) == 1){
+                                          covariates_i = covariates[rownames(summarized_methyl_VMR),] %>% #Match the covariates dataset with the VMRs information
+                                            as.matrix()
+                                          colnames(covariates_i) = colnames(covariates)
+                                        } else covariates_i = covariates[rownames(summarized_methyl_VMR),]
                                       full_data_vmr_i = cbind(summ_vmr_i, env_i, genot_i, covariates_i)
                                       colnames(full_data_vmr_i) = make.names(colnames(full_data_vmr_i))
                                       #Set the basal model (only covariates)
