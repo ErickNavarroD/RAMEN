@@ -67,7 +67,7 @@ map_revmap_names = function(positions, manifest_hvp){
 findVMRs = function(array_manifest,
                     methylation_data,
                     cor_threshold = 0.15,
-                    var_method,
+                    var_method = "variance",
                     var_threshold_percentile = 0.9,
                     max_distance = 1000){
   #Check that the array manifest is in the right format

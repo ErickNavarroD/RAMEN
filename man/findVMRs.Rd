@@ -8,7 +8,7 @@ findVMRs(
   array_manifest,
   methylation_data,
   cor_threshold = 0.15,
-  var_method,
+  var_method = "variance",
   var_threshold_percentile = 0.9,
   max_distance = 1000
 )
