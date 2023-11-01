@@ -44,10 +44,14 @@ nullDistGE = function(VMR_df,
   # Permutation analysis
   null_dist = foreach::foreach(i = 1:permutations, .combine = rbind) %do% {
     #Shuffle the datasets
-    permutated_genotype = genotype_matrix[,permutation_order[,i]]
+    permutated_genotype = genotype_matrix[,permutation_order[,i]] %>%
+      as.matrix()
+    rownames(permutated_genotype) = rownames(genotype_matrix)
     colnames(permutated_genotype) = colnames(genotype_matrix)
-    permutated_environment = environmental_matrix[permutation_order[,i],]
+    permutated_environment = environmental_matrix[permutation_order[,i],] %>%
+      as.matrix()
     colnames(permutated_environment) = colnames(environmental_matrix)
+    rownames(permutated_environment) = rownames(environmental_matrix)
 
     # Run RAMEN
     selected_variables = RAMEN::selectVariables(VMR_df = VMR_df,
