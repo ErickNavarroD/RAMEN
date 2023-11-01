@@ -26,7 +26,7 @@ devtools::install_github("ErickNavarroD/RAMEN")
 
 ## Core functions
 
-RAMEN consists of five main functions:
+RAMEN consists of six main functions:
 
 - `findVMRs()` identifies Variable Methylated Regions (VMRs) in
   microarrays
