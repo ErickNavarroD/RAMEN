@@ -1,0 +1,99 @@
+---
+title: "RAMEN"
+author: 
+- name: Erick I. Navarro-Delgado
+  email: erick.navarrodelgado@bcchr.ca
+  affiliation: The University of British Columbia
+output:
+  BiocStyle::html_document:
+    number_sections: true
+    toc: true
+    toc_float: true
+    toc_depth: 4
+  BiocStyle::pdf_document: default
+package: RAMEN
+vignette: >
+  %\VignetteIndexEntry{RAMEN}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+# Introduction 
+
+**Regional Association of Methylation variability with genotype and ENvironment (RAMEN)** is an R package whose goal is to integrate genomic, methylomic and exposomic data to model the contribution of genetics (G) and the environment (E) to DNA methylation (DNAme) variability. RAMEN identifies Variable Methylated Regions (VMRs) in microarray DNAme data and then, using genotype and environmental data, it identifies which of the following models better explains this variability in regions across the methylome: 
+
+```{r, echo=FALSE}
+library(knitr)
+
+models = data.frame(Model = c("DNAme ~ G + covars", "DNAme ~ E + covars", "DNAme ~ G + E + covars", "DNAme ~ G + E + G*E + covars"),
+                    Name = c("Genetics", "Environmental exposure", "Additive", "Interaction"),
+                    Abbreviation = c("G", "E", "G+E", "GxE")) 
+
+kable(models)
+
+```
+
+Where G variables are represented by SNPs, E variables by environmental exposures, and where covars are concomitant variables (i.e. variables that are adjusted for in the model and not of interest of the study such as cell type proportion, age, etc.).
+
+The main [standard gene-environment interaction modeling][ Gene-environment interaction analysis] pipeline consists of the six core functions: 
+
+-   `findVMRs()` identifies Variable Methylated Regions (VMRs) in microarrays
+-   `summarizeVMRs()`summarizes the regional methylation state of each VMR
+-   `findCisSNPs()` identifies the SNPs in *cis* of each VMR
+-   `selectVariables()` conducts a LASSO-based variable selection strategy to identify potentially relevant *cis* SNPs and environmental variables
+-   `lmGE()` fits linear single-variable genetic (G) and environmental (E), and pairwise additive (G+E) and interaction (GxE) linear models and select the best explanatory model per VMR.
+-   `nullDistGE()` simulates a delta R squared null distribution of G and E effects on DNAme variability. Useful for filtering out poor-performing best explanatory models selected by *lmGE()*.
+
+These functions are compatible with parallel computing, which is recommended due to the computationally intensive tasks conducted by the package. 
+
+In addition to the [standard gene-environment interaction modeling analysis][ Gene-environment interaction analysis], RAMEN can be useful for other DNAme analyses (see [ Variations to the standard workflow][]), such as reducing the tested sites in Epigenome Wide Association Studies, grouping DNAme probes into regions, identifying SNPs near a probe, etc. 
+
+## Citation 
+
+The manuscript detailing RAMEN and its use is currently under preparation. For more information about this please contact Erick I. Navarro-Delgado at [erick.navarrodelgado\@bcchr.ca](mailto:erick.navarrodelgado@bcchr.ca){.email}.
+
+# Gene-environment interaction analysis
+
+The main purpose of the RAMEN package is to conduct a methylome-wide analysis to identify which model (G, E, G+E or GxE) better explains the variability across the genome. 
+
+<img src="./man/figures/RAMEN_pipeline.png" width="600"/>
+
+## Identifying Variable Methylated Regions (VMRs)
+
+
+Needed files: 
+  -   DNAme data
+  -   DNAme array manifest
+  -   Genotyping data
+  -   Genotype information
+  -   Environmental exposure data
+  -   Concomitant variables data
+
+```{r setup}
+library(RAMEN)
+
+#Simulate a dataset
+set.seed(1)
+
+
+
+```
+
+## Identifying VMR's *cis* SNPs 
+
+## Modeling genetic and environmental contribution to VMR's DNAme
+
+*WHat is an interaction model
+
+`r Biocpkg("IRanges")`
+
+# Variations to the standard workflow
+
+# Frequently Asked Questions
