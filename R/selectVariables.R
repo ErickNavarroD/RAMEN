@@ -76,11 +76,19 @@ selectVariables = function(VMR_df,
         t()
       any_snp = TRUE
     }
-    environ_VMRi = environmental_matrix[rownames(summVMRi),]
+    if(ncol(environmental_matrix) == 1){
+      environ_VMRi = environmental_matrix[rownames(summVMRi),] %>%
+        as.matrix()
+      colnames(environ_VMRi) = colnames(environmental_matrix)
+    } else environ_VMRi = environmental_matrix[rownames(summVMRi),]
     environ_genot_VMRi = cbind(genot_VMRi, environ_VMRi)
     #Bind covariates data
     if (!is.null(covariates)){
-      covariates_VMRi = covariates[rownames(summVMRi),]
+      if (ncol(covariates) == 1){
+        covariates_VMRi = covariates[rownames(summVMRi),] %>% #Match the covariates dataset with the VMRs information
+          as.matrix()
+        colnames(covariates_VMRi) = colnames(covariates)
+      } else covariates_VMRi = covariates[rownames(summVMRi),]
       genot_VMRi = cbind(genot_VMRi,covariates_VMRi)
       environ_VMRi = cbind(environ_VMRi, covariates_VMRi)
       environ_genot_VMRi = cbind(environ_genot_VMRi, covariates_VMRi)
