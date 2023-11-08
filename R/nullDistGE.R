@@ -21,7 +21,7 @@
 #' @export
 #'
 
-nullDistGE = function(VMR_df,
+nullDistGE = function(VMRs_df,
                      genotype_matrix,
                      environmental_matrix,
                      summarized_methyl_VMR,
@@ -54,7 +54,7 @@ nullDistGE = function(VMR_df,
     rownames(permutated_environment) = rownames(environmental_matrix)
 
     # Run RAMEN
-    selected_variables = RAMEN::selectVariables(VMR_df = VMR_df,
+    selected_variables = RAMEN::selectVariables(VMRs_df = VMRs_df,
                                                 genotype_matrix = permutated_genotype,
                                                 environmental_matrix = permutated_environment,
                                                 covariates = covariates,
