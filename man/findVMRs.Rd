@@ -62,3 +62,18 @@ the maximum allowed size of globals exported for future expression. This can be 
 
 Note: this function excludes sex chromosomes.
 }
+\examples{
+#We need to modify the RAMEN::test_array_manifest object by assigning to
+#row names to the probe ID column; it was saved this way because storing
+#the TargetID as row names reduced significantly the size of the data set.
+test_array_manifest_final = RAMEN::test_array_manifest \%>\%
+tibble::rownames_to_column(var = "TargetID")
+
+VMRs = RAMEN::findVMRs(array_manifest = test_array_manifest_final,
+                       methylation_data = RAMEN::test_methylation_data,
+                       cor_threshold = 0,
+                       var_method = "variance",
+                       var_threshold_percentile = 0.9,
+                       max_distance = 1000)
+
+}
