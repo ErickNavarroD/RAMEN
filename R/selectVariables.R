@@ -12,10 +12,10 @@
 #' Note: If you want to conduct the variable selection step only in one data set (i.e., only in the genotype), you can set the argument *environmental_matrix = NULL*.
 #'
 #'
-#' @param VMR_df A data frame converted from a GRanges object. Recommended to use the output of *RAMEN::findCisSNPs()*. Must have one VMR per row, and contain the following columns: "VMR_index" (a unique ID for each VMR in VMR_df AS CHARACTERS) and "SNP" (a column with a list as observation, containing the name of the SNPs surrounding the corresponding VMR).  The SNPs contained in the "SNP" column must be present in the object that is indicated in the genotype_matrix argument, and it must contain all the VMRs contained in summarized_methyl_VMR. VMRs with no surrounding SNPs must have an empty list in the SNP column (either list(NULL), list(NA), list("") or list(character(0)) ).
+#' @param VMRs_df A data frame converted from a GRanges object. Recommended to use the output of *RAMEN::findCisSNPs()*. Must have one VMR per row, and contain the following columns: "VMR_index" (a unique ID for each VMR in VMRs_df AS CHARACTERS) and "SNP" (a column with a list as observation, containing the name of the SNPs surrounding the corresponding VMR).  The SNPs contained in the "SNP" column must be present in the object that is indicated in the genotype_matrix argument, and it must contain all the VMRs contained in summarized_methyl_VMR. VMRs with no surrounding SNPs must have an empty list in the SNP column (either list(NULL), list(NA), list("") or list(character(0)) ).
 #' @param environmental_matrix A matrix of environmental variables. Only numeric values are supported. In case of factor variables, it is recommended to encode them as numbers or re-code them into dummy variables if there are more than two levels. Columns must correspond to environmental variables and rows to individuals. Row names must be the individual IDs.
 #' @param genotype_matrix A matrix of number-encoded genotypes. Columns must correspond to samples, and rows to SNPs. We suggest using a gene-dosage model, which would encode the SNPs ordinally depending on the genotype allele charge, such as 2 (AA), 1 (AB) and 0 (BB). The column names must correspond with individual IDs.
-#' @param summarized_methyl_VMR A data frame containing each individual's VMR summarized region methylation. It is suggested to use the output of RAMEN::summarizeVMRs().Rows must reflects individuals, and columns VMRs The names of the columns must correspond to the index of said VMR, and it must match the index of VMR_df$VMR_index. The names of the rows must correspond to the sample IDs, and must match with the IDs of the other matrices.
+#' @param summarized_methyl_VMR A data frame containing each individual's VMR summarized region methylation. It is suggested to use the output of RAMEN::summarizeVMRs().Rows must reflects individuals, and columns VMRs The names of the columns must correspond to the index of said VMR, and it must match the index of VMRs_df$VMR_index. The names of the rows must correspond to the sample IDs, and must match with the IDs of the other matrices.
 #' @param covariates A matrix containing the covariates (i.e., concomitant variables / variables that are not the ones you are interested in) that will be adjusted for in the final GxE models (e.g., cell type proportions, age, etc.). Each column should correspond to a covariate and each row to an individual. Row names must correspond to the individual IDs.
 #' @param seed An integer number that initializes a pseudo-random number generator. Random numbers in this function are created during the lambda cross validation and the LASSO stages. Setting a seed is highly encouraged for result reproducibility. **Please note that setting a seed in this function modifies the seed globally**.
 #'
@@ -27,7 +27,7 @@
 #' @importFrom doRNG %dorng%
 #' @export
 #'
-selectVariables = function(VMR_df,
+selectVariables = function(VMRs_df,
                            genotype_matrix,
                            environmental_matrix,
                            covariates = NULL,
@@ -39,11 +39,11 @@ selectVariables = function(VMR_df,
   if (!all(rownames(summarized_methyl_VMR) %in% rownames(environmental_matrix))) stop("Individual IDs in summarized_methyl_VMR do not match individual IDs in environmental_matrix")
   if(!is.null(covariates)){
     if (!all(rownames(summarized_methyl_VMR) %in% rownames(covariates)))stop("Individual IDs in summarized_methyl_VMR do not match individual IDs in the covariates matrix")}
-  #Check that VMR_df has index and SNP column
-  if(!all(c("VMR_index","SNP") %in% colnames(VMR_df))) stop("Please make sure the VMR data frame (VMR_df) contains the columns 'SNP' and 'VMR_index'.")
+  #Check that VMRs_df has index and SNP column
+  if(!all(c("VMR_index","SNP") %in% colnames(VMRs_df))) stop("Please make sure the VMR data frame (VMRs_df) contains the columns 'SNP' and 'VMR_index'.")
   #Check that the SNP column on VMRs_df is a list
-  if(!is.list(VMR_df$SNP)) stop("Please make sure the 'SNP' column in VMRs_df is a column of lists")
-  if(!is.character(VMR_df$VMR_index)) stop("Please make sure the 'VMR_index' column in VMRs_df is a column of characters")
+  if(!is.list(VMRs_df$SNP)) stop("Please make sure the 'SNP' column in VMRs_df is a column of lists")
+  if(!is.character(VMRs_df$VMR_index)) stop("Please make sure the 'VMR_index' column in VMRs_df is a column of characters")
   #Check that genotype, environment and covariates are matrices
   if (!is.matrix(genotype_matrix)) stop("Please make sure the genotype data is provided as a matrix.")
   if(!is.null(environmental_matrix)){
@@ -54,7 +54,7 @@ selectVariables = function(VMR_df,
   ## Set the seed
   if (!is.null(seed)) set.seed(seed)
 
-  lasso_results = foreach::foreach(VMR_i = iterators::iter(VMR_df, by = "row"), .combine = "rbind") %dorng%{
+  lasso_results = foreach::foreach(VMR_i = iterators::iter(VMRs_df, by = "row"), .combine = "rbind") %dorng%{
     #Select summarized VMR information
     summVMRi = summarized_methyl_VMR %>%
       dplyr::select(VMR_i$VMR_index)

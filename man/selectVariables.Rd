@@ -5,7 +5,7 @@
 \title{Selection of environment and genotype variables for Variable Methylated Regions (VMRs)}
 \usage{
 selectVariables(
-  VMR_df,
+  VMRs_df,
   genotype_matrix,
   environmental_matrix,
   covariates = NULL,
@@ -14,7 +14,7 @@ selectVariables(
 )
 }
 \arguments{
-\item{VMR_df}{A data frame converted from a GRanges object. Recommended to use the output of \emph{RAMEN::findCisSNPs()}. Must have one VMR per row, and contain the following columns: "VMR_index" (a unique ID for each VMR in VMR_df AS CHARACTERS) and "SNP" (a column with a list as observation, containing the name of the SNPs surrounding the corresponding VMR).  The SNPs contained in the "SNP" column must be present in the object that is indicated in the genotype_matrix argument, and it must contain all the VMRs contained in summarized_methyl_VMR. VMRs with no surrounding SNPs must have an empty list in the SNP column (either list(NULL), list(NA), list("") or list(character(0)) ).}
+\item{VMRs_df}{A data frame converted from a GRanges object. Recommended to use the output of \emph{RAMEN::findCisSNPs()}. Must have one VMR per row, and contain the following columns: "VMR_index" (a unique ID for each VMR in VMRs_df AS CHARACTERS) and "SNP" (a column with a list as observation, containing the name of the SNPs surrounding the corresponding VMR).  The SNPs contained in the "SNP" column must be present in the object that is indicated in the genotype_matrix argument, and it must contain all the VMRs contained in summarized_methyl_VMR. VMRs with no surrounding SNPs must have an empty list in the SNP column (either list(NULL), list(NA), list("") or list(character(0)) ).}
 
 \item{genotype_matrix}{A matrix of number-encoded genotypes. Columns must correspond to samples, and rows to SNPs. We suggest using a gene-dosage model, which would encode the SNPs ordinally depending on the genotype allele charge, such as 2 (AA), 1 (AB) and 0 (BB). The column names must correspond with individual IDs.}
 
@@ -22,7 +22,7 @@ selectVariables(
 
 \item{covariates}{A matrix containing the covariates (i.e., concomitant variables / variables that are not the ones you are interested in) that will be adjusted for in the final GxE models (e.g., cell type proportions, age, etc.). Each column should correspond to a covariate and each row to an individual. Row names must correspond to the individual IDs.}
 
-\item{summarized_methyl_VMR}{A data frame containing each individual's VMR summarized region methylation. It is suggested to use the output of RAMEN::summarizeVMRs().Rows must reflects individuals, and columns VMRs The names of the columns must correspond to the index of said VMR, and it must match the index of VMR_df$VMR_index. The names of the rows must correspond to the sample IDs, and must match with the IDs of the other matrices.}
+\item{summarized_methyl_VMR}{A data frame containing each individual's VMR summarized region methylation. It is suggested to use the output of RAMEN::summarizeVMRs().Rows must reflects individuals, and columns VMRs The names of the columns must correspond to the index of said VMR, and it must match the index of VMRs_df$VMR_index. The names of the rows must correspond to the sample IDs, and must match with the IDs of the other matrices.}
 
 \item{seed}{An integer number that initializes a pseudo-random number generator. Random numbers in this function are created during the lambda cross validation and the LASSO stages. Setting a seed is highly encouraged for result reproducibility. \strong{Please note that setting a seed in this function modifies the seed globally}.}
 }
