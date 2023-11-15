@@ -34,7 +34,7 @@ nullDistGE = function(VMRs_df,
   if (!is.null(seed)) set.seed(seed)
   permutation_order = data.frame(sample(rownames(summarized_methyl_VMR),
                                         size = length(rownames(summarized_methyl_VMR))))
-  for (i in 1:permutations-1){
+  for (i in 1:(permutations-1)){
     permutation_order= cbind(permutation_order,
                              data.frame(sample(rownames(summarized_methyl_VMR),
                                                size = length(rownames(summarized_methyl_VMR)))))
@@ -71,14 +71,14 @@ nullDistGE = function(VMRs_df,
       results_perm = data.frame(VMR_index = lmGE_res$VMR_index,
                                 tot_r_squared = lmGE_res$tot_r_squared,
                                 model_group = lmGE_res$model_group,
-                                R2_difference = lmGE_res$tot_r_squared - lmGE_res$basal_R2,
-                                AIC_difference = lmGE_res$AIC - lmGE_res$basal_AIC)
+                                R2_difference = lmGE_res$tot_r_squared - lmGE_res$basal_rsquared,
+                                AIC_difference = lmGE_res$AIC - lmGE_res$basal_rsquared)
     } else if (model_selection=="BIC"){
       results_perm = data.frame(VMR_index = lmGE_res$VMR_index,
                                 model_group = lmGE_res$model_group,
                                 tot_r_squared = lmGE_res$tot_r_squared,
-                                R2_difference = lmGE_res$tot_r_squared - lmGE_res$basal_R2,
-                                BIC_difference = lmGE_res$BIC - lmGE_res$basal_BIC)
+                                R2_difference = lmGE_res$tot_r_squared - lmGE_res$basal_rsquared,
+                                BIC_difference = lmGE_res$BIC - lmGE_res$basal_rsquared)
     }
     results_perm$permutation = i #add the number of permutation
     results_perm
