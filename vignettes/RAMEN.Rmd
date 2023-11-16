@@ -29,20 +29,20 @@ knitr::opts_chunk$set(
 
 **Regional Association of Methylation variability with genotype and ENvironment (RAMEN)** is an R package whose goal is to integrate genomic, methylomic and exposomic data to model the contribution of genetics (G) and the environment (E) to DNA methylation (DNAme) variability. RAMEN identifies Variable Methylated Regions (VMRs) in microarray DNAme data and then, using genotype and environmental data, it identifies which of the following models better explains this variability in regions across the methylome: 
 
-```{r, echo=FALSE}
+```{r modelstable, echo=FALSE}
 library(knitr)
 
 models = data.frame(Model = c("DNAme ~ G + covars", "DNAme ~ E + covars", "DNAme ~ G + E + covars", "DNAme ~ G + E + G*E + covars"),
                     Name = c("Genetics", "Environmental exposure", "Additive", "Interaction"),
                     Abbreviation = c("G", "E", "G+E", "GxE")) 
 
-kable(models)
+kable(models, caption = 'Fitted models')
 
 ```
 
-Where G variables are represented by SNPs, E variables by environmental exposures, and where covars are concomitant variables (i.e. variables that are adjusted for in the model and not of interest of the study such as cell type proportion, age, etc.).
+where G variables are represented by SNPs, E variables by environmental exposures, and where covars are concomitant variables (i.e. variables that are adjusted for in the model and not of interest in the study such as cell type proportion, age, etc.).
 
-The main [standard gene-environment interaction modeling][ Gene-environment interaction analysis] pipeline consists of the six core functions: 
+The main [gene-environment interaction modeling][ Gene-environment interaction analysis] pipeline is conducted though six core functions: 
 
 -   `findVMRs()` identifies Variable Methylated Regions (VMRs) in microarrays
 -   `summarizeVMRs()`summarizes the regional methylation state of each VMR
@@ -53,7 +53,7 @@ The main [standard gene-environment interaction modeling][ Gene-environment inte
 
 These functions are compatible with parallel computing, which is recommended due to the computationally intensive tasks conducted by the package. 
 
-In addition to the [standard gene-environment interaction modeling analysis][ Gene-environment interaction analysis], RAMEN can be useful for other DNAme analyses (see [ Variations to the standard workflow][]), such as reducing the tested sites in Epigenome Wide Association Studies, grouping DNAme probes into regions, identifying SNPs near a probe, etc. 
+In addition to the [standard gene-environment interaction modeling pipeline][ Gene-environment interaction analysis], RAMEN can be useful for other DNAme analyses (see [ Variations to the standard workflow][]), such as reducing the tested sites in Epigenome Wide Association Studies, grouping DNAme probes into regions, identifying SNPs near a probe, etc. 
 
 ## Citation 
 
@@ -61,39 +61,291 @@ The manuscript detailing RAMEN and its use is currently under preparation. For m
 
 # Gene-environment interaction analysis
 
-The main purpose of the RAMEN package is to conduct a methylome-wide analysis to identify which model (G, E, G+E or GxE) better explains the variability across the genome. 
+The main purpose of the RAMEN package is to conduct a methylome-wide analysis to identify which model (G, E, G+E or GxE) better explains the variability across the genome. In this vignette, we will illustrate how to use the package. 
 
-<img src="./man/figures/RAMEN_pipeline.png" width="600"/>
+To conduct this analysis, the following cleaned data sets (i.e. after quality and exploratory data analysis checks) from a cohort are required: 
 
-## Identifying Variable Methylated Regions (VMRs)
-
-
-Needed files: 
   -   DNAme data
   -   DNAme array manifest
   -   Genotyping data
   -   Genotype information
   -   Environmental exposure data
   -   Concomitant variables data
+  
+Once that we have that data, the overview of the pipeline is the following:
 
-```{r setup}
+```{r,echo= FALSE, fig.cap="RAMEN pipeline"}
+knitr::include_graphics("RAMEN_pipeline.png")
+```
+
+where:  
+
+  -   DNAme data is grouped into VMRs, and then the DNAme state per individual is summarized in each region
+  -   Using the identified VMRs and the genomic information, we identify the SNPs in *cis* for each VMR
+  -   Both the *cis* SNPs and the exposome data are subjected to the variable selection stage
+  -   The selected variables (SNPs a and Es) enter the modelling stage, which outputs one single winning model per VMR
+  -   The thresholds obtained from the simulated null distribution are used to remove winning models which performance are likely to be due to chance. 
+
+In the following sections we will go through each of these steps and guide the user regarding the recommended parameters to use in each function of the package. For illustration purposes, we provide small toy data sets that do not intend to simulate a real biological phenomenon. These data sets are already available in the RAMEN package. 
+
+```{r setup, warning=FALSE, message=FALSE}
+#Load the packages used throughout the vignette
 library(RAMEN)
+library(tidyverse)
+```
 
-#Simulate a dataset
-set.seed(1)
+## Identify VMRs and summarize their methylation state
 
+The first step of the pipeline is to identify the **Variable Methylated Regions**(VMRs) in the data set. You might be wondering *"What is a VMR and why do we use them instead of DNAme levels from each CpG site?"*. We use **regions** because it is well established that nearby CpG sites are [very likely to share a similar DNAme profile](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6093082/) and therefore work as functional units. Then, from a statistical point of view, testing separately proximal CpGs that are part of the same unit is redundant. On the other side, we use only **variable** regions because we are interested in the units that display a high level of variability; in other words, in non-variant sites there is no variability left to be explained by genetics or environment. So, in conclusion, we use **VMRs** to increase our power and reduce the multiple hypothesis testing burden by grouping probes that are likely to work as a biological unit, and by only focusing in the set of regions that are of interest of this study.
 
+RAMEN identifies 2 categories of VMRs: 
+
+  -   Canonical VMRs: Group of Highly Variable Probes that are proximal and correlated. Highly Variable Probes are defined as probes above a specific variance percentile threshold specified by the user (the default is 90th percentile). The proximity distance and pearson correlation threshold is specified by the user, and the defaults are 1 kilobase and 0.15 respectively. For guidance on which correlation threshold to use, we recommend checking the Supplementary Figure 1 of the CoMeBack R package (Gatev et al., 2020) where a simulation to empirically determine a default guidance specification for a correlation threshold parameter dependent on sample size is done.
+  -   Non canonical VMRs: Regions that are composed of Highly Variable Probes that have no nearby probes measured in the array (according to the distance parameter specified by the user). This category was created to take into account the characteristics of the DNAme microarray plataform, which has probes covering non-homogenelously the genome. This is specially important for microarrays such as the EPIC array which has a high number of probes in regulatory regions that are represented by a single probe. Furthermore, these probes have been shown to be good representatives of the methylation state of its surroundings (Pidsley et al., 2016). By creating this category, we recover those informative HVPs that would otherwise be excluded from the analysis because of working with the canonical VMR definition in the array context.
+
+The first step is to identify **Variable Methylated Regions**(VMRs) using the `RAMEN::findVMRs()` function. This function uses GenomicRanges::reduce() to group the regions, which is strand-sensitive. In the Illumina microarrays, the MAPINFO for all the probes is usually provided as for the + strand. If you are using this array, we recommend to first convert the strand of all the probes to "+".
+
+```{r}
+#We need to modify the RAMEN::test_array_manifest object by assigning to 
+#row names to the probe ID column; it was saved this way because storing 
+#the TargetID as row names reduced significantly the size of the data set. 
+test_array_manifest_final = RAMEN::test_array_manifest %>% 
+  tibble::rownames_to_column(var = "TargetID")
+
+VMRs = RAMEN::findVMRs(array_manifest = test_array_manifest_final, 
+                       methylation_data = RAMEN::test_methylation_data, 
+                       cor_threshold = 0, 
+                       var_method = "variance", 
+                       var_threshold_percentile = 0.9, 
+                       max_distance = 1000)
+
+#Take a look at the resulting object 
+glimpse(VMRs)
+```
+
+As we can see, `RAMEN::findVMRs()` returns a list with four elements: 
+
+  -   var_score_threshold: The MAD-score or variance threshold used to define Highly Variable Probes. 
+  -   highly_variable_probes: a data frame with the probes that passed the variability score threshold imposed by the user, and their variability score (MAD score or variance).
+  -   canonical_VMRs: a GRanges object with strict candidate VMRs - regions composed of two or more contiguous, correlated and proximal Highly Variable Probes; thresholds depend on the ones specified by the user)
+  -   non_canonical_VMRs: a GRanges object with highly variable probes without neighboring CpGs measured in max_distance on the array. Category created to take into acccount the Illumina array design of single probes capturing the methylation state of regulatory regions.
+
+Furthermore, we can see the following warning message in the chunk above: 
+
+```{r}
+#> Warning: executing %dopar% sequentially: no parallel backend registered
+```
+
+This is printed in the screen just to warn us that `RAMEN::findVMRs()` is running sequentially. RAMEN supports parallel computing for increased speed, which is really important when working with real data sets that tend to contain information from the whole genome. To do so, you have to set the parallel backend in your R session BEFORE running the function (e.g., `doFuture::registerDoFuture()`) and then the evaluation strategy (e.g., `future::plan(multisession)`). After that, the function can be run normally. When working with big datasets, the parallel backend might throw an error if you exceed the maximum allowed size of globals exported for future expression. This can be fixed by increasing the allowed size (e.g. running `options(future.globals.maxSize= +Inf)`)
+
+Finally, we will convert the output of `RAMEN::findVMRs()` to a data frame, which is an object that we can easily use to produce plots and explore the results, and the object that is needed for the following parts of the pipeline. 
+
+```{r}
+VMRs_df = as.data.frame(VMRs[["canonical_VMRs"]]) %>% 
+  rbind(as.data.frame(VMRs[["non_canonical_VMRs"]])) %>% 
+  select( -c(width.1,strand))
+
+head(VMRs_df)
+```
+
+With the VMRs as a data frame, we can explore our data set using ggplot, such as the following example: 
+
+```{r, fig.cap="Width of non canonical VMRs (base pairs)."}
+VMRs_df %>% 
+  filter(width > 1) %>% #Only plot canonical VMRs 
+  ggplot(aes(x = width))+
+  geom_histogram(binwidth = 50, fill = "#BAB4D8")+
+  theme_classic()+
+  ggtitle("Canonical VMRs width (bp)") 
+```
+
+Next, we want to summarize the DNAme level of each VMR per individual. To do this, we use `RAMEN::summarizeVMRs()`. For non canonical VMRs, there is nothing to summarize, so the DNAme level of the corresponding probe is returned. For canonical VMRs, the median DNAme level of the region is returned per individual as the representative value. 
+
+```{r}
+summarized_methyl_VMR = RAMEN::summarizeVMRs(VMRs_df = VMRs_df,
+                                             methylation_data = test_methylation_data)
+
+# Look at the resulting object
+summarized_methyl_VMR[1:5,1:5]
+```
+
+The result is a data frame of VMR IDs as columns and individual IDs as rows. 
+
+## Identify *cis* SNPs
+
+After identifying the VMRs, we recommend to use only SNPs in *cis* of each VMR, since genetic variants that associate with DNAme changes tend to be more abundant in the surroundings of the corresponding DNAme site (McClay *et al.*, 2015). Also, the effect sizes of mQTLs (genetic variants associated with DNAme changes) are stronger in *cis* SNPs compared to *trans* SNPs. Then, by restricting the analysis to *cis* SNPs, we greatly reduce the number of variables while keeping most of the important ones. 
+
+There is not a clear consensus on how close a SNP has to be from a DNAme site to be considered *cis* - the distance threshold tend to go from few kb to 1 megabase. We recommend to use a 1 Mb window to cast a wide net to catch potentially relevant SNPs.
+
+```{r}
+VMRs_df = RAMEN::findCisSNPs(VMRs_df = VMRs_df, 
+                            genotype_information = RAMEN::test_genotype_information, 
+                            distance = 1e+06)
+
+#Take a look at the result
+glimpse(VMRs_df) 
+```
+
+We can see that the resulting VMRs_df object is almost exactly the same, but with two new columns (*surrounding_SNPs* and *SNP*) that contain information about how many SNPs were found in *cis* and what are their IDs according to the genotype data that we have. 
+
+It is important to highlight the following characteristics of the VMRs_df object: 
+
+  -   The *VMR_index* column is a character vector. This column corresponds to the unique identifier of each VMR in our data set. It is important to **keep it as a character** and be careful with it not being converted to numeric, which can happen if you save the VMRs_df object as a table, read it, and use that second object in the rest of the pipeline. 
+  -   The columns *probes* and *SNP* contain **lists**. This structure is really important for the rest of the analysis and columns containing lists will keep appearing in other function outputs. If you want to know the recommended way to save and load these objects, please check the [ Frequently Asked Questions][].
+
+We can also explore the resulting object through plots such as the following: 
+
+```{r cissnps, fig.cap="Disribution of SNPs in cis of VMRs."}
+VMRs_df %>% 
+  mutate(type = case_when(n_VMPs == 1 ~ "non canonical", #non canonical VMRs have only 1 probe by definition
+                          TRUE ~ "canonical"),
+         surrounding_SNPs = case_when( surrounding_SNPs > 3000 ~ 3000,
+                                       TRUE ~ surrounding_SNPs)) %>% 
+  ggplot(aes(x = surrounding_SNPs)) +
+  geom_density() +
+  facet_grid("type") +
+  theme_classic()
+```
+
+## Conduct variable selection on genome and exposome variables 
+
+The following stage in the pipeline is to screen the available variables in our environmental and *cis* SNPs data sets to identify the potentially relevant ones. This is achieved with the `RAMEN::selectVariables()` function. This function uses a data-driven approach based on LASSO, which is an embedded variable selection method commonly used in machine learning. 
+
+In a nutshell, LASSO penalizes models that are more complex (i.e., that contain more variables) in favor of simpler models (i.e. that contain less variables), but not at the expense of reducing predictive power. Using LASSO's variable screening property (i.e., with high probability, the LASSO estimated model includes the substantial covariates and drops the redundant ones) this function is intended to select genotype and environmental variables in each Variable Methylated Region (VMR) with potential relevance in the presence of the user-specified concomitant variables (which are known DNAme confounders such as age, cell type proportion, etc.). For more information about the method, we encourage the users to read the documentation of the function, and for further information about LASSO we direct readers to Bühlmann and Van de Geer, 2011. 
+
+Overall, conducting our variable selection strategy reduces the overall computational time and improves the modeling performance by:
+
+  -   Reducing the universe of variables that will be used to fit models in the following stage (G/E/G+E/GxE model fitting and comparison)
+  -   Removing redundant variables, which are highly expected in genetic and environmental data sets with a high number of variables
+  -   Limiting the interactions terms to scenarios where both the G and E main effects were selected to be potentially relevant, which can be think of as an interaction variable selection using a weak hierarchy 
+  -   Using LASSO, a method with good variable selection performance and scalability 
+
+```{r}
+selected_variables = RAMEN::selectVariables(
+  VMRs_df = VMRs_df,
+  genotype_matrix = RAMEN::test_genotype_matrix,
+  environmental_matrix= RAMEN::test_environmental_matrix,
+  covariates = RAMEN::test_covariates,
+  summarized_methyl_VMR = summarized_methyl_VMR,
+  seed = 1
+)
+```
+
+Since LASSO makes use of Random Number Generation, setting a seed is highly encouraged for result's reproducibility using the *seed* argument. As a note, setting a seed inside of this function modifies the seed globally (which is R's default behavior). 
+
+The output of `RAMEN::selectVariables()` is an object with the VMR index, and the G and E variables selected for each VMR. 
+
+```{r}
+glimpse(selected_variables)
+```
+
+We can see how using `RAMEN::selectVariables()` reduces the number of variables (originally 100 environmental variables and 785 SNPs per VMR on average as seen in Figure \@ref(fig:cissnps)). 
+
+```{r selectedvars, fig.cap="Number of G and E selected variables."}
+selected_variables %>% 
+  left_join(VMRs_df %>% 
+              select(c(VMR_index,n_VMPs)),
+            by = "VMR_index") %>% 
+  transmute(VMR_index = VMR_index,
+            VMR_type = case_when(n_VMPs > 1 ~ "canonical",
+                          n_VMPs == 1 ~ "non canonical"), 
+            genotype = lengths(selected_genot),
+            environment = lengths(selected_env)) %>% 
+  pivot_longer(-c(VMR_index, VMR_type)) %>% 
+  dplyr::rename(group = name,
+         variables = value) %>% 
+  ggplot(aes(x = VMR_type, y = variables)) +
+  geom_violin() + 
+  geom_boxplot(width=0.1, outlier.shape=NA) +
+  facet_wrap(~group)+
+  ggtitle("Selected variables")  +
+  theme_classic()
+```
+
+It is also expected in real data to have VMRs where no SNP and/or no environmental variables were selected, since not all the DNAme sites in the genome are expected to show an association with the genetic variation or environmental exposures data sets that are captured in a study. The proportion of VMRs under these scenarios will depend on the data sets. 
+
+### Author's note about interpretation 
+
+LASSO variable selection is not consistent when there is multicollinearity in the data (i.e., correlation between variables), which is expected due to the high amount of G and E variables that are present in studies of this kind. This means that if you were to run LASSO several times, and two variables were to be highly correlated, the method would select one and drop the other one at random. This is not a problem with the pipeline because the main conclusion per VMR is whether the DNAme is better explained by G and/or E components. As an example, if a VMR is better explained by SNP1 and SNP2, which are both highly correlated one with the other, LASSO will randomly pick SNP1 OR SNP2 (because they are relevant but they provide redundant information); if we were to fit a model with SNP1 or SNP2 in the following stage, the winning model would still be G. In other words, the main goal of the pipeline is to know whether the VMR's DNAme is better explained by G and/or E. The user is therefore warned to **be cautious not to over-interpret the individual selected variables**. Selected variables might be used as hypothesis generators of associations, keeping in mind that the selected variable might be representing other variables in the data set that provide similar information.
+
+## Identify the best explanatory model (G/E/G+E/GxE) per VMR
+
+Now that we have selected the list of potentially relevant G and E variables, we will fit the models mentioned in Table \@ref(tab:modelstable) using the `RAMEN::lmGE()` function. This function fits for each VMR G and E models with all of the variables selected, as well as all their possible pairwise combinations of G+E and GxE. 
+
+After fitting this model, the best model per group (group = G, E, G+E or GxE) is selected using Akaike Information Criterion (AIC) or Bayesian Information Criterion (BIC). We recommend using AIC because BIC assumes that the true model is in the set of compared models. Since this function fits models with individual variables, and we assume that DNAme variability is more likely to be influenced by more than one single SNP/environmental exposure at a time, we hypothesize that in most cases, the true model will not be in the set of compared models. Also, AIC excels in situations where all models in the model space are "incorrect", and AIC is preferentially used in cases where the true underlying function is unknown and our selected model could belong to a very large class of functions where the relationship could be pretty complex. It is worth mentioning however that, both metrics tend to pick the same model in a large number of scenarios. We suggest the users to read Arijit Chakrabarti & Jayanta K. Ghosh, 2011 for further information about the difference between these metrics. After selecting the best model per group (G,E,G+E pr GxE), the model with the lowest AIC will be declared as the winning model.
+
+Additionally, `RAMEN::lmGE()` conducts a variance decomposition analysis, so that the relative R2 contribution of each of the variables of interest (G, E and GxE) is reported. This decomposition is done using the `r CRANpkg("relaimpo")` R package, using the Lindeman, Merenda and Gold (lmg) method, which is based on the heuristic approach of averaging the relative R contribution of each variable over all input orders in the linear model.
+
+```{r}
+lmge_res = RAMEN::lmGE(
+  selected_variables = selected_variables,
+  summarized_methyl_VMR = summarized_methyl_VMR,
+  genotype_matrix = RAMEN::test_genotype_matrix,
+  environmental_matrix = RAMEN::test_environmental_matrix,
+  covariates = RAMEN::test_covariates,
+  model_selection = "AIC"
+)
+
+# Check the output
+glimpse(lmge_res)
+```
+
+### Remove poor performing winning models 
+
+After identifying the winning models per VMR, we proceed to the last step of the pipeline which is computing a null distribution to remove the winning models that are very likely to be winners by chance. 
+
+```{r}
+null_dist = RAMEN::nullDistGE(
+  VMRs_df = VMRs_df,
+  genotype_matrix = RAMEN::test_genotype_matrix,
+  environmental_matrix = RAMEN::test_environmental_matrix,
+  summarized_methyl_VMR = summarized_methyl_VMR,
+  permutations = 5,
+  covariates = RAMEN::test_covariates,
+  seed = 1,
+  model_selection = "AIC"
+)
+
+#Take a look at the object 
+head(null_dist)
 
 ```
 
-## Identifying VMR's *cis* SNPs 
+Now we will get a cutoff for single (G,E) and joint (G+E,GxE) models. 
 
-## Modeling genetic and environmental contribution to VMR's DNAme
+```{r, fig.cap = "R2 difference (winner - basal) in a suffled data set."}
+# Get a cutoff of the 95th percentile of the null distribution
+null_dist %>% 
+  ggplot(aes(x = R2_difference)) +
+  geom_histogram() + 
+  facet_grid("model_group") +
+  theme_classic()
 
-*WHat is an interaction model
+# Get a cutoff of the 95th percentile of the null distribution for single and joint models
+cutoff_single = quantile(null_dist %>% 
+                           filter(model_group %in% c("G","E")) %>% 
+                           pull(R2_difference), 
+                         0.95)
+cutoff_joint = quantile(null_dist %>% 
+                           filter(model_group %in% c("G+E","GxE")) %>% 
+                           pull(R2_difference), 
+                         0.95)
 
-`r Biocpkg("IRanges")`
 
-# Variations to the standard workflow
+final_res = lmge_res %>% 
+  mutate(r2_difference_basal = tot_r_squared - basal_rsquared,
+         pass_cutoff_threshold = case_when(model_group %in% c("G", "E") ~ r2_difference_basal > cutoff_single,
+                                           model_group %in% c("G+E", "GxE") ~ r2_difference_basal > cutoff_joint)) %>% 
+  filter(pass_cutoff_threshold) %>% #Filter based on the cutoff threshold
+  select(-pass_cutoff_threshold) #Drop transient column
 
-# Frequently Asked Questions
+#Check the final results
+glimpse(final_res)
+```
+
+
+# Session info
+
+```{r sessionInfo}
+sessionInfo()
+```
