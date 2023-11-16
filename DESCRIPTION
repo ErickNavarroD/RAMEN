@@ -1,6 +1,6 @@
 Package: RAMEN
 Title: RAMEN: Regional Association of Methylation variability with genotype and ENvironment
-Version: 0.0.0.9000
+Version: 0.1.9000
 Authors@R: 
     person("Erick I.", "Navarro-Delgado", , "ericknadel98@hotmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-1040-3519"))
@@ -33,3 +33,4 @@ VignetteBuilder: knitr
 Depends: 
     R (>= 2.10)
 LazyData: true
+URL: https://ericknavarrod.github.io/RAMEN/
