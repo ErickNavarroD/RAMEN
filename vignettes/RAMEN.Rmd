@@ -91,7 +91,9 @@ In the following sections we will go through each of these steps and guide the u
 ```{r setup, warning=FALSE, message=FALSE}
 #Load the packages used throughout the vignette
 library(RAMEN)
-library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
 ```
 
 ## Identify VMRs and summarize their methylation state
@@ -120,7 +122,7 @@ VMRs = RAMEN::findVMRs(array_manifest = test_array_manifest_final,
                        max_distance = 1000)
 
 #Take a look at the resulting object 
-glimpse(VMRs)
+dplyr::glimpse(VMRs)
 ```
 
 As we can see, `RAMEN::findVMRs()` returns a list with four elements: 
@@ -143,7 +145,7 @@ Finally, we will convert the output of `RAMEN::findVMRs()` to a data frame, whic
 ```{r}
 VMRs_df = as.data.frame(VMRs[["canonical_VMRs"]]) %>% 
   rbind(as.data.frame(VMRs[["non_canonical_VMRs"]])) %>% 
-  select( -c(width.1,strand))
+  dplyr::select( -c(width.1,strand))
 
 head(VMRs_df)
 ```
@@ -152,11 +154,11 @@ With the VMRs as a data frame, we can explore our data set using ggplot, such as
 
 ```{r, fig.cap="Width of non canonical VMRs (base pairs)."}
 VMRs_df %>% 
-  filter(width > 1) %>% #Only plot canonical VMRs 
-  ggplot(aes(x = width))+
-  geom_histogram(binwidth = 50, fill = "#BAB4D8")+
-  theme_classic()+
-  ggtitle("Canonical VMRs width (bp)") 
+  dplyr::filter(width > 1) %>% #Only plot canonical VMRs 
+  ggplot2::ggplot(aes(x = width))+
+  ggplot2::geom_histogram(binwidth = 50, fill = "#BAB4D8")+
+  ggplot2::theme_classic()+
+  ggplot2::ggtitle("Canonical VMRs width (bp)") 
 ```
 
 Next, we want to summarize the DNAme level of each VMR per individual. To do this, we use `RAMEN::summarizeVMRs()`. For non canonical VMRs, there is nothing to summarize, so the DNAme level of the corresponding probe is returned. For canonical VMRs, the median DNAme level of the region is returned per individual as the representative value. 
@@ -183,7 +185,7 @@ VMRs_df = RAMEN::findCisSNPs(VMRs_df = VMRs_df,
                             distance = 1e+06)
 
 #Take a look at the result
-glimpse(VMRs_df) 
+dplyr::glimpse(VMRs_df) 
 ```
 
 We can see that the resulting VMRs_df object is almost exactly the same, but with two new columns (*surrounding_SNPs* and *SNP*) that contain information about how many SNPs were found in *cis* and what are their IDs according to the genotype data that we have. 
@@ -197,14 +199,14 @@ We can also explore the resulting object through plots such as the following:
 
 ```{r cissnps, fig.cap="Disribution of SNPs in cis of VMRs."}
 VMRs_df %>% 
-  mutate(type = case_when(n_VMPs == 1 ~ "non canonical", #non canonical VMRs have only 1 probe by definition
+  dplyr::mutate(type = case_when(n_VMPs == 1 ~ "non canonical", #non canonical VMRs have only 1 probe by definition
                           TRUE ~ "canonical"),
          surrounding_SNPs = case_when( surrounding_SNPs > 3000 ~ 3000,
                                        TRUE ~ surrounding_SNPs)) %>% 
-  ggplot(aes(x = surrounding_SNPs)) +
-  geom_density() +
-  facet_grid("type") +
-  theme_classic()
+  ggplot2::ggplot(aes(x = surrounding_SNPs)) +
+  ggplot2::geom_density() +
+  ggplot2::facet_grid("type") +
+  ggplot2::theme_classic()
 ```
 
 ## Conduct variable selection on genome and exposome variables 
@@ -236,30 +238,30 @@ Since LASSO makes use of Random Number Generation, setting a seed is highly enco
 The output of `RAMEN::selectVariables()` is an object with the VMR index, and the G and E variables selected for each VMR. 
 
 ```{r}
-glimpse(selected_variables)
+dplyr::glimpse(selected_variables)
 ```
 
 We can see how using `RAMEN::selectVariables()` reduces the number of variables (originally 100 environmental variables and 785 SNPs per VMR on average as seen in Figure \@ref(fig:cissnps)). 
 
 ```{r selectedvars, fig.cap="Number of G and E selected variables."}
 selected_variables %>% 
-  left_join(VMRs_df %>% 
+  dplyr::left_join(VMRs_df %>% 
               select(c(VMR_index,n_VMPs)),
             by = "VMR_index") %>% 
-  transmute(VMR_index = VMR_index,
+  dplyr::transmute(VMR_index = VMR_index,
             VMR_type = case_when(n_VMPs > 1 ~ "canonical",
                           n_VMPs == 1 ~ "non canonical"), 
             genotype = lengths(selected_genot),
             environment = lengths(selected_env)) %>% 
-  pivot_longer(-c(VMR_index, VMR_type)) %>% 
+  tidyr::pivot_longer(-c(VMR_index, VMR_type)) %>% 
   dplyr::rename(group = name,
          variables = value) %>% 
-  ggplot(aes(x = VMR_type, y = variables)) +
-  geom_violin() + 
-  geom_boxplot(width=0.1, outlier.shape=NA) +
-  facet_wrap(~group)+
-  ggtitle("Selected variables")  +
-  theme_classic()
+  ggplot2::ggplot(aes(x = VMR_type, y = variables)) +
+  ggplot2::geom_violin() + 
+  ggplot2::geom_boxplot(width=0.1, outlier.shape=NA) +
+  ggplot2::facet_wrap(~group)+
+  ggplot2::ggtitle("Selected variables")  +
+  ggplot2::theme_classic()
 ```
 
 It is also expected in real data to have VMRs where no SNP and/or no environmental variables were selected, since not all the DNAme sites in the genome are expected to show an association with the genetic variation or environmental exposures data sets that are captured in a study. The proportion of VMRs under these scenarios will depend on the data sets. 
@@ -287,7 +289,7 @@ lmge_res = RAMEN::lmGE(
 )
 
 # Check the output
-glimpse(lmge_res)
+dplyr::glimpse(lmge_res)
 ```
 
 ### Remove poor performing winning models 
@@ -316,10 +318,10 @@ Now we will get a cutoff for single (G,E) and joint (G+E,GxE) models.
 ```{r, fig.cap = "R2 difference (winner - basal) in a suffled data set."}
 # Get a cutoff of the 95th percentile of the null distribution
 null_dist %>% 
-  ggplot(aes(x = R2_difference)) +
-  geom_histogram() + 
-  facet_grid("model_group") +
-  theme_classic()
+  ggplot2::ggplot(aes(x = R2_difference)) +
+  ggplot2::geom_histogram() + 
+  ggplot2::facet_grid("model_group") +
+  ggplot2::theme_classic()
 
 # Get a cutoff of the 95th percentile of the null distribution for single and joint models
 cutoff_single = quantile(null_dist %>% 
@@ -333,14 +335,14 @@ cutoff_joint = quantile(null_dist %>%
 
 
 final_res = lmge_res %>% 
-  mutate(r2_difference_basal = tot_r_squared - basal_rsquared,
+  dplyr::mutate(r2_difference_basal = tot_r_squared - basal_rsquared,
          pass_cutoff_threshold = case_when(model_group %in% c("G", "E") ~ r2_difference_basal > cutoff_single,
                                            model_group %in% c("G+E", "GxE") ~ r2_difference_basal > cutoff_joint)) %>% 
-  filter(pass_cutoff_threshold) %>% #Filter based on the cutoff threshold
-  select(-pass_cutoff_threshold) #Drop transient column
+  dplyr::filter(pass_cutoff_threshold) %>% #Filter based on the cutoff threshold
+  dplyr::select(-pass_cutoff_threshold) #Drop transient column
 
 #Check the final results
-glimpse(final_res)
+dplyr::glimpse(final_res)
 ```
 
 
