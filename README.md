@@ -53,7 +53,7 @@ parallel computing.
 
 ## Usage
 
-Please visit the [package website](https://ericknavarrod.github.io/RAMEN) or check the vignette for a detailed tutorial about how to use RAMEN. 
+Please go to the *Get started* tab in the [package website](https://ericknavarrod.github.io/RAMEN) or check the vignette for a detailed tutorial about how to use RAMEN. 
 
 ## Variations to the standard workflow
 
