@@ -4,8 +4,7 @@ Version: 0.1.9000
 Authors@R: 
     person("Erick I.", "Navarro-Delgado", , "ericknadel98@hotmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-1040-3519"))
-Description: Package that identifies Variable Methylated Regions (VMRs) in a microarray methylation data set and, using Genotype (G) and Environmental (E) data, then identifies the independent or joint model (G, E, G + E or GxE) that best explains its variability.
-License: GPL (>= 3)
+Description: R package to identify which genetic (G), environmental (E), additive (G+E) or interaction (GxE) model better explains DNA methylation levels in microarray Variable Methylated Regions.
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
