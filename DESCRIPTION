@@ -4,7 +4,8 @@ Version: 0.1.9000
 Authors@R: 
     person("Erick I.", "Navarro-Delgado", , "ericknadel98@hotmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-1040-3519"))
-Description: R package to identify which genetic (G), environmental (E), additive (G+E) or interaction (GxE) model better explains DNA methylation levels in microarray Variable Methylated Regions.
+Description: R package that identifies which genetic (G), environmental (E), additive (G+E) or interaction (GxE) model better explains DNA methylation levels in Variable Methylated Regions using microarray data.
+License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
