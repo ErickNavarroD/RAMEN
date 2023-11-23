@@ -105,7 +105,9 @@ RAMEN identifies 2 categories of VMRs:
   -   Canonical VMRs: Group of Highly Variable Probes that are proximal and correlated. Highly Variable Probes are defined as probes above a specific variance percentile threshold specified by the user (the default is 90th percentile). The proximity distance and pearson correlation threshold is specified by the user, and the defaults are 1 kilobase and 0.15 respectively. For guidance on which correlation threshold to use, we recommend checking the Supplementary Figure 1 of the CoMeBack R package (Gatev et al., 2020) where a simulation to empirically determine a default guidance specification for a correlation threshold parameter dependent on sample size is done.
   -   Non canonical VMRs: Regions that are composed of Highly Variable Probes that have no nearby probes measured in the array (according to the distance parameter specified by the user). This category was created to take into account the characteristics of the DNAme microarray plataform, which has probes covering non-homogenelously the genome. This is specially important for microarrays such as the EPIC array which has a high number of probes in regulatory regions that are represented by a single probe. Furthermore, these probes have been shown to be good representatives of the methylation state of its surroundings (Pidsley et al., 2016). By creating this category, we recover those informative HVPs that would otherwise be excluded from the analysis because of working with the canonical VMR definition in the array context.
 
-The first step is to identify **Variable Methylated Regions**(VMRs) using the `RAMEN::findVMRs()` function. This function uses GenomicRanges::reduce() to group the regions, which is strand-sensitive. In the Illumina microarrays, the MAPINFO for all the probes is usually provided as for the + strand. If you are using this array, we recommend to first convert the strand of all the probes to "+".
+The first step is to identify **Variable Methylated Regions**(VMRs) using the `RAMEN::findVMRs()` function. This function uses GenomicRanges::reduce() to group the regions, which is strand-sensitive. In the Illumina microarrays, the MAPINFO for all the probes is usually provided as for the + strand. If you are using this array, we recommend to first convert the strand of all the probes to "+". 
+
+For this step, we recommend users to use M-values because its use is more appropiate for statistical analyses (see Pan Du, *et al.*, 2010, *BMC Bioinformatics*)
 
 ```{r}
 #We need to modify the RAMEN::test_array_manifest object by assigning to 
@@ -266,15 +268,15 @@ selected_variables %>%
 
 It is also expected in real data to have VMRs where no SNP and/or no environmental variables were selected, since not all the DNAme sites in the genome are expected to show an association with the genetic variation or environmental exposures data sets that are captured in a study. The proportion of VMRs under these scenarios will depend on the data sets. 
 
-### Author's note about interpretation 
+### Author's note about variables interpretation 
 
 LASSO variable selection is not consistent when there is multicollinearity in the data (i.e., correlation between variables), which is expected due to the high amount of G and E variables that are present in studies of this kind. This means that if you were to run LASSO several times, and two variables were to be highly correlated, the method would select one and drop the other one at random. This is not a problem with the pipeline because the main conclusion per VMR is whether the DNAme is better explained by G and/or E components. As an example, if a VMR is better explained by SNP1 and SNP2, which are both highly correlated one with the other, LASSO will randomly pick SNP1 OR SNP2 (because they are relevant but they provide redundant information); if we were to fit a model with SNP1 or SNP2 in the following stage, the winning model would still be G. In other words, the main goal of the pipeline is to know whether the VMR's DNAme is better explained by G and/or E. The user is therefore warned to **be cautious not to over-interpret the individual selected variables**. Selected variables might be used as hypothesis generators of associations, keeping in mind that the selected variable might be representing other variables in the data set that provide similar information.
 
 ## Identify the best explanatory model (G/E/G+E/GxE) per VMR
 
-Now that we have selected the list of potentially relevant G and E variables, we will fit the models mentioned in Table \@ref(tab:modelstable) using the `RAMEN::lmGE()` function. This function fits for each VMR G and E models with all of the variables selected, as well as all their possible pairwise combinations of G+E and GxE. 
+Now that we have selected the list of potentially relevant G and E variables, we will fit the models mentioned in Table \@ref(tab:modelstable) using the `RAMEN::lmGE()` function. This function fits, for each VMR, G and E models with all of the variables selected, as well as all their possible pairwise combinations of G+E and GxE. 
 
-After fitting this model, the best model per group (group = G, E, G+E or GxE) is selected using Akaike Information Criterion (AIC) or Bayesian Information Criterion (BIC). We recommend using AIC because BIC assumes that the true model is in the set of compared models. Since this function fits models with individual variables, and we assume that DNAme variability is more likely to be influenced by more than one single SNP/environmental exposure at a time, we hypothesize that in most cases, the true model will not be in the set of compared models. Also, AIC excels in situations where all models in the model space are "incorrect", and AIC is preferentially used in cases where the true underlying function is unknown and our selected model could belong to a very large class of functions where the relationship could be pretty complex. It is worth mentioning however that, both metrics tend to pick the same model in a large number of scenarios. We suggest the users to read Arijit Chakrabarti & Jayanta K. Ghosh, 2011 for further information about the difference between these metrics. After selecting the best model per group (G,E,G+E pr GxE), the model with the lowest AIC will be declared as the winning model.
+After fitting this model, the best model per group (group = G, E, G+E or GxE) is selected using Akaike Information Criterion (AIC) or Bayesian Information Criterion (BIC). We recommend using AIC because BIC assumes that the true model is in the set of compared models. Since this function fits models with individual variables, and we assume that DNAme variability is more likely to be influenced by more than one single SNP/environmental exposure at a time, we hypothesize that in most cases, the true model will not be in the set of compared models. Also, AIC excels in situations where all models in the model space are "incorrect", and AIC is preferentially used in cases where the true underlying function is unknown and our selected model could belong to a very large class of functions where the relationship could be pretty complex. It is worth mentioning however that, both metrics tend to pick the same model in a large number of scenarios. We suggest the users to read Arijit Chakrabarti & Jayanta K. Ghosh, 2011 for further information about the difference between these metrics. After selecting the best model per group (G,E,G+E pr GxE), the model with the lowest AIC or BIC will be declared as the winning model.
 
 Additionally, `RAMEN::lmGE()` conducts a variance decomposition analysis, so that the relative R2 contribution of each of the variables of interest (G, E and GxE) is reported. This decomposition is done using the `r CRANpkg("relaimpo")` R package, using the Lindeman, Merenda and Gold (lmg) method, which is based on the heuristic approach of averaging the relative R contribution of each variable over all input orders in the linear model.
 
@@ -291,12 +293,36 @@ lmge_res = RAMEN::lmGE(
 # Check the output
 dplyr::glimpse(lmge_res)
 ```
+The output of `RAMEN::lmGE()` is a data frame with the following 13 columns:
+
+  -   *VMR_index*: The index of the respective VMR
+  -   *model_group*: The selected winning model (G, E, G+E or GxE)
+  -   *variables*: The variable(s) that are present in the winning model (excluding the covariates, which are included in all the models)
+  -   *tot_r_squared*: total R squared of the winning model
+  -   *g_r_squared*: Estimated R2 allocated to the G component in the winning model, if applicable
+  -   *e_r_squared*: Estimated R2 allocated to the E in the winning model, if applicable.
+  -   *gxe_r_squared*: Estimated R2 allocated to the interaction in the winning model (GxE), if applicable.
+  -   *AIC/BIC*: AIC or BIC metric from the best model in each VMR (depending on the option specified in the argument model_selection).
+  -   *second_winner*: The second group that possesses the next best model after the winning one (i.e., G, E, G+E or GxE). This column may have NA if the variables in selected_variables correspond only to one group (G or E), so that there is no other model groups to compare to.
+  -   *delta_aic/delta_bic*: The difference of AIC or BIC (depending on the option specified in the argument model_selection) of the winning model and the best model from the second_winner group (i.e., G, E, G+E or GxE). This column may have NA if the variables in selected_variables correspond only to one group (G or E), so that there is no other groups to compare to.
+  -   *delta_r_squared*: The R2 of the winning model - R2 of the second winner model. This column may have NA if the variables in selected_variables correspond only to one group (G or E), so that there is no other groups to compare to.
+  -   *basal_AIC/basal_BIC*: AIC or BIC of the basal model (i.e., model fitted only with the concomitant variables specified in the covariates argument)
+  -   *basal_rsquared*: The R2 of the basal model (i.e., model fitted only with the concomitant variables specified in the covariates argument)
 
 ### Remove poor performing winning models 
 
-After identifying the winning models per VMR, we proceed to the last step of the pipeline which is computing a null distribution to remove the winning models that are very likely to be winners by chance. 
+The core pipeline from the RAMEN package identifies the best explanatory model per VMR. However, despite these models being winners in comparison to models including any other G/E variable(s) in the dataset, some winning models might perform no better than what we would expect by chance. Therefore, The last step of the pipeline after identifying the winning models per VMR is to compute a null distribution to remove the winning models that are very likely to be winners by chance. To do so, we use `RAMEN::nullDistGE()`. 
+
+The goal of `RAMEN::nullDistGE()` is to create a distribution of increase in R2 after including the SNP/E/SNP*E variables under the null hypothesis of G and E having no associations with DNAme. The null distribution is obtained through shuffling the G and E variables in a given dataset and conducting the variable selection and G/E model selection. That way, we can simulate how much additional variance would be explained by the models defined as winners by the RAMEN methodology in a scenario where the G and E associations with DNAme are randomized. This distribution can be then used to filter out winning models in the non-shuffled dataset that do not add more to the explained variance of the basal model than what randomized data do.
+
+For clarification, please note that in this vignette when we refer to SNP*E, we are referring to the interaction term that is present in the the interaction model (i.e. interaction variable in the GxE model).
+
+Under the assumption that after adjusting for the concomitant variables all VMRs across the genome follow the same behavior regarding an increment of explained variance with randomized G and E data, we can pool the delta R squared values from all VMRs to create a null distribution taking advantage of the high number of VMRs in the dataset. This assumption decreases significantly the number of permutations required to create a null distribution and reduces the computational time. For further information please read the RAMEN paper (in preparation).
+
+`RAMEN::nullDistGE()` simulates the delta R squared distribution under the null hypothesis of G and E having no association with DNA methylation (DNAme) variability through a permutation analysis. To do so, this function shuffles the G and E variables in the dataset, which is followed by a the variable selection and modelling steps with selectVariables() and lmGE().These steps are repeated several times as indicated in the *permutations* parameter. In other words, by using shuffled G and E data, we simulate the increase of R2 that would be observed in random data using the RAMEN methodology.
 
 ```{r}
+# Compute the null distribution 
 null_dist = RAMEN::nullDistGE(
   VMRs_df = VMRs_df,
   genotype_matrix = RAMEN::test_genotype_matrix,
@@ -310,19 +336,24 @@ null_dist = RAMEN::nullDistGE(
 
 #Take a look at the object 
 head(null_dist)
-
 ```
 
-Now we will get a cutoff for single (G,E) and joint (G+E,GxE) models. 
+The output is a data frame where the most useful column for our purpose is *R2_difference*, which corresponds to the increase in R squared obtained by including the G/E variable(s) from the winning model (i.e., the R squared difference between the winning model and the model only with the concomitant variables specified in covariates; tot_r_squared - basal_rsquared in the lmGE output)
+
+We recommend to use two different thresholds for the winning models depending of whether they are marginal (G or E) or joint models (G+E or GxE). The reason for this is that they have different R2_difference distributions. E and G models have a lower mean R2_difference because they have a single shuffled term in the model (SNP or E). In comparison, joint models have a higher mean R2_difference because they have two or three shuffled terms (SNP, E and SNP*E), which just by chance increases their probability of having a higher R2_difference. 
 
 ```{r, fig.cap = "R2 difference (winner - basal) in a suffled data set."}
-# Get a cutoff of the 95th percentile of the null distribution
+# See the distribution of R2_difference across different winning models
 null_dist %>% 
   ggplot2::ggplot(aes(x = R2_difference)) +
   ggplot2::geom_histogram() + 
   ggplot2::facet_grid("model_group") +
   ggplot2::theme_classic()
+```
 
+We suggest using the 95th percentile of those distributions as a threshold to remove bad performing winning models found in our observed data. 
+
+```{r}
 # Get a cutoff of the 95th percentile of the null distribution for single and joint models
 cutoff_single = quantile(null_dist %>% 
                            filter(model_group %in% c("G","E")) %>% 
@@ -333,18 +364,94 @@ cutoff_joint = quantile(null_dist %>%
                            pull(R2_difference), 
                          0.95)
 
-
-final_res = lmge_res %>% 
+#Filter out bad performing winning models.
+filtered_res = lmge_res %>% 
   dplyr::mutate(r2_difference_basal = tot_r_squared - basal_rsquared,
          pass_cutoff_threshold = case_when(model_group %in% c("G", "E") ~ r2_difference_basal > cutoff_single,
                                            model_group %in% c("G+E", "GxE") ~ r2_difference_basal > cutoff_joint)) %>% 
   dplyr::filter(pass_cutoff_threshold) %>% #Filter based on the cutoff threshold
-  dplyr::select(-pass_cutoff_threshold) #Drop transient column
+  dplyr::select(-pass_cutoff_threshold) #Drop temporary column
 
 #Check the final results
-dplyr::glimpse(final_res)
+dplyr::glimpse(filtered_res)
 ```
 
+We can see that the final data set in this example dropped almost all of the VMRs we had. This is something expected since we are working with toy data coming from random sampling. 
+
+We recommend the users of the package to include the number of VMRs where we could not find a conclusive best model in the final results report (either because no variables were selected with `RAMEN::selectVariables()` or because they did not pass the R2_difference threshold obtained with `RAMEN::nullDistGE()`). 
+
+```{r finalresults, fig.cap="Variable Methylated Regions best explanatory models"}
+# Include the VMRs with no winning model in the final results object
+final_res = VMRs_df %>% 
+  dplyr::left_join(filtered_res,
+                    by = "VMR_index")
+
+# Plot final results
+final_res %>% 
+  dplyr::group_by(model_group) %>% 
+  dplyr::summarise(count = n()) %>% 
+  ggplot2::ggplot(aes(x = model_group, y = count)) +
+  ggplot2::geom_col() +
+  ggplot2::xlab("Best explanatory model") +
+  ggplot2::ylab("VMRs") +
+  ggplot2::theme_classic() 
+```
+
+So, we can see that for this toy example, we got the following results:
+
+  - VMRs better explained by a G model: 2   
+  - VMRs better explained by a E model: 1
+  - VMRs better explained by a G+E model: 1
+  - VMRs better explained by a GxE model: 3
+  - VMRs with no conclusive explanatory model: 124
+
+
+### Author's note about model interpretation 
+
+For model simplicity, each winning model have a single E and/or G variable (and its interaction term when applicable). That means that in a scenario where a given VMR is under the influence of 2 or more Es or Gs, only the one that better explains the VMR's DNAme alone will be selected. In other words, if a VMR in reality is influenced by e.g. folate intake and smoking, and we have information about both environmental exposures, the best model (E) will have only folate intake (in case that is the variable that better explains DNAme variability in that region alone). So, interpreting this as the VMR not being potentially under the influence of smoking might not be correct. We recommend the user to check the total R2 of the winning model to explore the remaining variance that is not explained by the winning model. 
+
+We also stress that **interpretation of individual variables should be done with caution and used only as exploration and research hypothesis generation**. Please see [ Author's note about variables interpretation ][]) where we advice against over-interpretation of the selected variables; the same logic applies to the variables present in the winning models. 
+
+# Variations to the standard workflow
+
+Besides using RAMEN for completing the analysis mentioned above, the outputs of the package's function can help users in other DNAme analyses, such as:
+
+  -   Reduction of tests prior to an EWAS or differential methylation analysis  with `RAMEN::findVMRs()`(i.e., conducting the analysis on identified VMRs which 1) reduces redundant tests by grouping nearby correlated CpGs, and 2) avoids tests in non-variant regions). This can help to reduce the multiple hypothesis testing burden.
+  -   Summarize a DNAme region of interest with `RAMEN::summarizeVMRs()`
+  -   Easily conduct variable selection in high-dimensional data sets to identify potentially relevant variables from one or two independent data sets with `RAMEN::selectVariables()`.
+  -   Fit additive and interaction models given two sets of variables of interest (not limited to G and E) and select the best explanatory model for DNAme data with `RAMEN::selectVariables()` and `RAMEN::lmGE()` (e.g. exploring the interaction between two environmental dimensions and their contribution to DNAme variability).
+  -   Quickly identify SNPs in *cis* of CpG probes with `RAMEN::findCisSNPs()` (e.g. for cis mQTL analyses)
+  -   Get the median correlation of probes in regions of interest (with `RAMEN::medCorVMR()`).
+
+# Frequently Asked Questions
+
+**How can I save the RAMEN data frames that have columns with lists as observations?**
+
+Saving the data frames produced by RAMEN might seem difficult because it has lists as observations in several columns, which is not supported by some read/write functions. We suggest two options: 
+
+  1.    Use `fwrite()` and `fread()`  from the `r CRANpkg("data.table")` package (recommended because of time and storage space). 
+
+```{r, eval=FALSE}
+# Example for saving and reading selected_variables object
+data.table::fwrite(selected_variables, file = "path/selected_variables.csv")
+
+# Read the csv file and make lists the elements in the required columns
+selected_variables = fread("path/selected_variables.csv", data.table = FALSE) %>% 
+    mutate(selected_genot = str_split(selected_genot, pattern = "\\|"), # fwrite saves lists as strings separated by |
+         selected_env =str_split(selected_env, pattern = "\\|"),
+         VMR_index = as.character(VMR_index)) 
+```
+
+  2.    Save files as .rds
+
+```{r, eval=FALSE}
+# Example for saving the selected_variables object
+saveRDS(selected_variables, file = "path/selected_variables.Rds")
+
+#Load the object
+readRDS(file = "path/selected_variables.Rds")
+
+```
 
 # Session info
 
