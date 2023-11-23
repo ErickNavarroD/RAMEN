@@ -157,10 +157,10 @@ recommended due to the computationally intensive tasks conducted by the
 package.</p>
 <p>In addition to the <a href="#gene-environment-interaction-analysis">standard gene-environment
 interaction modeling pipeline</a>, RAMEN can be useful for other DNAme
-analyses (see [ Variations to the standard workflow][]), such as
-reducing the tested sites in Epigenome Wide Association Studies,
-grouping DNAme probes into regions, identifying SNPs near a probe,
-etc.</p>
+analyses (see <a href="#variations-to-the-standard-workflow">Variations
+to the standard workflow</a>), such as reducing the tested sites in
+Epigenome Wide Association Studies, grouping DNAme probes into regions,
+identifying SNPs near a probe, etc.</p>
 <div class="section level3">
 <h3 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h3>
@@ -268,6 +268,9 @@ regions, which is strand-sensitive. In the Illumina microarrays, the
 MAPINFO for all the probes is usually provided as for the + strand. If
 you are using this array, we recommend to first convert the strand of
 all the probes to “+”.</p>
+<p>For this step, we recommend users to use M-values because its use is
+more appropiate for statistical analyses (see Pan Du, <em>et al.</em>,
+2010, <em>BMC Bioinformatics</em>)</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#We need to modify the RAMEN::test_array_manifest object by assigning to </span></span>
 <span><span class="co">#row names to the probe ID column; it was saved this way because storing </span></span>
@@ -450,8 +453,7 @@ rest of the pipeline.</li>
 <strong>lists</strong>. This structure is really important for the rest
 of the analysis and columns containing lists will keep appearing in
 other function outputs. If you want to know the recommended way to save
-and load these objects, please check the [ Frequently Asked
-Questions][].</li>
+and load these objects, please check the <a href="#frequently-asked-questions">Frequently Asked Questions</a>.</li>
 </ul>
 <p>We can also explore the resulting object through plots such as the
 following:</p>
@@ -565,7 +567,7 @@ variation or environmental exposures data sets that are captured in a
 study. The proportion of VMRs under these scenarios will depend on the
 data sets.</p>
 <div class="section level4">
-<h4 id="authors-note-about-interpretation">Author’s note about interpretation<a class="anchor" aria-label="anchor" href="#authors-note-about-interpretation"></a>
+<h4 id="authors-note-about-variables-interpretation">Author’s note about variables interpretation<a class="anchor" aria-label="anchor" href="#authors-note-about-variables-interpretation"></a>
 </h4>
 <p>LASSO variable selection is not consistent when there is
 multicollinearity in the data (i.e., correlation between variables),
@@ -594,9 +596,9 @@ variables in the data set that provide similar information.</p>
 <p>Now that we have selected the list of potentially relevant G and E
 variables, we will fit the models mentioned in Table
 @ref(tab:modelstable) using the <code><a href="../reference/lmGE.html">RAMEN::lmGE()</a></code> function.
-This function fits for each VMR G and E models with all of the variables
-selected, as well as all their possible pairwise combinations of G+E and
-GxE.</p>
+This function fits, for each VMR, G and E models with all of the
+variables selected, as well as all their possible pairwise combinations
+of G+E and GxE.</p>
 <p>After fitting this model, the best model per group (group = G, E, G+E
 or GxE) is selected using Akaike Information Criterion (AIC) or Bayesian
 Information Criterion (BIC). We recommend using AIC because BIC assumes
@@ -614,7 +616,7 @@ the same model in a large number of scenarios. We suggest the users to
 read Arijit Chakrabarti &amp; Jayanta K. Ghosh, 2011 for further
 information about the difference between these metrics. After selecting
 the best model per group (G,E,G+E pr GxE), the model with the lowest AIC
-will be declared as the winning model.</p>
+or BIC will be declared as the winning model.</p>
 <p>Additionally, <code><a href="../reference/lmGE.html">RAMEN::lmGE()</a></code> conducts a variance
 decomposition analysis, so that the relative R2 contribution of each of
 the variables of interest (G, E and GxE) is reported. This decomposition
@@ -649,14 +651,106 @@ of each variable over all input orders in the linear model.</p>
 <span><span class="co">#&gt; $ delta_r_squared <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> -0.013945293, -0.010539189, 0.041420496, 0.069427874, …</span></span>
 <span><span class="co">#&gt; $ basal_AIC       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 164.4893, 165.2905, 167.3019, 161.0771, 166.8374, 159.…</span></span>
 <span><span class="co">#&gt; $ basal_rsquared  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.011073059, 0.030576374, 0.015164242, 0.090309667, 0.…</span></span></code></pre></div>
+<p>The output of <code><a href="../reference/lmGE.html">RAMEN::lmGE()</a></code> is a data frame with the
+following 13 columns:</p>
+<ul>
+<li>
+<em>VMR_index</em>: The index of the respective VMR</li>
+<li>
+<em>model_group</em>: The selected winning model (G, E, G+E or
+GxE)</li>
+<li>
+<em>variables</em>: The variable(s) that are present in the winning
+model (excluding the covariates, which are included in all the
+models)</li>
+<li>
+<em>tot_r_squared</em>: total R squared of the winning model</li>
+<li>
+<em>g_r_squared</em>: Estimated R2 allocated to the G component in
+the winning model, if applicable</li>
+<li>
+<em>e_r_squared</em>: Estimated R2 allocated to the E in the winning
+model, if applicable.</li>
+<li>
+<em>gxe_r_squared</em>: Estimated R2 allocated to the interaction in
+the winning model (GxE), if applicable.</li>
+<li>
+<em>AIC/BIC</em>: AIC or BIC metric from the best model in each VMR
+(depending on the option specified in the argument
+model_selection).</li>
+<li>
+<em>second_winner</em>: The second group that possesses the next
+best model after the winning one (i.e., G, E, G+E or GxE). This column
+may have NA if the variables in selected_variables correspond only to
+one group (G or E), so that there is no other model groups to compare
+to.</li>
+<li>
+<em>delta_aic/delta_bic</em>: The difference of AIC or BIC
+(depending on the option specified in the argument model_selection) of
+the winning model and the best model from the second_winner group (i.e.,
+G, E, G+E or GxE). This column may have NA if the variables in
+selected_variables correspond only to one group (G or E), so that there
+is no other groups to compare to.</li>
+<li>
+<em>delta_r_squared</em>: The R2 of the winning model - R2 of the
+second winner model. This column may have NA if the variables in
+selected_variables correspond only to one group (G or E), so that there
+is no other groups to compare to.</li>
+<li>
+<em>basal_AIC/basal_BIC</em>: AIC or BIC of the basal model (i.e.,
+model fitted only with the concomitant variables specified in the
+covariates argument)</li>
+<li>
+<em>basal_rsquared</em>: The R2 of the basal model (i.e., model
+fitted only with the concomitant variables specified in the covariates
+argument)</li>
+</ul>
 <div class="section level4">
 <h4 id="remove-poor-performing-winning-models">Remove poor performing winning models<a class="anchor" aria-label="anchor" href="#remove-poor-performing-winning-models"></a>
 </h4>
-<p>After identifying the winning models per VMR, we proceed to the last
-step of the pipeline which is computing a null distribution to remove
-the winning models that are very likely to be winners by chance.</p>
+<p>The core pipeline from the RAMEN package identifies the best
+explanatory model per VMR. However, despite these models being winners
+in comparison to models including any other G/E variable(s) in the
+dataset, some winning models might perform no better than what we would
+expect by chance. Therefore, The last step of the pipeline after
+identifying the winning models per VMR is to compute a null distribution
+to remove the winning models that are very likely to be winners by
+chance. To do so, we use <code><a href="../reference/nullDistGE.html">RAMEN::nullDistGE()</a></code>.</p>
+<p>The goal of <code><a href="../reference/nullDistGE.html">RAMEN::nullDistGE()</a></code> is to create a
+distribution of increase in R2 after including the SNP/E/SNP*E variables
+under the null hypothesis of G and E having no associations with DNAme.
+The null distribution is obtained through shuffling the G and E
+variables in a given dataset and conducting the variable selection and
+G/E model selection. That way, we can simulate how much additional
+variance would be explained by the models defined as winners by the
+RAMEN methodology in a scenario where the G and E associations with
+DNAme are randomized. This distribution can be then used to filter out
+winning models in the non-shuffled dataset that do not add more to the
+explained variance of the basal model than what randomized data do.</p>
+<p>For clarification, please note that in this vignette when we refer to
+SNP*E, we are referring to the interaction term that is present in the
+the interaction model (i.e. interaction variable in the GxE model).</p>
+<p>Under the assumption that after adjusting for the concomitant
+variables all VMRs across the genome follow the same behavior regarding
+an increment of explained variance with randomized G and E data, we can
+pool the delta R squared values from all VMRs to create a null
+distribution taking advantage of the high number of VMRs in the dataset.
+This assumption decreases significantly the number of permutations
+required to create a null distribution and reduces the computational
+time. For further information please read the RAMEN paper (in
+preparation).</p>
+<p><code><a href="../reference/nullDistGE.html">RAMEN::nullDistGE()</a></code> simulates the delta R squared
+distribution under the null hypothesis of G and E having no association
+with DNA methylation (DNAme) variability through a permutation analysis.
+To do so, this function shuffles the G and E variables in the dataset,
+which is followed by a the variable selection and modelling steps with
+selectVariables() and lmGE().These steps are repeated several times as
+indicated in the <em>permutations</em> parameter. In other words, by
+using shuffled G and E data, we simulate the increase of R2 that would
+be observed in random data using the RAMEN methodology.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">null_dist</span> <span class="op">=</span> <span class="fu">RAMEN</span><span class="fu">::</span><span class="fu"><a href="../reference/nullDistGE.html">nullDistGE</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="co"># Compute the null distribution </span></span>
+<span><span class="va">null_dist</span> <span class="op">=</span> <span class="fu">RAMEN</span><span class="fu">::</span><span class="fu"><a href="../reference/nullDistGE.html">nullDistGE</a></span><span class="op">(</span></span>
 <span>  VMRs_df <span class="op">=</span> <span class="va">VMRs_df</span>,</span>
 <span>  genotype_matrix <span class="op">=</span> <span class="fu">RAMEN</span><span class="fu">::</span><span class="va"><a href="../reference/test_genotype_matrix.html">test_genotype_matrix</a></span>,</span>
 <span>  environmental_matrix <span class="op">=</span> <span class="fu">RAMEN</span><span class="fu">::</span><span class="va"><a href="../reference/test_environmental_matrix.html">test_environmental_matrix</a></span>,</span>
@@ -676,10 +770,22 @@ the winning models that are very likely to be winners by chance.</p>
 <span><span class="co">#&gt; 4         4     0.3777878           E     0.2874781       151.5921           1</span></span>
 <span><span class="co">#&gt; 5         6     0.6133220         G+E     0.5269145       137.8163           1</span></span>
 <span><span class="co">#&gt; 6         7     0.3451632           E     0.2497069       155.1677           1</span></span></code></pre></div>
-<p>Now we will get a cutoff for single (G,E) and joint (G+E,GxE)
-models.</p>
+<p>The output is a data frame where the most useful column for our
+purpose is <em>R2_difference</em>, which corresponds to the increase in
+R squared obtained by including the G/E variable(s) from the winning
+model (i.e., the R squared difference between the winning model and the
+model only with the concomitant variables specified in covariates;
+tot_r_squared - basal_rsquared in the lmGE output)</p>
+<p>We recommend to use two different thresholds for the winning models
+depending of whether they are marginal (G or E) or joint models (G+E or
+GxE). The reason for this is that they have different R2_difference
+distributions. E and G models have a lower mean R2_difference because
+they have a single shuffled term in the model (SNP or E). In comparison,
+joint models have a higher mean R2_difference because they have two or
+three shuffled terms (SNP, E and SNP*E), which just by chance increases
+their probability of having a higher R2_difference.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Get a cutoff of the 95th percentile of the null distribution</span></span>
+<code class="sourceCode R"><span><span class="co"># See the distribution of R2_difference across different winning models</span></span>
 <span><span class="va">null_dist</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">R2_difference</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
@@ -691,9 +797,11 @@ models.</p>
 R2 difference (winner - basal) in a suffled data set.
 </p>
 </div>
+<p>We suggest using the 95th percentile of those distributions as a
+threshold to remove bad performing winning models found in our observed
+data.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="co"># Get a cutoff of the 95th percentile of the null distribution for single and joint models</span></span>
+<code class="sourceCode R"><span><span class="co"># Get a cutoff of the 95th percentile of the null distribution for single and joint models</span></span>
 <span><span class="va">cutoff_single</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">null_dist</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>                           <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">model_group</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"G"</span>,<span class="st">"E"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>                           <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">R2_difference</span><span class="op">)</span>, </span>
@@ -703,16 +811,16 @@ R2 difference (winner - basal) in a suffled data set.
 <span>                           <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">R2_difference</span><span class="op">)</span>, </span>
 <span>                         <span class="fl">0.95</span><span class="op">)</span></span>
 <span></span>
-<span></span>
-<span><span class="va">final_res</span> <span class="op">=</span> <span class="va">lmge_res</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span><span class="co">#Filter out bad performing winning models.</span></span>
+<span><span class="va">filtered_res</span> <span class="op">=</span> <span class="va">lmge_res</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>r2_difference_basal <span class="op">=</span> <span class="va">tot_r_squared</span> <span class="op">-</span> <span class="va">basal_rsquared</span>,</span>
 <span>         pass_cutoff_threshold <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span><span class="va">model_group</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"G"</span>, <span class="st">"E"</span><span class="op">)</span> <span class="op">~</span> <span class="va">r2_difference_basal</span> <span class="op">&gt;</span> <span class="va">cutoff_single</span>,</span>
 <span>                                           <span class="va">model_group</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"G+E"</span>, <span class="st">"GxE"</span><span class="op">)</span> <span class="op">~</span> <span class="va">r2_difference_basal</span> <span class="op">&gt;</span> <span class="va">cutoff_joint</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">pass_cutoff_threshold</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="co">#Filter based on the cutoff threshold</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">pass_cutoff_threshold</span><span class="op">)</span> <span class="co">#Drop transient column</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">pass_cutoff_threshold</span><span class="op">)</span> <span class="co">#Drop temporary column</span></span>
 <span></span>
 <span><span class="co">#Check the final results</span></span>
-<span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">final_res</span><span class="op">)</span></span>
+<span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">filtered_res</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 7</span></span>
 <span><span class="co">#&gt; Columns: 14</span></span>
 <span><span class="co">#&gt; $ VMR_index           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "5", "6", "28", "39", "96", "98", "106"</span></span>
@@ -729,13 +837,135 @@ R2 difference (winner - basal) in a suffled data set.
 <span><span class="co">#&gt; $ basal_AIC           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 166.8374, 159.6965, 166.5303, 177.6443, 169.6680, …</span></span>
 <span><span class="co">#&gt; $ basal_rsquared      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.092873702, 0.086407501, 0.031071178, 0.025884145…</span></span>
 <span><span class="co">#&gt; $ r2_difference_basal <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.6751724, 0.6905201, 0.5244324, 0.6839094, 0.6398…</span></span></code></pre></div>
+<p>We can see that the final data set in this example dropped almost all
+of the VMRs we had. This is something expected since we are working with
+toy data coming from random sampling.</p>
+<p>We recommend the users of the package to include the number of VMRs
+where we could not find a conclusive best model in the final results
+report (either because no variables were selected with
+<code><a href="../reference/selectVariables.html">RAMEN::selectVariables()</a></code> or because they did not pass the
+R2_difference threshold obtained with
+<code><a href="../reference/nullDistGE.html">RAMEN::nullDistGE()</a></code>).</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Include the VMRs with no winning model in the final results object</span></span>
+<span><span class="va">final_res</span> <span class="op">=</span> <span class="va">VMRs_df</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">filtered_res</span>,</span>
+<span>                    by <span class="op">=</span> <span class="st">"VMR_index"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Plot final results</span></span>
+<span><span class="va">final_res</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">model_group</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>count <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">model_group</span>, y <span class="op">=</span> <span class="va">count</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Best explanatory model"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"VMRs"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_classic</a></span><span class="op">(</span><span class="op">)</span> </span></code></pre></div>
+<div class="figure">
+<img src="RAMEN_files/figure-html/finalresults-1.png" alt="Variable Methylated Regions best explanatory models" width="700"><p class="caption">
+Variable Methylated Regions best explanatory models
+</p>
+</div>
+<p>So, we can see that for this toy example, we got the following
+results:</p>
+<ul>
+<li>VMRs better explained by a G model: 2<br>
+</li>
+<li>VMRs better explained by a E model: 1</li>
+<li>VMRs better explained by a G+E model: 1</li>
+<li>VMRs better explained by a GxE model: 3</li>
+<li>VMRs with no conclusive explanatory model: 124</li>
+</ul>
+</div>
+<div class="section level4">
+<h4 id="authors-note-about-model-interpretation">Author’s note about model interpretation<a class="anchor" aria-label="anchor" href="#authors-note-about-model-interpretation"></a>
+</h4>
+<p>For model simplicity, each winning model have a single E and/or G
+variable (and its interaction term when applicable). That means that in
+a scenario where a given VMR is under the influence of 2 or more Es or
+Gs, only the one that better explains the VMR’s DNAme alone will be
+selected. In other words, if a VMR in reality is influenced by
+e.g. folate intake and smoking, and we have information about both
+environmental exposures, the best model (E) will have only folate intake
+(in case that is the variable that better explains DNAme variability in
+that region alone). So, interpreting this as the VMR not being
+potentially under the influence of smoking might not be correct. We
+recommend the user to check the total R2 of the winning model to explore
+the remaining variance that is not explained by the winning model.</p>
+<p>We also stress that <strong>interpretation of individual variables
+should be done with caution and used only as exploration and research
+hypothesis generation</strong>. Please see <a href="#authors-note-about-variables-interpretation">Author’s note about
+variables interpretation</a>) where we advice against
+over-interpretation of the selected variables; the same logic applies to
+the variables present in the winning models.</p>
 </div>
 </div>
 </div>
 <div class="section level2">
+<h2 id="variations-to-the-standard-workflow">Variations to the standard workflow<a class="anchor" aria-label="anchor" href="#variations-to-the-standard-workflow"></a>
+</h2>
+<p>Besides using RAMEN for completing the analysis mentioned above, the
+outputs of the package’s function can help users in other DNAme
+analyses, such as:</p>
+<ul>
+<li>Reduction of tests prior to an EWAS or differential methylation
+analysis with <code><a href="../reference/findVMRs.html">RAMEN::findVMRs()</a></code>(i.e., conducting the
+analysis on identified VMRs which 1) reduces redundant tests by grouping
+nearby correlated CpGs, and 2) avoids tests in non-variant regions).
+This can help to reduce the multiple hypothesis testing burden.</li>
+<li>Summarize a DNAme region of interest with
+<code><a href="../reference/summarizeVMRs.html">RAMEN::summarizeVMRs()</a></code>
+</li>
+<li>Easily conduct variable selection in high-dimensional data sets to
+identify potentially relevant variables from one or two independent data
+sets with <code><a href="../reference/selectVariables.html">RAMEN::selectVariables()</a></code>.</li>
+<li>Fit additive and interaction models given two sets of variables of
+interest (not limited to G and E) and select the best explanatory model
+for DNAme data with <code><a href="../reference/selectVariables.html">RAMEN::selectVariables()</a></code> and
+<code><a href="../reference/lmGE.html">RAMEN::lmGE()</a></code> (e.g. exploring the interaction between two
+environmental dimensions and their contribution to DNAme
+variability).</li>
+<li>Quickly identify SNPs in <em>cis</em> of CpG probes with
+<code><a href="../reference/findCisSNPs.html">RAMEN::findCisSNPs()</a></code> (e.g. for cis mQTL analyses)</li>
+<li>Get the median correlation of probes in regions of interest (with
+<code><a href="../reference/medCorVMR.html">RAMEN::medCorVMR()</a></code>).</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="frequently-asked-questions">Frequently Asked Questions<a class="anchor" aria-label="anchor" href="#frequently-asked-questions"></a>
+</h2>
+<p><strong>How can I save the RAMEN data frames that have columns with
+lists as observations?</strong></p>
+<p>Saving the data frames produced by RAMEN might seem difficult because
+it has lists as observations in several columns, which is not supported
+by some read/write functions. We suggest two options:</p>
+<ol style="list-style-type: decimal">
+<li>Use <code>fwrite()</code> and <code>fread()</code> from the <em><a href="https://CRAN.R-project.org/package=data.table" class="external-link">data.table</a></em>
+package (recommended because of time and storage space).</li>
+</ol>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Example for saving and reading selected_variables object</span></span>
+<span><span class="fu">data.table</span><span class="fu">::</span><span class="fu">fwrite</span><span class="op">(</span><span class="va">selected_variables</span>, file <span class="op">=</span> <span class="st">"path/selected_variables.csv"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Read the csv file and make lists the elements in the required columns</span></span>
+<span><span class="va">selected_variables</span> <span class="op">=</span> <span class="fu">fread</span><span class="op">(</span><span class="st">"path/selected_variables.csv"</span>, data.table <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>selected_genot <span class="op">=</span> <span class="fu">str_split</span><span class="op">(</span><span class="va">selected_genot</span>, pattern <span class="op">=</span> <span class="st">"\\|"</span><span class="op">)</span>, <span class="co"># fwrite saves lists as strings separated by |</span></span>
+<span>         selected_env <span class="op">=</span><span class="fu">str_split</span><span class="op">(</span><span class="va">selected_env</span>, pattern <span class="op">=</span> <span class="st">"\\|"</span><span class="op">)</span>,</span>
+<span>         VMR_index <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">VMR_index</span><span class="op">)</span><span class="op">)</span> </span></code></pre></div>
+<ol start="2" style="list-style-type: decimal">
+<li>Save files as .rds</li>
+</ol>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Example for saving the selected_variables object</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">selected_variables</span>, file <span class="op">=</span> <span class="st">"path/selected_variables.Rds"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#Load the object</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">"path/selected_variables.Rds"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
 <h2 id="session-info">Session info<a class="anchor" aria-label="anchor" href="#session-info"></a>
 </h2>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; R version 4.3.2 (2023-10-31)</span></span>
 <span><span class="co">#&gt; Platform: x86_64-pc-linux-gnu (64-bit)</span></span>
@@ -759,7 +989,7 @@ R2 difference (winner - basal) in a suffled data set.
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; other attached packages:</span></span>
 <span><span class="co">#&gt; [1] doRNG_1.8.6      rngtools_1.5.2   foreach_1.5.2    tidyr_1.3.0     </span></span>
-<span><span class="co">#&gt; [5] ggplot2_3.4.4    dplyr_1.1.3      RAMEN_0.1.9000   knitr_1.45      </span></span>
+<span><span class="co">#&gt; [5] ggplot2_3.4.4    dplyr_1.1.4      RAMEN_0.1.9000   knitr_1.45      </span></span>
 <span><span class="co">#&gt; [9] BiocStyle_2.28.1</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
