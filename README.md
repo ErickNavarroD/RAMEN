@@ -53,14 +53,7 @@ parallel computing.
 
 ## Usage
 
-The creation of a package vignette is currently in progress. However,
-the documentation of the functions is already completed and provide
-detailed information about their use.
-
-``` r
-library(RAMEN)
-## Vignette in progress
-```
+Please go to the *Get started* tab in the [package website](https://ericknavarrod.github.io/RAMEN) or check the vignette for a detailed tutorial about how to use RAMEN. 
 
 ## Variations to the standard workflow
 
