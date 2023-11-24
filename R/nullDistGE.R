@@ -41,6 +41,10 @@ nullDistGE = function(VMRs_df,
   }
   colnames(permutation_order) = 1:permutations
 
+  #Put the environmental and genotype matrix in the same order to the summarized VMR object
+  genotype_matrix = genotype_matrix[,rownames(summarized_methyl_VMR)]
+  environmental_matrix = environmental_matrix[rownames(summarized_methyl_VMR),]
+
   # Permutation analysis
   null_dist = foreach::foreach(i = 1:permutations, .combine = rbind) %do% {
     #Shuffle the datasets
