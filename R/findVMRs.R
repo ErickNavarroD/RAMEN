@@ -63,7 +63,7 @@ map_revmap_names = function(positions, manifest_hvp){
 #'  CpGs measured in *max_distance* on the array. Category created to take into acccount the Illumina array design of single probes capturing the methylation state of regulatory regions.
 #'
 #' @export
-#'@examples
+#' @examples
 #' #We need to modify the RAMEN::test_array_manifest object by assigning to
 #' #row names to the probe ID column; it was saved this way because storing
 #' #the TargetID as row names reduced significantly the size of the data set.
