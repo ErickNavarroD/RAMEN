@@ -181,12 +181,16 @@ findVMRs = function(array_manifest,
   message("Applying correlation filter to canonical Variable Methylated Regions...")
   canonical_VMRs = candidate_VMRs[(GenomicRanges::elementMetadata(candidate_VMRs)[,"n_VMPs"] > 1)] %>%
     #Check for correlation between probes in these strict regions #
-    as.data.frame() %>% #Convert the GR to a data frame so that I can use medCorVMR() and neigbouring_check()
-    ### Check that the VMRs contain surrounding probes
+    as.data.frame() #Convert the GR to a data frame so that I can use medCorVMR() and neigbouring_check()
+  ### Check that the VMRs contain surrounding probes only if we have potential canonical VMRs
+  if(nrow(canonical_VMRs) > 0){
+    canonical_VMRs = canonical_VMRs %>%
     medCorVMR(VMR_df = ., methylation_data = methylation_data) %>% # Compute the median correlation of each region
-    dplyr::filter(median_correlation > cor_threshold) %>%  #Remove VMRs whose CpGs are not correlated
-    GenomicRanges::makeGRangesFromDataFrame(keep.extra.columns = TRUE) #Create a GR object again
-  colnames(S4Vectors::mcols(canonical_VMRs))[2] = "width" #Changing the name of one metadata variable that was modified when transforming from data frame to GR object
+      dplyr::filter(median_correlation > cor_threshold) %>%  #Remove VMRs whose CpGs are not correlated
+      GenomicRanges::makeGRangesFromDataFrame(keep.extra.columns = TRUE) #Create a GR object again
+    colnames(S4Vectors::mcols(canonical_VMRs))[2] = "width" #Changing the name of one metadata variable that was modified when transforming from data frame to GR object
+  } else warning("No canonical VMRs were found in this data set")
+
 
   ### Capture non-canonical VMRs ###
   non_canonical_VMRs =  candidate_VMRs[(GenomicRanges::elementMetadata(candidate_VMRs)[,"n_VMPs"] <= 1)] #Select the VMRs with 1 probe per region
