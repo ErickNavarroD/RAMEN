@@ -41,8 +41,7 @@ map_revmap_names = function(positions, manifest_hvp){
 #'
 #' @param array_manifest Information about the probes on the array. Requires the columns MAPINFO (basepair position
 #' of the probe in the genome), CHR (chromosome), TargetID (probe name) and STRAND (this is very important to set up, since
-#' the VMRs will only be created based on CpGs on the same strand; if the positions are reported based on a single DNA strand,
-#' this should contain either a vector of only "+", "-" or "*" for all of the probes).
+#' the VMRs will only be created based on CpGs on the same strand; if the positions are reported based on a single DNA strand, this should contain either a vector of only "+", "-" or "*" for all of the probes).
 #' @param methylation_data A data frame containing M or B values, with samples as columns and probes as rows. Data is expected to have already passed through quality control and cleaning steps.
 #' @param cor_threshold Numeric value (0-1) to be used as the median pearson correlation threshold for identifying VMRs (i.e.
 #' all VMRs will have a median pairwise probe correlation of this parameter).
@@ -89,7 +88,7 @@ findVMRs = function(array_manifest,
   }
   #Check that the array strand is in the format expected by the user
   if(base::length(base::unique(array_manifest$STRAND)) > 1){
-    warning("The manifest currently has more than one type of strands. Please note that this function is strand sensitive. So, probes in proximal coordinates but different strands on the manifest will not be grouped together. We recommend setting all of the probes to the same strand for arrays such as EPIC")
+    warning("The manifest currently has more than one type of strands. Please note that this function is strand sensitive. So, probes in proximal coordinates but different strands on the manifest will not be grouped together. Many array manifests such as the EPIC one include the PROBE strand, but the position of the actual CpGs (MAPINFO) is reported in the same strand; in those cases we recommend setting all of the probes to the same strand.")
   }
   #Check that the method choice is correct
   if(var_method == "mad"){
@@ -117,9 +116,9 @@ findVMRs = function(array_manifest,
     dplyr::left_join(var_scores %>% #Add variability information
                        tibble::rownames_to_column(var = "TargetID"),
                      by = "TargetID") %>%
-    dplyr::mutate(CHR = droplevels(CHR)) %>%
     dplyr::arrange(CHR) #important step for using Rle later when constructing the GenomicRanges object!
   rownames(manifest_hvp) = manifest_hvp$TargetID
+  if(is.factor(manifest_hvp$CHR)) manifest_hvp = manifest_hvp %>% mutate(CHR = droplevels(CHR))
 
   #### Identify probes with no neighbours####
   message("Identifying non canonical Variable Methylated Regions...")
@@ -128,9 +127,9 @@ findVMRs = function(array_manifest,
     dplyr::filter(!is.na(MAPINFO), #Remove probes with no map info
                   !CHR %in% c("X","Y"), #Remove sexual chromosomes
                   TargetID %in% row.names(var_scores)) %>%  #keep only the probes where we have methylation information
-    dplyr::mutate(CHR = droplevels(CHR)) %>%
     dplyr::arrange(CHR) #important step for using Rle later when constructing the GenomicRanges object!
   rownames(full_manifest) = full_manifest$TargetID
+  if(is.factor(full_manifest$CHR)) full_manifest = full_manifest %>% mutate(CHR = droplevels(CHR))
 
   #Convert the full manifest to a GenomicRanges object
   seqnames_full_manifest_gr = table(full_manifest$CHR)
