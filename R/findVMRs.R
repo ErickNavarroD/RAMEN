@@ -118,7 +118,7 @@ findVMRs = function(array_manifest,
                      by = "TargetID") %>%
     dplyr::arrange(CHR) #important step for using Rle later when constructing the GenomicRanges object!
   rownames(manifest_hvp) = manifest_hvp$TargetID
-  if(is.factor(manifest_hvp$CHR)) manifest_hvp = manifest_hvp %>% mutate(CHR = droplevels(CHR))
+  if(is.factor(manifest_hvp$CHR)) manifest_hvp = manifest_hvp %>% dplyr::mutate(CHR = droplevels(CHR))
 
   #### Identify probes with no neighbours####
   message("Identifying non canonical Variable Methylated Regions...")
@@ -129,7 +129,7 @@ findVMRs = function(array_manifest,
                   TargetID %in% row.names(var_scores)) %>%  #keep only the probes where we have methylation information
     dplyr::arrange(CHR) #important step for using Rle later when constructing the GenomicRanges object!
   rownames(full_manifest) = full_manifest$TargetID
-  if(is.factor(full_manifest$CHR)) full_manifest = full_manifest %>% mutate(CHR = droplevels(CHR))
+  if(is.factor(full_manifest$CHR)) full_manifest = full_manifest %>% dplyr::mutate(CHR = droplevels(CHR))
 
   #Convert the full manifest to a GenomicRanges object
   seqnames_full_manifest_gr = table(full_manifest$CHR)
