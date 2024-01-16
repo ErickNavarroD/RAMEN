@@ -1,5 +1,5 @@
 Package: RAMEN
-Title: RAMEN: Regional Association of Methylation variability with genotype and ENvironment
+Title: RAMEN: Regional Association of Methylome variability with the Exposome and geNome
 Version: 0.1.9000
 Authors@R: 
     person("Erick I.", "Navarro-Delgado", , "ericknadel98@hotmail.com", role = c("aut", "cre"),

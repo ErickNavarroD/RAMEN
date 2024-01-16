@@ -27,7 +27,7 @@ knitr::opts_chunk$set(
 ```
 # Introduction 
 
-**Regional Association of Methylation variability with genotype and ENvironment (RAMEN)** is an R package whose goal is to integrate genomic, methylomic and exposomic data to model the contribution of genetics (G) and the environment (E) to DNA methylation (DNAme) variability. RAMEN identifies Variable Methylated Regions (VMRs) in microarray DNAme data and then, using genotype and environmental data, it identifies which of the following models better explains this variability in regions across the methylome: 
+**Regional Association of Methylome variability with the Exposome and geNome (RAMEN)** is an R package whose goal is to integrate genomic, methylomic and exposomic data to model the contribution of genetics (G) and the environment (E) to DNA methylation (DNAme) variability. RAMEN identifies Variable Methylated Regions (VMRs) in microarray DNAme data and then, using genotype and environmental data, it identifies which of the following models better explains this variability in regions across the methylome: 
 
 ```{r modelstable, echo=FALSE}
 library(knitr)
