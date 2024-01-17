@@ -509,6 +509,10 @@ hierarchy</li>
 <li>Using LASSO, a method with good variable selection performance and
 scalability</li>
 </ul>
+<p>Please make sure that your data has no NAs, since the LASSO
+implementation we use in RAMEN does not support missing values. If your
+data has missing values, consider <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3668100/" class="external-link">handling</a>
+them.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">selected_variables</span> <span class="op">=</span> <span class="fu">RAMEN</span><span class="fu">::</span><span class="fu"><a href="../reference/selectVariables.html">selectVariables</a></span><span class="op">(</span></span>
 <span>  VMRs_df <span class="op">=</span> <span class="va">VMRs_df</span>,</span>
@@ -1011,7 +1015,7 @@ package (recommended because of time and storage space).</li>
 <span><span class="co">#&gt; [46] bookdown_0.37           splines_4.3.2           labeling_0.4.3         </span></span>
 <span><span class="co">#&gt; [49] fastmap_1.1.1           grid_4.3.2              colorspace_2.1-0       </span></span>
 <span><span class="co">#&gt; [52] cli_3.6.2               magrittr_2.0.3          survival_3.5-7         </span></span>
-<span><span class="co">#&gt; [55] utf8_1.2.4              corpcor_1.6.10          withr_2.5.2            </span></span>
+<span><span class="co">#&gt; [55] utf8_1.2.4              corpcor_1.6.10          withr_3.0.0            </span></span>
 <span><span class="co">#&gt; [58] scales_1.3.0            rmarkdown_2.25          XVector_0.42.0         </span></span>
 <span><span class="co">#&gt; [61] ragg_1.2.7              memoise_2.0.1           evaluate_0.23          </span></span>
 <span><span class="co">#&gt; [64] GenomicRanges_1.54.1    IRanges_2.36.0          rlang_1.1.3            </span></span>
