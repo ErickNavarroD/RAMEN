@@ -3,7 +3,7 @@
 #' For each VMR, this function selects genotype and environmental variables using LASSO.
 #'
 #' This function supports parallel computing for increased speed. To do so, you have to set the parallel back-end
-#' in your R session before running the function (e.g., doFuture::registerDoFuture()) and then the evaluation strategy (e.g., future::plan(multisession)). After that, the function can be run as usual. It is recommended to also set options(future.globals.maxSize= +Inf).
+#' in your R session before running the function (e.g., doFuture::registerDoFuture()) and then the evaluation strategy (e.g., future::plan(multisession)). After that, the function can be run as usual. It is recommended to also set options(future.globals.maxSize= +Inf). Please make sure that your data has no NAs, since the LASSO implementation we use in RAMEN does not support missing values.
 #'
 #' selectVariables() uses LASSO, which is an embedded variable selection method that penalizes models that are more complex (i.e., that contain more variables) in favor of simpler models (i.e. that contain less variables), but not at the expense of reducing predictive power. Using LASSO's variable screening property (with high probability, the LASSO estimated model includes the substantial covariates and drops the redundant ones) this function selects genotype and environment variables with potential relevance in the Variable Methylated Region (VMR) dataset (see also Bühlmann and van de Geer, 2011). For each VMR, LASSO is run three times: 1) including only the genotype variables for the selection step, 2) including only the environmental variables for the selection step, and 3) Including both the genotype and environmental variables in the selection step. This is done to ensure that the function captures the variables that are relevant within their own category (e.g., SNPs that are strongly associated with the DNAme levels of a VMR in the presence of the rest of the SNPs) or in the presence of the variables of the other category (e.g. SNPs that are strongly associated with the DNAme levels of a VMR in the presence of the rest of BOTH the SNPs AND environmental variables). Every time LASSO is run, the basal covariates (i.e., concomitant variables )indicated in the argument *covariates* are not penalized (i.e., those variables are always included in the models and their coefficients are not subjected to shrinkage). That way, only the most promising E and G variables in the presence of the concomitant variables will be selected.
 #'
@@ -50,6 +50,7 @@ selectVariables = function(VMRs_df,
     if (!is.matrix(environmental_matrix)) stop("Please make sure the environmental data is provided as a matrix.")}
   if (!is.null(covariates)){
     if (!is.matrix(covariates)) stop("Please make sure the covariates data is provided as a matrix.")}
+  if (sum(is.na(genotype_matrix)) > 1 | sum(is.na(environmental_matrix)) > 1 | sum(is.na(covariates)) ) stop("Data contains missing values. Please consider handling NAs by imputation or removal.")
 
   ## Set the seed
   if (!is.null(seed)) set.seed(seed)

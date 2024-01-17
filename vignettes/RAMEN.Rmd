@@ -223,6 +223,8 @@ Overall, conducting our variable selection strategy reduces the overall computat
   -   Removing redundant variables, which are highly expected in genetic and environmental data sets with a high number of variables
   -   Limiting the interactions terms to scenarios where both the G and E main effects were selected to be potentially relevant, which can be think of as an interaction variable selection using a weak hierarchy 
   -   Using LASSO, a method with good variable selection performance and scalability 
+  
+Please make sure that your data has no NAs, since the LASSO implementation we use in RAMEN does not support missing values. If your data has missing values, consider [handling](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3668100/) them. 
 
 ```{r}
 selected_variables = RAMEN::selectVariables(
