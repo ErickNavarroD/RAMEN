@@ -1,6 +1,6 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-
+<meta name="google-site-verification" content="F7R--X_bfcn8gTzlVJ7deBV80f8uDz38vlEBQHudqpY" />
 # RAMEN <a href="https://github.com/ErickNavarroD/RAMEN"><img src="man/figures/logo.png" align="right" height="150"/></a>
 
 <!-- badges: start -->
