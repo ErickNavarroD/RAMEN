@@ -116,7 +116,8 @@ findVMRs = function(array_manifest,
     dplyr::left_join(var_scores %>% #Add variability information
                        tibble::rownames_to_column(var = "TargetID"),
                      by = "TargetID") %>%
-    dplyr::arrange(CHR) #important step for using Rle later when constructing the GenomicRanges object!
+    dplyr::arrange(CHR) %>%  #important step for using Rle later when constructing the GenomicRanges object!
+    as.data.frame()
   rownames(manifest_hvp) = manifest_hvp$TargetID
   if(is.factor(manifest_hvp$CHR)) manifest_hvp = manifest_hvp %>% dplyr::mutate(CHR = droplevels(CHR))
 
@@ -127,7 +128,8 @@ findVMRs = function(array_manifest,
     dplyr::filter(!is.na(MAPINFO), #Remove probes with no map info
                   !CHR %in% c("X","Y"), #Remove sexual chromosomes
                   TargetID %in% row.names(var_scores)) %>%  #keep only the probes where we have methylation information
-    dplyr::arrange(CHR) #important step for using Rle later when constructing the GenomicRanges object!
+    dplyr::arrange(CHR) %>% #important step for using Rle later when constructing the GenomicRanges object!
+    as.data.frame()
   rownames(full_manifest) = full_manifest$TargetID
   if(is.factor(full_manifest$CHR)) full_manifest = full_manifest %>% dplyr::mutate(CHR = droplevels(CHR))
 
