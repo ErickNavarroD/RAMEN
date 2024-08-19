@@ -1,69 +1,25 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://ericknavarrod.github.io/RAMEN/404.html</loc>
-  </url>
-  <url>
-    <loc>https://ericknavarrod.github.io/RAMEN/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>https://ericknavarrod.github.io/RAMEN/articles/RAMEN.html</loc>
-  </url>
-  <url>
-    <loc>https://ericknavarrod.github.io/RAMEN/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://ericknavarrod.github.io/RAMEN/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://ericknavarrod.github.io/RAMEN/index.html</loc>
-  </url>
-  <url>
-    <loc>https://ericknavarrod.github.io/RAMEN/reference/findCisSNPs.html</loc>
-  </url>
-  <url>
-    <loc>https://ericknavarrod.github.io/RAMEN/reference/findVMRs.html</loc>
-  </url>
-  <url>
-    <loc>https://ericknavarrod.github.io/RAMEN/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://ericknavarrod.github.io/RAMEN/reference/lmGE.html</loc>
-  </url>
-  <url>
-    <loc>https://ericknavarrod.github.io/RAMEN/reference/map_revmap_names.html</loc>
-  </url>
-  <url>
-    <loc>https://ericknavarrod.github.io/RAMEN/reference/medCorVMR.html</loc>
-  </url>
-  <url>
-    <loc>https://ericknavarrod.github.io/RAMEN/reference/nullDistGE.html</loc>
-  </url>
-  <url>
-    <loc>https://ericknavarrod.github.io/RAMEN/reference/pipe.html</loc>
-  </url>
-  <url>
-    <loc>https://ericknavarrod.github.io/RAMEN/reference/selectVariables.html</loc>
-  </url>
-  <url>
-    <loc>https://ericknavarrod.github.io/RAMEN/reference/summarizeVMRs.html</loc>
-  </url>
-  <url>
-    <loc>https://ericknavarrod.github.io/RAMEN/reference/test_array_manifest.html</loc>
-  </url>
-  <url>
-    <loc>https://ericknavarrod.github.io/RAMEN/reference/test_covariates.html</loc>
-  </url>
-  <url>
-    <loc>https://ericknavarrod.github.io/RAMEN/reference/test_environmental_matrix.html</loc>
-  </url>
-  <url>
-    <loc>https://ericknavarrod.github.io/RAMEN/reference/test_genotype_information.html</loc>
-  </url>
-  <url>
-    <loc>https://ericknavarrod.github.io/RAMEN/reference/test_genotype_matrix.html</loc>
-  </url>
-  <url>
-    <loc>https://ericknavarrod.github.io/RAMEN/reference/test_methylation_data.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://ericknavarrod.github.io/RAMEN/404.html</loc></url>
+<url><loc>https://ericknavarrod.github.io/RAMEN/LICENSE.html</loc></url>
+<url><loc>https://ericknavarrod.github.io/RAMEN/articles/RAMEN.html</loc></url>
+<url><loc>https://ericknavarrod.github.io/RAMEN/articles/index.html</loc></url>
+<url><loc>https://ericknavarrod.github.io/RAMEN/authors.html</loc></url>
+<url><loc>https://ericknavarrod.github.io/RAMEN/index.html</loc></url>
+<url><loc>https://ericknavarrod.github.io/RAMEN/reference/findCisSNPs.html</loc></url>
+<url><loc>https://ericknavarrod.github.io/RAMEN/reference/findVMRs.html</loc></url>
+<url><loc>https://ericknavarrod.github.io/RAMEN/reference/index.html</loc></url>
+<url><loc>https://ericknavarrod.github.io/RAMEN/reference/lmGE.html</loc></url>
+<url><loc>https://ericknavarrod.github.io/RAMEN/reference/map_revmap_names.html</loc></url>
+<url><loc>https://ericknavarrod.github.io/RAMEN/reference/medCorVMR.html</loc></url>
+<url><loc>https://ericknavarrod.github.io/RAMEN/reference/nullDistGE.html</loc></url>
+<url><loc>https://ericknavarrod.github.io/RAMEN/reference/pipe.html</loc></url>
+<url><loc>https://ericknavarrod.github.io/RAMEN/reference/selectVariables.html</loc></url>
+<url><loc>https://ericknavarrod.github.io/RAMEN/reference/summarizeVMRs.html</loc></url>
+<url><loc>https://ericknavarrod.github.io/RAMEN/reference/test_array_manifest.html</loc></url>
+<url><loc>https://ericknavarrod.github.io/RAMEN/reference/test_covariates.html</loc></url>
+<url><loc>https://ericknavarrod.github.io/RAMEN/reference/test_environmental_matrix.html</loc></url>
+<url><loc>https://ericknavarrod.github.io/RAMEN/reference/test_genotype_information.html</loc></url>
+<url><loc>https://ericknavarrod.github.io/RAMEN/reference/test_genotype_matrix.html</loc></url>
+<url><loc>https://ericknavarrod.github.io/RAMEN/reference/test_methylation_data.html</loc></url>
 </urlset>
+
