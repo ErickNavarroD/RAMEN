@@ -25,6 +25,7 @@ Imports:
     glmnet,
     IRanges,
     iterators,
+    lifecycle,
     magrittr,
     relaimpo,
     S4Vectors,
