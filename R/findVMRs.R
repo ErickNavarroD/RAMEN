@@ -24,7 +24,7 @@ map_revmap_names = function(positions, manifest_hvp){
 
 #' Identify Variable Methylated Regions in microarrays
 #'
-#' Identifies autosomal Highly Variable Probes (HVP) and merges them into Variable Methylated Regions (VMRs) given an Illumina manifest.
+#' Identifies Highly Variable Probes (HVP) and merges them into Variable Methylated Regions (VMRs) given an Illumina manifest.
 #'
 #' This function identifies HVPs using MAD scores or variance metrics, and groups them into VMRs, which are defined as clusters of proximal and correlated HVPs (distance and correlation defined by the user). Output VMRs can be separated into canonical and non canonical. Canonical VMRs are regions that meet the correlation and closeness criteria. For guidance on which correlation threshold to use, we recommend checking the Supplementary Figure 1 of the CoMeBack R package (Gatev *et al.*, 2020) where a simulation to empirically determine a default guidance specification for a correlation threshold parameter dependent on sample size is done. As default, we use a threshold of 0.15 as per the CoMeBack authors minimum threshold suggestion. On the other hand, non canonical VMRs are regions that are composed of HVPs that have no nearby probes measured in the array (according to the max_distance parameter); this category was created to account for the Illumina EPIC array design, which has a high number of probes in regulatory regions that are represented by a single probe. Furthermore, these probes have been shown to be good representatives of the methylation state of its surroundings (Pidsley et al., 2016). By creating this category, we recover those informative HVPs that otherwise would be excluded from the analysis because of the array design.
 #'
@@ -37,10 +37,10 @@ map_revmap_names = function(positions, manifest_hvp){
 #' the function can be run as usual. When working with big datasets, the parallel backend might throw an error if you exceed
 #' the maximum allowed size of globals exported for future expression. This can be fixed by increasing the allowed size (e.g. running options(future.globals.maxSize= +Inf) )
 #'
-#'Note: this function excludes sex chromosomes.
+#'Note: this function does not exclude sex chromosomes. If you want to exclude them, you can do so in the methylation_data object before running the function.
 #'
-#' @param array_manifest Information about the probes on the array. Requires the columns MAPINFO (basepair position
-#' of the probe in the genome), CHR (chromosome), TargetID (probe name) and STRAND (this is very important to set up, since
+#' @param array_manifest Information about the probes on the array in a format compatible with the Bioconductor annotation packages. The user can specify one of the supported human microarrays ("IlluminaHumanMethylation450k" with the hg19 genome build, "IlluminaHumanMethylationEPICv1" with the hg19 genome build, ir "IlluminaHumanMethylationEPICv2" with the hg38 genome build), or provide a manifest. The manifest requires the probe names as row names, and the following columns: "chr" (chromosome); "pos" (basepair position
+#' of the probe in the genome); and "strand" (this is very important to set up, since
 #' the VMRs will only be created based on CpGs on the same strand; if the positions are reported based on a single DNA strand, this should contain either a vector of only "+", "-" or "*" for all of the probes).
 #' @param methylation_data A data frame containing M or B values, with samples as columns and probes as rows. Data is expected to have already passed through quality control and cleaning steps.
 #' @param cor_threshold Numeric value (0-1) to be used as the median pearson correlation threshold for identifying VMRs (i.e.
@@ -63,33 +63,37 @@ map_revmap_names = function(positions, manifest_hvp){
 #'
 #' @export
 #' @examples
-#' #We need to modify the RAMEN::test_array_manifest object by assigning to
-#' #row names to the probe ID column; it was saved this way because storing
-#' #the TargetID as row names reduced significantly the size of the data set.
-#' test_array_manifest_final = RAMEN::test_array_manifest %>%
-#' tibble::rownames_to_column(var = "TargetID")
 #'
-#' VMRs = RAMEN::findVMRs(array_manifest = test_array_manifest_final,
-#'                        methylation_data = RAMEN::test_methylation_data,
-#'                        cor_threshold = 0,
+#' VMRs = RAMEN::findVMRs(methylation_data = RAMEN::test_methylation_data,
+#'                        array_manifest = "IlluminaHumanMethylationEPICv1",
+#'                        cor_threshold = 0.15,
 #'                        var_method = "variance",
 #'                        var_threshold_percentile = 0.9,
 #'                        max_distance = 1000)
 #'
-findVMRs = function(array_manifest,
-                    methylation_data,
+findVMRs = function(methylation_data,
+                    array_manifest,
                     cor_threshold = 0.15,
                     var_method = "variance",
                     var_threshold_percentile = 0.9,
                     max_distance = 1000){
   #Check that the array manifest is in the right format
-  if(!all(c("MAPINFO","CHR","TargetID","STRAND") %in% colnames(array_manifest))){
-    stop("Please make sure the array manifest has the required columns with the appropiate names (check documentation for further information)")
+  if(is.data.frame(array_manifest)){
+    if(!all(c("chr","pos", "strand") %in% colnames(array_manifest))){
+      stop("Please provide a manifest with the required columns or select one of the supported human microarrays ('IlluminaHumanMethylation450k', 'IlluminaHumanMethylationEPICv1','IlluminaHumanMethylationEPICv2')")
+    }
+    #Check that the array strand is in the format expected by the user
+    if(base::length(base::unique(array_manifest$strand)) > 1){
+      warning("The manifest currently has more than one type of strands. Please note that this function is strand sensitive. So, probes in proximal coordinates but different strands on the manifest will not be grouped together. Many array manifests such as the Illumina EPIC one include the PROBE strand, but the position of the actual CpGs (pos) is reported in the same strand; in those cases we recommend setting all of the probes to the same strand.")
+    }
+  } else if(is.character(array_manifest)){
+    if(!array_manifest %in% c("IlluminaHumanMethylation450k", "IlluminaHumanMethylationEPICv1","IlluminaHumanMethylationEPICv2")){
+      stop("Please provide a manifest with the required columns or select one of the supported human microarrays ('IlluminaHumanMethylation450k', 'IlluminaHumanMethylationEPICv1','IlluminaHumanMethylationEPICv2')")
+    }
+  } else {
+    stop("Please provide a manifest with the required columns or select one of the supported human microarrays ('IlluminaHumanMethylation450k', 'IlluminaHumanMethylationEPICv1','IlluminaHumanMethylationEPICv2')")
   }
-  #Check that the array strand is in the format expected by the user
-  if(base::length(base::unique(array_manifest$STRAND)) > 1){
-    warning("The manifest currently has more than one type of strands. Please note that this function is strand sensitive. So, probes in proximal coordinates but different strands on the manifest will not be grouped together. Many array manifests such as the EPIC one include the PROBE strand, but the position of the actual CpGs (MAPINFO) is reported in the same strand; in those cases we recommend setting all of the probes to the same strand.")
-  }
+
   #Check that the method choice is correct
   if(var_method == "mad"){
     var_scores = apply(methylation_data, 1, stats::mad) %>%
@@ -107,40 +111,51 @@ findVMRs = function(array_manifest,
   message("Identifying Highly Variable Probes...")
   var_threshold = stats::quantile(var_scores$var_score, var_threshold_percentile)
   #Filter the manifest to remove the probes that have no variability score information because they were not measured/did not pass the QC and are not highly variable
-  manifest_hvp = array_manifest %>%
-    dplyr::select(c(TargetID, CHR, MAPINFO, STRAND)) %>%
-    dplyr::filter(!is.na(MAPINFO), #Remove probes with no map info
-                  !CHR %in% c("X","Y"), #Remove sexual chromosomes
+  #Replace the array manifest if the user provided a string with the name of the array
+  if(is.character(array_manifest)){
+    if(array_manifest == "IlluminaHumanMethylation450k"){
+      manifest = data.frame(IlluminaHumanMethylation450kanno.ilmn12.hg19::Locations)
+    } else if(array_manifest == "IlluminaHumanMethylationEPICv1"){
+      manifest = data.frame(IlluminaHumanMethylationEPICanno.ilm10b4.hg19::Locations)
+    } else if(array_manifest == "IlluminaHumanMethylationEPICv2"){
+      manifest = data.frame(IlluminaHumanMethylationEPICv2anno.20a1.hg38::Locations)
+    }
+  } else manifest = array_manifest
+
+  manifest_hvp = manifest %>%
+    tibble::rownames_to_column(var = "TargetID") %>%
+    dplyr::select(c(TargetID, chr, pos, strand)) %>%
+    dplyr::filter(!is.na(pos), #Remove probes with no map info
                   TargetID %in% row.names(var_scores %>%
                                             dplyr::filter(var_score >= var_threshold))) %>% #Remove probes that have no methylation information in the processed data and are not highly variable
     dplyr::left_join(var_scores %>% #Add variability information
                        tibble::rownames_to_column(var = "TargetID"),
                      by = "TargetID") %>%
-    dplyr::arrange(CHR) %>%  #important step for using Rle later when constructing the GenomicRanges object!
+    dplyr::arrange(chr) %>%  #important step for using Rle later when constructing the GenomicRanges object!
     as.data.frame()
   rownames(manifest_hvp) = manifest_hvp$TargetID
-  if(is.factor(manifest_hvp$CHR)) manifest_hvp = manifest_hvp %>% dplyr::mutate(CHR = droplevels(CHR))
+  if(is.factor(manifest_hvp$chr)) manifest_hvp = manifest_hvp %>% dplyr::mutate(chr = droplevels(chr))
 
   #### Identify probes with no neighbours####
   message("Identifying non canonical Variable Methylated Regions...")
-  full_manifest = array_manifest %>%
-    dplyr::select(c(TargetID, CHR, MAPINFO, STRAND)) %>%
-    dplyr::filter(!is.na(MAPINFO), #Remove probes with no map info
-                  !CHR %in% c("X","Y"), #Remove sexual chromosomes
+  full_manifest = manifest %>%
+    tibble::rownames_to_column(var = "TargetID") %>%
+    dplyr::select(c(TargetID, chr, pos, strand)) %>%
+    dplyr::filter(!is.na(pos), #Remove probes with no map info
                   TargetID %in% row.names(var_scores)) %>%  #keep only the probes where we have methylation information
-    dplyr::arrange(CHR) %>% #important step for using Rle later when constructing the GenomicRanges object!
+    dplyr::arrange(chr) %>% #important step for using Rle later when constructing the GenomicRanges object!
     as.data.frame()
   rownames(full_manifest) = full_manifest$TargetID
-  if(is.factor(full_manifest$CHR)) full_manifest = full_manifest %>% dplyr::mutate(CHR = droplevels(CHR))
+  if(is.factor(full_manifest$chr)) full_manifest = full_manifest %>% dplyr::mutate(chr = droplevels(chr))
 
   #Convert the full manifest to a GenomicRanges object
-  seqnames_full_manifest_gr = table(full_manifest$CHR)
+  seqnames_full_manifest_gr = table(full_manifest$chr)
   full_manifest_gr = GenomicRanges::GRanges(
     seqnames = S4Vectors::Rle(names(seqnames_full_manifest_gr), as.numeric(seqnames_full_manifest_gr)), #Number of chromosome; as.numeric to convert from table to numeric vector
-    ranges = IRanges::IRanges(full_manifest$MAPINFO, end = full_manifest$MAPINFO ,
+    ranges = IRanges::IRanges(full_manifest$pos, end = full_manifest$pos ,
                               names = full_manifest$TargetID),
-    strand = S4Vectors::Rle(rle(as.character(full_manifest$STRAND))$values,
-                            rle(as.character(full_manifest$STRAND))$lengths ))
+    strand = S4Vectors::Rle(rle(as.character(full_manifest$strand))$values,
+                            rle(as.character(full_manifest$strand))$lengths ))
 
   #### Group the probes into regions to detect non-canonical VMRs
   regions_full_manifest = GenomicRanges::reduce(full_manifest_gr, with.revmap = TRUE, min.gapwidth = max_distance)
@@ -159,13 +174,13 @@ findVMRs = function(array_manifest,
   #### Identify VMRs####
   message("Identifying canonical Variable Methylated Regions...")
   #convert the highly variable probes data frame to a GenomicRanges object
-  seqnames_gr = table(manifest_hvp$CHR)
+  seqnames_gr = table(manifest_hvp$chr)
   gr = GenomicRanges::GRanges(
     seqnames = S4Vectors::Rle(names(seqnames_gr), as.numeric(seqnames_gr)), #Number of chromosome; as.numeric to convert from table to numeric vector
-    ranges = IRanges::IRanges(manifest_hvp$MAPINFO, end = manifest_hvp$MAPINFO ,
+    ranges = IRanges::IRanges(manifest_hvp$pos, end = manifest_hvp$pos ,
                               names = manifest_hvp$TargetID),
-    strand = S4Vectors::Rle(rle(as.character(manifest_hvp$STRAND))$values,
-                            rle(as.character(manifest_hvp$STRAND))$lengths ),
+    strand = S4Vectors::Rle(rle(as.character(manifest_hvp$strand))$values,
+                            rle(as.character(manifest_hvp$strand))$lengths ),
     var_score = manifest_hvp$var_score) #Metadata
 
   #Create the regions
@@ -173,7 +188,7 @@ findVMRs = function(array_manifest,
   #Add the number of probes in each region
   S4Vectors::mcols(candidate_VMRs)$n_VMPs = sapply(S4Vectors::mcols(candidate_VMRs)$revmap, length)
   #Add the width of each region
-  S4Vectors::mcols(candidate_VMRs)$width = S4Vectors::width(candidate_VMRs)
+  #S4Vectors::mcols(candidate_VMRs)$width = S4Vectors::width(candidate_VMRs)
   #Substitute revmap with the name of the probes in each VMR
   S4Vectors::mcols(candidate_VMRs)$probes = sapply(S4Vectors::mcols(candidate_VMRs)$revmap, map_revmap_names, manifest_hvp)
   #Remove revmap mcol
@@ -190,7 +205,6 @@ findVMRs = function(array_manifest,
     medCorVMR(VMR_df = ., methylation_data = methylation_data) %>% # Compute the median correlation of each region
       dplyr::filter(median_correlation > cor_threshold) %>%  #Remove VMRs whose CpGs are not correlated
       GenomicRanges::makeGRangesFromDataFrame(keep.extra.columns = TRUE) #Create a GR object again
-    colnames(S4Vectors::mcols(canonical_VMRs))[2] = "width" #Changing the name of one metadata variable that was modified when transforming from data frame to GR object
   } else warning("No canonical VMRs were found in this data set")
 
 

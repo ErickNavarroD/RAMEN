@@ -8,7 +8,7 @@ Description: R package that identifies which genetic (G), environmental (E), add
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Suggests: 
     BiocStyle,
     knitr,
@@ -23,6 +23,9 @@ Imports:
     foreach,
     GenomicRanges,
     glmnet,
+    IlluminaHumanMethylation450kanno.ilmn12.hg19,
+    IlluminaHumanMethylationEPICanno.ilm10b4.hg19,
+    IlluminaHumanMethylationEPICv2anno.20a1.hg38,
     IRanges,
     iterators,
     lifecycle,
@@ -34,6 +37,6 @@ Imports:
     tibble
 VignetteBuilder: knitr
 Depends: 
-    R (>= 2.10)
+    R (>= 4.2.0)
 LazyData: true
 URL: https://ericknavarrod.github.io/RAMEN/

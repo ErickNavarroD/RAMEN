@@ -5,8 +5,8 @@
 \title{Identify Variable Methylated Regions in microarrays}
 \usage{
 findVMRs(
-  array_manifest,
   methylation_data,
+  array_manifest,
   cor_threshold = 0.15,
   var_method = "variance",
   var_threshold_percentile = 0.9,
@@ -14,11 +14,11 @@ findVMRs(
 )
 }
 \arguments{
-\item{array_manifest}{Information about the probes on the array. Requires the columns MAPINFO (basepair position
-of the probe in the genome), CHR (chromosome), TargetID (probe name) and STRAND (this is very important to set up, since
-the VMRs will only be created based on CpGs on the same strand; if the positions are reported based on a single DNA strand, this should contain either a vector of only "+", "-" or "*" for all of the probes).}
-
 \item{methylation_data}{A data frame containing M or B values, with samples as columns and probes as rows. Data is expected to have already passed through quality control and cleaning steps.}
+
+\item{array_manifest}{Information about the probes on the array in a format compatible with the Bioconductor annotation packages. The user can specify one of the supported human microarrays ("IlluminaHumanMethylation450k" with the hg19 genome build, "IlluminaHumanMethylationEPICv1" with the hg19 genome build, ir "IlluminaHumanMethylationEPICv2" with the hg38 genome build), or provide a manifest. The manifest requires the probe names as row names, and the following columns: "chr" (chromosome); "pos" (basepair position
+of the probe in the genome); and "strand" (this is very important to set up, since
+the VMRs will only be created based on CpGs on the same strand; if the positions are reported based on a single DNA strand, this should contain either a vector of only "+", "-" or "*" for all of the probes).}
 
 \item{cor_threshold}{Numeric value (0-1) to be used as the median pearson correlation threshold for identifying VMRs (i.e.
 all VMRs will have a median pairwise probe correlation of this parameter).}
@@ -45,7 +45,7 @@ CpGs measured in \emph{max_distance} on the array. Category created to take into
 }
 }
 \description{
-Identifies autosomal Highly Variable Probes (HVP) and merges them into Variable Methylated Regions (VMRs) given an Illumina manifest.
+Identifies Highly Variable Probes (HVP) and merges them into Variable Methylated Regions (VMRs) given an Illumina manifest.
 }
 \details{
 This function identifies HVPs using MAD scores or variance metrics, and groups them into VMRs, which are defined as clusters of proximal and correlated HVPs (distance and correlation defined by the user). Output VMRs can be separated into canonical and non canonical. Canonical VMRs are regions that meet the correlation and closeness criteria. For guidance on which correlation threshold to use, we recommend checking the Supplementary Figure 1 of the CoMeBack R package (Gatev \emph{et al.}, 2020) where a simulation to empirically determine a default guidance specification for a correlation threshold parameter dependent on sample size is done. As default, we use a threshold of 0.15 as per the CoMeBack authors minimum threshold suggestion. On the other hand, non canonical VMRs are regions that are composed of HVPs that have no nearby probes measured in the array (according to the max_distance parameter); this category was created to account for the Illumina EPIC array design, which has a high number of probes in regulatory regions that are represented by a single probe. Furthermore, these probes have been shown to be good representatives of the methylation state of its surroundings (Pidsley et al., 2016). By creating this category, we recover those informative HVPs that otherwise would be excluded from the analysis because of the array design.
@@ -59,18 +59,13 @@ in your R session BEFORE running the function (e.g., doFuture::registerDoFuture(
 the function can be run as usual. When working with big datasets, the parallel backend might throw an error if you exceed
 the maximum allowed size of globals exported for future expression. This can be fixed by increasing the allowed size (e.g. running options(future.globals.maxSize= +Inf) )
 
-Note: this function excludes sex chromosomes.
+Note: this function does not exclude sex chromosomes. If you want to exclude them, you can do so in the methylation_data object before running the function.
 }
 \examples{
-#We need to modify the RAMEN::test_array_manifest object by assigning to
-#row names to the probe ID column; it was saved this way because storing
-#the TargetID as row names reduced significantly the size of the data set.
-test_array_manifest_final = RAMEN::test_array_manifest \%>\%
-tibble::rownames_to_column(var = "TargetID")
 
-VMRs = RAMEN::findVMRs(array_manifest = test_array_manifest_final,
-                       methylation_data = RAMEN::test_methylation_data,
-                       cor_threshold = 0,
+VMRs = RAMEN::findVMRs(methylation_data = RAMEN::test_methylation_data,
+                       array_manifest = "IlluminaHumanMethylationEPICv1",
+                       cor_threshold = 0.15,
                        var_method = "variance",
                        var_threshold_percentile = 0.9,
                        max_distance = 1000)
