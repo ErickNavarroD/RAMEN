@@ -39,10 +39,10 @@ map_revmap_names = function(positions, manifest_hvp){
 #'
 #'Note: this function does not exclude sex chromosomes. If you want to exclude them, you can do so in the methylation_data object before running the function.
 #'
+#' @param methylation_data A data frame containing M or B values, with samples as columns and probes as rows. Data is expected to have already passed through quality control and cleaning steps.
 #' @param array_manifest Information about the probes on the array in a format compatible with the Bioconductor annotation packages. The user can specify one of the supported human microarrays ("IlluminaHumanMethylation450k" with the hg19 genome build, "IlluminaHumanMethylationEPICv1" with the hg19 genome build, ir "IlluminaHumanMethylationEPICv2" with the hg38 genome build), or provide a manifest. The manifest requires the probe names as row names, and the following columns: "chr" (chromosome); "pos" (basepair position
 #' of the probe in the genome); and "strand" (this is very important to set up, since
 #' the VMRs will only be created based on CpGs on the same strand; if the positions are reported based on a single DNA strand, this should contain either a vector of only "+", "-" or "*" for all of the probes).
-#' @param methylation_data A data frame containing M or B values, with samples as columns and probes as rows. Data is expected to have already passed through quality control and cleaning steps.
 #' @param cor_threshold Numeric value (0-1) to be used as the median pearson correlation threshold for identifying VMRs (i.e.
 #' all VMRs will have a median pairwise probe correlation of this parameter).
 #' @param var_method Method to use to measure variability in the data set. The options are "mad" (median absolute deviation)
