@@ -1,7 +1,6 @@
 .onAttach<- function(libname, pkgname) {
   packageStartupMessage(
-  "
-         __      _             ___
+  "         __      _             ___
          )_)    /_)    )\\/)    )_     )\\  )
         / \\    / /    (  (    (__    (  \\(
 
