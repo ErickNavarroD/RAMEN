@@ -9,25 +9,25 @@ findVMRs(
   array_manifest,
   cor_threshold = 0.15,
   var_method = "variance",
-  var_threshold_percentile = 0.9,
+  var_distribution = "ultrastable",
+  var_threshold_percentile = 0.99,
   max_distance = 1000
 )
 }
 \arguments{
 \item{methylation_data}{A data frame containing M or B values, with samples as columns and probes as rows. Data is expected to have already passed through quality control and cleaning steps.}
 
-\item{array_manifest}{Information about the probes on the array in a format compatible with the Bioconductor annotation packages. The user can specify one of the supported human microarrays ("IlluminaHumanMethylation450k" with the hg19 genome build, "IlluminaHumanMethylationEPICv1" with the hg19 genome build, ir "IlluminaHumanMethylationEPICv2" with the hg38 genome build), or provide a manifest. The manifest requires the probe names as row names, and the following columns: "chr" (chromosome); "pos" (basepair position
-of the probe in the genome); and "strand" (this is very important to set up, since
-the VMRs will only be created based on CpGs on the same strand; if the positions are reported based on a single DNA strand, this should contain either a vector of only "+", "-" or "*" for all of the probes).}
+\item{array_manifest}{Information about the probes on the array in a format compatible with the Bioconductor annotation packages. The user can specify one of the supported human microarrays ("IlluminaHumanMethylation450k" with the hg19 genome build, "IlluminaHumanMethylationEPICv1" with the hg19 genome build, or "IlluminaHumanMethylationEPICv2" with the hg38 genome build), or provide a manifest. The manifest requires the probe names as row names, and the following columns: "chr" (chromosome); "pos" (genomic location of the probe in the genome); and "strand" (this is very important to set up, since the VMRs will only be created based on CpGs on the same strand; if the positions are reported based on a single DNA strand, this should contain either a vector of only "+", "-" or "*" for all of the probes).}
 
 \item{cor_threshold}{Numeric value (0-1) to be used as the median pearson correlation threshold for identifying VMRs (i.e.
-all VMRs will have a median pairwise probe correlation of this parameter).}
+all VMRs will have a median pairwise probe correlation higher than this threshold).}
 
-\item{var_method}{Method to use to measure variability in the data set. The options are "mad" (median absolute deviation)
+\item{var_method}{A string indicating the method to use to measure variability in the data set. The options are "mad" (median absolute deviation)
 or "variance".}
 
-\item{var_threshold_percentile}{The percentile (0-1) to be used as cutoff to define Highly Variable Probes (and
-therefore VMRs). The default is 0.9 because this percentile has been traditionally used in previous studies.}
+\item{var_distribution}{A string indicating which probes in the data set should be used to create the variability distribution, from which the variability threshold is taken from (percentile threshold determined by var_threshold_percentile). The options are "ultrastable" (a subset of CpGs that are stably methylated/unmethylated across human tissues and developmental states described by \href{https://doi.org/10.1186/1756-8935-7-28}{Edgar R., et al.} in 2014); and "all" (all probes in the data set). The "ultrastable" option is only compatible with Illumina human microarrays. The default is "ultrastable".}
+
+\item{var_threshold_percentile}{The percentile (0-1) to be used as cutoff to define Highly Variable Probes (which are then grouped into VMRs). If using the variability of the "ultrastable" probes, we recommend a high threshold (default is 0.99), since these probes are expected to display a very low variation in human tissues. If using the variability of "all" probes, we recommend using a percentile of 0.9 since it captures the top 10\% most variable probes and has been traditionally used in previous studies.}
 
 \item{max_distance}{Maximum distance allowed for two probes to be grouped into a region. The default is 1000
 because this window has been traditionally used in previous studies.}
@@ -48,7 +48,9 @@ CpGs measured in \emph{max_distance} on the array. Category created to take into
 Identifies Highly Variable Probes (HVP) and merges them into Variable Methylated Regions (VMRs) given an Illumina manifest.
 }
 \details{
-This function identifies HVPs using MAD scores or variance metrics, and groups them into VMRs, which are defined as clusters of proximal and correlated HVPs (distance and correlation defined by the user). Output VMRs can be separated into canonical and non canonical. Canonical VMRs are regions that meet the correlation and closeness criteria. For guidance on which correlation threshold to use, we recommend checking the Supplementary Figure 1 of the CoMeBack R package (Gatev \emph{et al.}, 2020) where a simulation to empirically determine a default guidance specification for a correlation threshold parameter dependent on sample size is done. As default, we use a threshold of 0.15 as per the CoMeBack authors minimum threshold suggestion. On the other hand, non canonical VMRs are regions that are composed of HVPs that have no nearby probes measured in the array (according to the max_distance parameter); this category was created to account for the Illumina EPIC array design, which has a high number of probes in regulatory regions that are represented by a single probe. Furthermore, these probes have been shown to be good representatives of the methylation state of its surroundings (Pidsley et al., 2016). By creating this category, we recover those informative HVPs that otherwise would be excluded from the analysis because of the array design.
+This function identifies HVPs using MAD scores or variance metrics, and groups them into VMRs, which are defined as clusters of proximal and correlated HVPs (distance and correlation defined by the user). To identify VMR, RAMEN::findVMRs() relies first on the identification of Highly Variable Probes in a data set. We support two methods for labelling probes as highly variable in the data set: 1)
+
+Output VMRs can be separated into canonical and non canonical. Canonical VMRs are regions that meet the correlation and closeness criteria. For guidance on which correlation threshold to use, we recommend checking the Supplementary Figure 1 of the CoMeBack R package (Gatev \emph{et al.}, 2020) where a simulation to empirically determine a default guidance specification for a correlation threshold parameter dependent on sample size is done. As default, we use a threshold of 0.15 as per the CoMeBack authors minimum threshold suggestion. On the other hand, non canonical VMRs are regions that are composed of HVPs that have no nearby probes measured in the array (according to the max_distance parameter); this category was created to account for the Illumina EPIC array design, which has a high number of probes in regulatory regions that are represented by a single probe. Furthermore, these probes have been shown to be good representatives of the methylation state of its surroundings (Pidsley et al., 2016). By creating this category, we recover those informative HVPs that otherwise would be excluded from the analysis because of the array design.
 
 This function uses GenomicRanges::reduce() to group the regions, which is strand-sensitive. In the Illumina microarrays, the MAPINFO for all the probes
 is usually provided as for the + strand. If you are using this array, we recommend to first
@@ -67,7 +69,8 @@ VMRs = RAMEN::findVMRs(methylation_data = RAMEN::test_methylation_data,
                        array_manifest = "IlluminaHumanMethylationEPICv1",
                        cor_threshold = 0.15,
                        var_method = "variance",
-                       var_threshold_percentile = 0.9,
+                       var_distribution = "ultrastable",
+                       var_threshold_percentile = 0.99,
                        max_distance = 1000)
 
 }
