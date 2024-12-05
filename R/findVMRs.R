@@ -114,7 +114,10 @@ findVMRs = function(methylation_data,
     var_threshold = stats::quantile(var_scores$var_score,
                                     var_threshold_percentile)
   } else if (var_distribution == "ultrastable"){
-    if(array_manifest == "IlluminaHumanMethylationEPICv2"){
+    if(is.data.frame(array_manifest)){
+      var_threshold = stats::quantile(var_scores[(row.names(var_scores) %in% RAMEN::ultrastable_cpgs),],#Subset only ultrastable probes
+                                      var_threshold_percentile)
+    } else if(array_manifest == "IlluminaHumanMethylationEPICv2"){
       #Get the name of the ultrastable probes in the EPICv2 format
       epicv2_ultrastable_cpgs = IlluminaHumanMethylationEPICv2anno.20a1.hg38::Other |>
         data.frame() |>
