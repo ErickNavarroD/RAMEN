@@ -87,9 +87,12 @@ findVMRs = function(methylation_data,
     if(var_distribution == "ultrastable") {
       #If the user provides their own manifest and is choosing to use the ultrastable probes, make sure that a good number of them is present in the data set. If not, throw an error
       if(sum(row.names(array_manifest) %in% RAMEN::ultrastable_cpgs) < 100) stop ("The var_distribution = 'ultrastable' option is only compatible with Illumina human microarrays at the moment. If you are using a human Illumina microarray please indicate it with their corresponding string, or make sure that it contains a more than 100 ultrastable probes (RAMEN::ultrastable_cpgs). If not, please get the variability threshold based on all the probes in your data set(var_distribution = 'all', var_threshold_percentile = 0.9). ")
+      }
     } else if(is.character(array_manifest)){
-      if(!array_manifest %in% c("IlluminaHumanMethylation450k", "IlluminaHumanMethylationEPICv1","IlluminaHumanMethylationEPICv2"))stop("The string you provided in array_manifest is not currently supported in RAMEN. Please provide a manifest with the required columns or provide a string with one of the supported human microarrays ('IlluminaHumanMethylation450k', 'IlluminaHumanMethylationEPICv1','IlluminaHumanMethylationEPICv2')")
-      } else stop("The array_manifest object is not a data.frame nor a string. Please provide a manifest with the required columns or provide a string with one of the supported human microarrays ('IlluminaHumanMethylation450k', 'IlluminaHumanMethylationEPICv1','IlluminaHumanMethylationEPICv2')")
+      if(!array_manifest %in% c("IlluminaHumanMethylation450k", "IlluminaHumanMethylationEPICv1","IlluminaHumanMethylationEPICv2")) stop("The string you provided in array_manifest is not currently supported in RAMEN. Please provide a manifest with the required columns or provide a string with one of the supported human microarrays ('IlluminaHumanMethylation450k', 'IlluminaHumanMethylationEPICv1','IlluminaHumanMethylationEPICv2')")
+      } else {
+    stop("The array_manifest object is not a data.frame nor a string. Please provide a manifest with the required columns or provide a string with one of the supported human microarrays ('IlluminaHumanMethylation450k', 'IlluminaHumanMethylationEPICv1','IlluminaHumanMethylationEPICv2')")
+  }
 
   #Check that the method choice is correct
   if(var_method == "mad"){
