@@ -47,6 +47,7 @@ nullDistGE = function(VMRs_df,
 
   # Permutation analysis
   null_dist = foreach::foreach(i = 1:permutations, .combine = rbind) %do% {
+    message("Starting permutation ", i, " of ", permutations)
     #Shuffle the datasets
     permutated_genotype = genotype_matrix[,permutation_order[,i]] %>%
       as.matrix()
@@ -58,6 +59,7 @@ nullDistGE = function(VMRs_df,
     rownames(permutated_environment) = rownames(environmental_matrix)
 
     # Run RAMEN
+    message("Starting variable selection of permutation ", i, " of ", permutations)
     selected_variables = RAMEN::selectVariables(VMRs_df = VMRs_df,
                                                 genotype_matrix = permutated_genotype,
                                                 environmental_matrix = permutated_environment,
@@ -65,6 +67,7 @@ nullDistGE = function(VMRs_df,
                                                 summarized_methyl_VMR = summarized_methyl_VMR,
                                                 seed = 1)
 
+    message("Starting lmGE in permutation ", i, " of ", permutations)
     lmGE_res = RAMEN::lmGE(selected_variables = selected_variables,
                            summarized_methyl_VMR = summarized_methyl_VMR,
                            genotype_matrix = permutated_genotype,
@@ -84,6 +87,7 @@ nullDistGE = function(VMRs_df,
                                 R2_difference = lmGE_res$tot_r_squared - lmGE_res$basal_rsquared,
                                 BIC_difference = lmGE_res$BIC - lmGE_res$basal_rsquared)
     }
+    message("Wrapping up permutation ", i, " of ", permutations)
     results_perm$permutation = i #add the number of permutation
     results_perm
   }
