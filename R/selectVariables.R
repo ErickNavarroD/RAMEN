@@ -164,5 +164,5 @@ selectVariables = function(VMRs_df,
     selected_variables_final
   }
 
-  return(lasso_results)
+  return(data.frame(lasso_results))
 }
