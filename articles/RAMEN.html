@@ -14,8 +14,8 @@
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="RAMEN">
 </head>
 <body>
@@ -342,7 +342,7 @@ to a data frame, which is an object that we can easily use to produce
 plots and explore the results, and the object that is needed for the
 following parts of the pipeline.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">VMRs_df</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">VMRs</span><span class="op">[[</span><span class="st">"canonical_VMRs"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<code class="sourceCode R"><span><span class="va">VMRs_df</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">VMRs</span><span class="op">[[</span><span class="st">"canonical_VMRs"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">VMRs</span><span class="op">[[</span><span class="st">"non_canonical_VMRs"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">width.1</span>,<span class="va">strand</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -414,16 +414,16 @@ cast a wide net to catch potentially relevant SNPs.</p>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">VMRs_df</span><span class="op">)</span> </span>
 <span><span class="co">#&gt; Rows: 131</span></span>
 <span><span class="co">#&gt; Columns: 10</span></span>
-<span><span class="co">#&gt; $ VMR_index          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", …</span></span>
-<span><span class="co">#&gt; $ seqnames           <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,…</span></span>
-<span><span class="co">#&gt; $ start              <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 10990119, 11109021, 15456605, 15588038, 15955548, 1…</span></span>
-<span><span class="co">#&gt; $ end                <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 10990903, 11109336, 15456789, 15588830, 15956048, 1…</span></span>
-<span><span class="co">#&gt; $ width              <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 785, 316, 185, 793, 501, 1331, 888, 977, 573, 61, 5…</span></span>
-<span><span class="co">#&gt; $ n_VMPs             <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 2, 2, 2, 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, …</span></span>
-<span><span class="co">#&gt; $ probes             <span style="color: #949494; font-style: italic;">&lt;list&gt;</span> &lt;"cg09872009", "cg05437132"&gt;, &lt;"cg00750806", "cg12…</span></span>
-<span><span class="co">#&gt; $ median_correlation <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.6099180, 0.6261681, 0.8595934, 0.6829510, 0.75485…</span></span>
-<span><span class="co">#&gt; $ surrounding_SNPs   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 1, 1, 610, 667, 726, 794, 757, 529, 709, 788, 829, …</span></span>
-<span><span class="co">#&gt; $ SNP                <span style="color: #949494; font-style: italic;">&lt;list&gt;</span> "21:10873592:G:A", "21:10873592:G:A", &lt;"21:1459574…</span></span></code></pre></div>
+<span><span class="co">#&gt; $ VMR_index          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "1"<span style="color: #949494;">, </span>"2"<span style="color: #949494;">, </span>"3"<span style="color: #949494;">, </span>"4"<span style="color: #949494;">, </span>"5"<span style="color: #949494;">, </span>"6"<span style="color: #949494;">, </span>"7"<span style="color: #949494;">, </span>"8"<span style="color: #949494;">, </span>"9"<span style="color: #949494;">, </span>"10"<span style="color: #949494;">, </span>…</span></span>
+<span><span class="co">#&gt; $ seqnames           <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> 21<span style="color: #949494;">, </span>21<span style="color: #949494;">, </span>21<span style="color: #949494;">, </span>21<span style="color: #949494;">, </span>21<span style="color: #949494;">, </span>21<span style="color: #949494;">, </span>21<span style="color: #949494;">, </span>21<span style="color: #949494;">, </span>21<span style="color: #949494;">, </span>21<span style="color: #949494;">, </span>21<span style="color: #949494;">, </span>21<span style="color: #949494;">, </span>21<span style="color: #949494;">,</span>…</span></span>
+<span><span class="co">#&gt; $ start              <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 10990119<span style="color: #949494;">, </span>11109021<span style="color: #949494;">, </span>15456605<span style="color: #949494;">, </span>15588038<span style="color: #949494;">, </span>15955548<span style="color: #949494;">, </span>1…</span></span>
+<span><span class="co">#&gt; $ end                <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 10990903<span style="color: #949494;">, </span>11109336<span style="color: #949494;">, </span>15456789<span style="color: #949494;">, </span>15588830<span style="color: #949494;">, </span>15956048<span style="color: #949494;">, </span>1…</span></span>
+<span><span class="co">#&gt; $ width              <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 785<span style="color: #949494;">, </span>316<span style="color: #949494;">, </span>185<span style="color: #949494;">, </span>793<span style="color: #949494;">, </span>501<span style="color: #949494;">, </span>1331<span style="color: #949494;">, </span>888<span style="color: #949494;">, </span>977<span style="color: #949494;">, </span>573<span style="color: #949494;">, </span>61<span style="color: #949494;">, </span>5…</span></span>
+<span><span class="co">#&gt; $ n_VMPs             <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>…</span></span>
+<span><span class="co">#&gt; $ probes             <span style="color: #949494; font-style: italic;">&lt;list&gt;</span> &lt;"cg09872009", "cg05437132"&gt;<span style="color: #949494;">, </span>&lt;"cg00750806", "cg12…</span></span>
+<span><span class="co">#&gt; $ median_correlation <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.6099180<span style="color: #949494;">, </span>0.6261681<span style="color: #949494;">, </span>0.8595934<span style="color: #949494;">, </span>0.6829510<span style="color: #949494;">, </span>0.75485…</span></span>
+<span><span class="co">#&gt; $ surrounding_SNPs   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>610<span style="color: #949494;">, </span>667<span style="color: #949494;">, </span>726<span style="color: #949494;">, </span>794<span style="color: #949494;">, </span>757<span style="color: #949494;">, </span>529<span style="color: #949494;">, </span>709<span style="color: #949494;">, </span>788<span style="color: #949494;">, </span>829<span style="color: #949494;">, </span>…</span></span>
+<span><span class="co">#&gt; $ SNP                <span style="color: #949494; font-style: italic;">&lt;list&gt;</span> "21:10873592:G:A"<span style="color: #949494;">, </span>"21:10873592:G:A"<span style="color: #949494;">, </span>&lt;"21:1459574…</span></span></code></pre></div>
 <p>We can see that the resulting VMRs_df object is almost exactly the
 same, but with two new columns (<em>surrounding_SNPs</em> and
 <em>SNP</em>) that contain information about how many SNPs were found in
@@ -523,8 +523,8 @@ the VMR index, and the G and E variables selected for each VMR.</p>
 <code class="sourceCode R"><span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">selected_variables</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 131</span></span>
 <span><span class="co">#&gt; Columns: 3</span></span>
-<span><span class="co">#&gt; $ VMR_index      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"…</span></span>
-<span><span class="co">#&gt; $ selected_genot <span style="color: #949494; font-style: italic;">&lt;list&gt;</span> "21:10873592:G:A", "21:10873592:G:A", &lt;"21:15450190:C:…</span></span>
+<span><span class="co">#&gt; $ VMR_index      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "1"<span style="color: #949494;">, </span>"2"<span style="color: #949494;">, </span>"3"<span style="color: #949494;">, </span>"4"<span style="color: #949494;">, </span>"5"<span style="color: #949494;">, </span>"6"<span style="color: #949494;">, </span>"7"<span style="color: #949494;">, </span>"8"<span style="color: #949494;">, </span>"9"<span style="color: #949494;">, </span>"10"<span style="color: #949494;">, </span>"11"…</span></span>
+<span><span class="co">#&gt; $ selected_genot <span style="color: #949494; font-style: italic;">&lt;list&gt;</span> "21:10873592:G:A"<span style="color: #949494;">, </span>"21:10873592:G:A"<span style="color: #949494;">, </span>&lt;"21:15450190:C:…</span></span>
 <span><span class="co">#&gt; $ selected_env   <span style="color: #949494; font-style: italic;">&lt;list&gt;</span> &lt;"E43", "E3", "E5", "E7", "E24", "E25", "E28", "E35", …</span></span></code></pre></div>
 <p>We can see how using <code><a href="../reference/selectVariables.html">RAMEN::selectVariables()</a></code> reduces
 the number of variables (originally 100 environmental variables and 785
@@ -631,19 +631,19 @@ of each variable over all input orders in the linear model.</p>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">lmge_res</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 128</span></span>
 <span><span class="co">#&gt; Columns: 13</span></span>
-<span><span class="co">#&gt; $ VMR_index       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11…</span></span>
-<span><span class="co">#&gt; $ model_group     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "G+E", "G+E", "GxE", "GxE", "G+E", "GxE", "G+E", "GxE"…</span></span>
-<span><span class="co">#&gt; $ variables       <span style="color: #949494; font-style: italic;">&lt;list&gt;</span> &lt;"21:10873592:G:A", "E43"&gt;, &lt;"21:10873592:G:A", "E43"…</span></span>
-<span><span class="co">#&gt; $ tot_r_squared   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.5527507, 0.5115764, 0.6075657, 0.6794845, 0.7680461,…</span></span>
-<span><span class="co">#&gt; $ g_r_squared     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.1996156, 0.2095645, 0.3064024, 0.2738786, 0.3981840,…</span></span>
-<span><span class="co">#&gt; $ e_r_squared     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.34206198, 0.27143559, 0.15293109, 0.20266291, 0.2769…</span></span>
-<span><span class="co">#&gt; $ gxe_r_squared   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> NA, NA, 0.1330680, 0.1126333, NA, 0.1432113, NA, 0.108…</span></span>
-<span><span class="co">#&gt; $ AIC             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 144.6841, 148.7250, 145.6987, 135.7819, 129.9252, 123.…</span></span>
-<span><span class="co">#&gt; $ second_winner   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "GxE", "GxE", "G+E", "G+E", "GxE", "G+E", "GxE", "G+E"…</span></span>
-<span><span class="co">#&gt; $ delta_aic       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.04970268, 1.34557464, 1.01022314, 3.88212651, 0.0761…</span></span>
-<span><span class="co">#&gt; $ delta_r_squared <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> -0.013945293, -0.010539189, 0.041420496, 0.069427874, …</span></span>
-<span><span class="co">#&gt; $ basal_AIC       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 164.4893, 165.2905, 167.3019, 161.0771, 166.8374, 159.…</span></span>
-<span><span class="co">#&gt; $ basal_rsquared  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.011073059, 0.030576374, 0.015164242, 0.090309667, 0.…</span></span></code></pre></div>
+<span><span class="co">#&gt; $ VMR_index       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "1"<span style="color: #949494;">, </span>"2"<span style="color: #949494;">, </span>"3"<span style="color: #949494;">, </span>"4"<span style="color: #949494;">, </span>"5"<span style="color: #949494;">, </span>"6"<span style="color: #949494;">, </span>"7"<span style="color: #949494;">, </span>"8"<span style="color: #949494;">, </span>"9"<span style="color: #949494;">, </span>"10"<span style="color: #949494;">, </span>"11…</span></span>
+<span><span class="co">#&gt; $ model_group     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "G+E"<span style="color: #949494;">, </span>"G+E"<span style="color: #949494;">, </span>"GxE"<span style="color: #949494;">, </span>"GxE"<span style="color: #949494;">, </span>"G+E"<span style="color: #949494;">, </span>"GxE"<span style="color: #949494;">, </span>"G+E"<span style="color: #949494;">, </span>"GxE"…</span></span>
+<span><span class="co">#&gt; $ variables       <span style="color: #949494; font-style: italic;">&lt;list&gt;</span> &lt;"21:10873592:G:A", "E43"&gt;<span style="color: #949494;">, </span>&lt;"21:10873592:G:A", "E43"…</span></span>
+<span><span class="co">#&gt; $ tot_r_squared   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.5527507<span style="color: #949494;">, </span>0.5115764<span style="color: #949494;">, </span>0.6075657<span style="color: #949494;">, </span>0.6794845<span style="color: #949494;">, </span>0.7680461<span style="color: #949494;">,</span>…</span></span>
+<span><span class="co">#&gt; $ g_r_squared     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.1996156<span style="color: #949494;">, </span>0.2095645<span style="color: #949494;">, </span>0.3064024<span style="color: #949494;">, </span>0.2738786<span style="color: #949494;">, </span>0.3981840<span style="color: #949494;">,</span>…</span></span>
+<span><span class="co">#&gt; $ e_r_squared     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.34206198<span style="color: #949494;">, </span>0.27143559<span style="color: #949494;">, </span>0.15293109<span style="color: #949494;">, </span>0.20266291<span style="color: #949494;">, </span>0.2769…</span></span>
+<span><span class="co">#&gt; $ gxe_r_squared   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>0.1330680<span style="color: #949494;">, </span>0.1126333<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>0.1432113<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>0.108…</span></span>
+<span><span class="co">#&gt; $ AIC             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 144.6841<span style="color: #949494;">, </span>148.7250<span style="color: #949494;">, </span>145.6987<span style="color: #949494;">, </span>135.7819<span style="color: #949494;">, </span>129.9252<span style="color: #949494;">, </span>123.…</span></span>
+<span><span class="co">#&gt; $ second_winner   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "GxE"<span style="color: #949494;">, </span>"GxE"<span style="color: #949494;">, </span>"G+E"<span style="color: #949494;">, </span>"G+E"<span style="color: #949494;">, </span>"GxE"<span style="color: #949494;">, </span>"G+E"<span style="color: #949494;">, </span>"GxE"<span style="color: #949494;">, </span>"G+E"…</span></span>
+<span><span class="co">#&gt; $ delta_aic       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.04970268<span style="color: #949494;">, </span>1.34557464<span style="color: #949494;">, </span>1.01022314<span style="color: #949494;">, </span>3.88212651<span style="color: #949494;">, </span>0.0761…</span></span>
+<span><span class="co">#&gt; $ delta_r_squared <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> -0.013945293<span style="color: #949494;">, </span>-0.010539189<span style="color: #949494;">, </span>0.041420496<span style="color: #949494;">, </span>0.069427874<span style="color: #949494;">, </span>…</span></span>
+<span><span class="co">#&gt; $ basal_AIC       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 164.4893<span style="color: #949494;">, </span>165.2905<span style="color: #949494;">, </span>167.3019<span style="color: #949494;">, </span>161.0771<span style="color: #949494;">, </span>166.8374<span style="color: #949494;">, </span>159.…</span></span>
+<span><span class="co">#&gt; $ basal_rsquared  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.011073059<span style="color: #949494;">, </span>0.030576374<span style="color: #949494;">, </span>0.015164242<span style="color: #949494;">, </span>0.090309667<span style="color: #949494;">, </span>0.…</span></span></code></pre></div>
 <p>The output of <code><a href="../reference/lmGE.html">RAMEN::lmGE()</a></code> is a data frame with the
 following 13 columns:</p>
 <ul>
@@ -816,20 +816,20 @@ data.</p>
 <span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">filtered_res</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 7</span></span>
 <span><span class="co">#&gt; Columns: 14</span></span>
-<span><span class="co">#&gt; $ VMR_index           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "5", "6", "28", "39", "96", "98", "106"</span></span>
-<span><span class="co">#&gt; $ model_group         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "G+E", "GxE", "E", "GxE", "G", "G", "GxE"</span></span>
-<span><span class="co">#&gt; $ variables           <span style="color: #949494; font-style: italic;">&lt;list&gt;</span> &lt;"21:15671097:T:A", "E43"&gt;, &lt;"21:15671097:T:A", "E…</span></span>
-<span><span class="co">#&gt; $ tot_r_squared       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.7680461, 0.7769276, 0.5555035, 0.7097936, 0.6431…</span></span>
-<span><span class="co">#&gt; $ g_r_squared         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.39818402, 0.38220942, NA, 0.09101486, 0.6398122…</span></span>
-<span><span class="co">#&gt; $ e_r_squared         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.2769884, 0.1650993, 0.5244324, 0.2406247, NA, NA…</span></span>
-<span><span class="co">#&gt; $ gxe_r_squared       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> NA, 0.1432113, NA, 0.3522698, NA, NA, 0.1515714</span></span>
-<span><span class="co">#&gt; $ AIC                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 129.9252, 123.3999, 145.1528, 147.3162, 140.8549, …</span></span>
-<span><span class="co">#&gt; $ second_winner       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "GxE", "G+E", NA, "G+E", "G+E", NA, "G+E"</span></span>
-<span><span class="co">#&gt; $ delta_aic           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.07612103, 3.90964213, NA, 3.27939276, 0.34990027…</span></span>
-<span><span class="co">#&gt; $ delta_r_squared     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> -0.01440811, 0.04856945, NA, 0.05583976, -0.019097…</span></span>
-<span><span class="co">#&gt; $ basal_AIC           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 166.8374, 159.6965, 166.5303, 177.6443, 169.6680, …</span></span>
-<span><span class="co">#&gt; $ basal_rsquared      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.092873702, 0.086407501, 0.031071178, 0.025884145…</span></span>
-<span><span class="co">#&gt; $ r2_difference_basal <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.6751724, 0.6905201, 0.5244324, 0.6839094, 0.6398…</span></span></code></pre></div>
+<span><span class="co">#&gt; $ VMR_index           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "5"<span style="color: #949494;">, </span>"6"<span style="color: #949494;">, </span>"28"<span style="color: #949494;">, </span>"39"<span style="color: #949494;">, </span>"96"<span style="color: #949494;">, </span>"98"<span style="color: #949494;">, </span>"106"</span></span>
+<span><span class="co">#&gt; $ model_group         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "G+E"<span style="color: #949494;">, </span>"GxE"<span style="color: #949494;">, </span>"E"<span style="color: #949494;">, </span>"GxE"<span style="color: #949494;">, </span>"G"<span style="color: #949494;">, </span>"G"<span style="color: #949494;">, </span>"GxE"</span></span>
+<span><span class="co">#&gt; $ variables           <span style="color: #949494; font-style: italic;">&lt;list&gt;</span> &lt;"21:15671097:T:A", "E43"&gt;<span style="color: #949494;">, </span>&lt;"21:15671097:T:A", "E…</span></span>
+<span><span class="co">#&gt; $ tot_r_squared       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.7680461<span style="color: #949494;">, </span>0.7769276<span style="color: #949494;">, </span>0.5555035<span style="color: #949494;">, </span>0.7097936<span style="color: #949494;">, </span>0.6431…</span></span>
+<span><span class="co">#&gt; $ g_r_squared         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.39818402<span style="color: #949494;">, </span>0.38220942<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>0.09101486<span style="color: #949494;">, </span>0.6398122…</span></span>
+<span><span class="co">#&gt; $ e_r_squared         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.2769884<span style="color: #949494;">, </span>0.1650993<span style="color: #949494;">, </span>0.5244324<span style="color: #949494;">, </span>0.2406247<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span>…</span></span>
+<span><span class="co">#&gt; $ gxe_r_squared       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>0.1432113<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>0.3522698<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>0.1515714</span></span>
+<span><span class="co">#&gt; $ AIC                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 129.9252<span style="color: #949494;">, </span>123.3999<span style="color: #949494;">, </span>145.1528<span style="color: #949494;">, </span>147.3162<span style="color: #949494;">, </span>140.8549<span style="color: #949494;">, </span>…</span></span>
+<span><span class="co">#&gt; $ second_winner       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "GxE"<span style="color: #949494;">, </span>"G+E"<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>"G+E"<span style="color: #949494;">, </span>"G+E"<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>"G+E"</span></span>
+<span><span class="co">#&gt; $ delta_aic           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.07612103<span style="color: #949494;">, </span>3.90964213<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>3.27939276<span style="color: #949494;">, </span>0.34990027…</span></span>
+<span><span class="co">#&gt; $ delta_r_squared     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> -0.01440811<span style="color: #949494;">, </span>0.04856945<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>0.05583976<span style="color: #949494;">, </span>-0.019097…</span></span>
+<span><span class="co">#&gt; $ basal_AIC           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 166.8374<span style="color: #949494;">, </span>159.6965<span style="color: #949494;">, </span>166.5303<span style="color: #949494;">, </span>177.6443<span style="color: #949494;">, </span>169.6680<span style="color: #949494;">, </span>…</span></span>
+<span><span class="co">#&gt; $ basal_rsquared      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.092873702<span style="color: #949494;">, </span>0.086407501<span style="color: #949494;">, </span>0.031071178<span style="color: #949494;">, </span>0.025884145…</span></span>
+<span><span class="co">#&gt; $ r2_difference_basal <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.6751724<span style="color: #949494;">, </span>0.6905201<span style="color: #949494;">, </span>0.5244324<span style="color: #949494;">, </span>0.6839094<span style="color: #949494;">, </span>0.6398…</span></span></code></pre></div>
 <p>We can see that the final data set in this example dropped almost all
 of the VMRs we had. This is something expected since we are working with
 toy data coming from random sampling.</p>
@@ -960,13 +960,13 @@ package (recommended because of time and storage space).</li>
 </h2>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; R version 4.4.1 (2024-06-14)</span></span>
+<span><span class="co">#&gt; R version 4.4.3 (2025-02-28)</span></span>
 <span><span class="co">#&gt; Platform: x86_64-pc-linux-gnu</span></span>
-<span><span class="co">#&gt; Running under: Ubuntu 22.04.5 LTS</span></span>
+<span><span class="co">#&gt; Running under: Ubuntu 24.04.2 LTS</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matrix products: default</span></span>
 <span><span class="co">#&gt; BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 </span></span>
-<span><span class="co">#&gt; LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so;  LAPACK version 3.10.0</span></span>
+<span><span class="co">#&gt; LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.26.so;  LAPACK version 3.12.0</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; locale:</span></span>
 <span><span class="co">#&gt;  [1] LC_CTYPE=C.UTF-8       LC_NUMERIC=C           LC_TIME=C.UTF-8       </span></span>
@@ -981,37 +981,36 @@ package (recommended because of time and storage space).</li>
 <span><span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; other attached packages:</span></span>
-<span><span class="co">#&gt; [1] doRNG_1.8.6      rngtools_1.5.2   foreach_1.5.2    tidyr_1.3.1     </span></span>
-<span><span class="co">#&gt; [5] ggplot2_3.5.1    dplyr_1.1.4      RAMEN_1.0.0      knitr_1.48      </span></span>
-<span><span class="co">#&gt; [9] BiocStyle_2.32.1</span></span>
+<span><span class="co">#&gt; [1] doRNG_1.8.6.2    rngtools_1.5.2   foreach_1.5.2    tidyr_1.3.1     </span></span>
+<span><span class="co">#&gt; [5] ggplot2_3.5.1    dplyr_1.1.4      RAMEN_1.0.0      knitr_1.50      </span></span>
+<span><span class="co">#&gt; [9] BiocStyle_2.34.0</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
-<span><span class="co">#&gt;  [1] gtable_0.3.5            shape_1.4.6.1           xfun_0.48              </span></span>
-<span><span class="co">#&gt;  [4] bslib_0.8.0             lattice_0.22-6          vctrs_0.6.5            </span></span>
-<span><span class="co">#&gt;  [7] tools_4.4.1             generics_0.1.3          stats4_4.4.1           </span></span>
-<span><span class="co">#&gt; [10] parallel_4.4.1          tibble_3.2.1            fansi_1.0.6            </span></span>
-<span><span class="co">#&gt; [13] highr_0.11              pkgconfig_2.0.3         Matrix_1.7-0           </span></span>
-<span><span class="co">#&gt; [16] desc_1.4.3              S4Vectors_0.42.1        lifecycle_1.0.4        </span></span>
-<span><span class="co">#&gt; [19] GenomeInfoDbData_1.2.12 compiler_4.4.1          farver_2.1.2           </span></span>
-<span><span class="co">#&gt; [22] stringr_1.5.1           textshaping_0.4.0       munsell_0.5.1          </span></span>
-<span><span class="co">#&gt; [25] mitools_2.4             codetools_0.2-20        survey_4.4-2           </span></span>
-<span><span class="co">#&gt; [28] GenomeInfoDb_1.40.1     htmltools_0.5.8.1       sass_0.4.9             </span></span>
-<span><span class="co">#&gt; [31] yaml_2.3.10             glmnet_4.1-8            pillar_1.9.0           </span></span>
-<span><span class="co">#&gt; [34] pkgdown_2.1.1           jquerylib_0.1.4         MASS_7.3-60.2          </span></span>
-<span><span class="co">#&gt; [37] cachem_1.1.0            iterators_1.0.14        boot_1.3-30            </span></span>
-<span><span class="co">#&gt; [40] tidyselect_1.2.1        digest_0.6.37           stringi_1.8.4          </span></span>
-<span><span class="co">#&gt; [43] purrr_1.0.2             bookdown_0.40           labeling_0.4.3         </span></span>
-<span><span class="co">#&gt; [46] splines_4.4.1           fastmap_1.2.0           grid_4.4.1             </span></span>
-<span><span class="co">#&gt; [49] colorspace_2.1-1        cli_3.6.3               magrittr_2.0.3         </span></span>
-<span><span class="co">#&gt; [52] survival_3.6-4          utf8_1.2.4              corpcor_1.6.10         </span></span>
-<span><span class="co">#&gt; [55] withr_3.0.1             scales_1.3.0            UCSC.utils_1.0.0       </span></span>
-<span><span class="co">#&gt; [58] rmarkdown_2.28          XVector_0.44.0          httr_1.4.7             </span></span>
-<span><span class="co">#&gt; [61] ragg_1.3.3              evaluate_1.0.0          GenomicRanges_1.56.1   </span></span>
-<span><span class="co">#&gt; [64] IRanges_2.38.1          rlang_1.1.4             Rcpp_1.0.13            </span></span>
-<span><span class="co">#&gt; [67] DBI_1.2.3               glue_1.8.0              BiocManager_1.30.25    </span></span>
-<span><span class="co">#&gt; [70] BiocGenerics_0.50.0     jsonlite_1.8.9          R6_2.5.1               </span></span>
-<span><span class="co">#&gt; [73] relaimpo_2.2-7          systemfonts_1.1.0       fs_1.6.4               </span></span>
-<span><span class="co">#&gt; [76] zlibbioc_1.50.0</span></span></code></pre></div>
+<span><span class="co">#&gt;  [1] gtable_0.3.6            shape_1.4.6.1           xfun_0.52              </span></span>
+<span><span class="co">#&gt;  [4] bslib_0.9.0             lattice_0.22-6          vctrs_0.6.5            </span></span>
+<span><span class="co">#&gt;  [7] tools_4.4.3             generics_0.1.3          stats4_4.4.3           </span></span>
+<span><span class="co">#&gt; [10] parallel_4.4.3          tibble_3.2.1            pkgconfig_2.0.3        </span></span>
+<span><span class="co">#&gt; [13] Matrix_1.7-2            desc_1.4.3              S4Vectors_0.44.0       </span></span>
+<span><span class="co">#&gt; [16] lifecycle_1.0.4         GenomeInfoDbData_1.2.13 compiler_4.4.3         </span></span>
+<span><span class="co">#&gt; [19] farver_2.1.2            stringr_1.5.1           textshaping_1.0.0      </span></span>
+<span><span class="co">#&gt; [22] munsell_0.5.1           mitools_2.4             codetools_0.2-20       </span></span>
+<span><span class="co">#&gt; [25] survey_4.4-2            GenomeInfoDb_1.42.3     htmltools_0.5.8.1      </span></span>
+<span><span class="co">#&gt; [28] sass_0.4.9              yaml_2.3.10             glmnet_4.1-8           </span></span>
+<span><span class="co">#&gt; [31] pillar_1.10.2           pkgdown_2.1.1           jquerylib_0.1.4        </span></span>
+<span><span class="co">#&gt; [34] MASS_7.3-64             cachem_1.1.0            iterators_1.0.14       </span></span>
+<span><span class="co">#&gt; [37] boot_1.3-31             tidyselect_1.2.1        digest_0.6.37          </span></span>
+<span><span class="co">#&gt; [40] stringi_1.8.7           purrr_1.0.4             bookdown_0.42          </span></span>
+<span><span class="co">#&gt; [43] labeling_0.4.3          splines_4.4.3           fastmap_1.2.0          </span></span>
+<span><span class="co">#&gt; [46] grid_4.4.3              colorspace_2.1-1        cli_3.6.4              </span></span>
+<span><span class="co">#&gt; [49] magrittr_2.0.3          survival_3.8-3          corpcor_1.6.10         </span></span>
+<span><span class="co">#&gt; [52] withr_3.0.2             scales_1.3.0            UCSC.utils_1.2.0       </span></span>
+<span><span class="co">#&gt; [55] rmarkdown_2.29          XVector_0.46.0          httr_1.4.7             </span></span>
+<span><span class="co">#&gt; [58] ragg_1.3.3              evaluate_1.0.3          GenomicRanges_1.58.0   </span></span>
+<span><span class="co">#&gt; [61] IRanges_2.40.1          rlang_1.1.5             Rcpp_1.0.14            </span></span>
+<span><span class="co">#&gt; [64] DBI_1.2.3               glue_1.8.0              BiocManager_1.30.25    </span></span>
+<span><span class="co">#&gt; [67] BiocGenerics_0.52.0     jsonlite_2.0.0          R6_2.6.1               </span></span>
+<span><span class="co">#&gt; [70] systemfonts_1.2.2       fs_1.6.5                zlibbioc_1.52.0        </span></span>
+<span><span class="co">#&gt; [73] relaimpo_2.2-7</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
