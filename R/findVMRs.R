@@ -183,7 +183,7 @@ findVMRs = function(array_manifest,
   message("Applying correlation filter to canonical Variable Methylated Regions...")
   canonical_VMRs = candidate_VMRs[(GenomicRanges::elementMetadata(candidate_VMRs)[,"n_VMPs"] > 1)] %>%
     #Check for correlation between probes in these strict regions #
-    as.data.frame() #Convert the GR to a data frame so that I can use medCorVMR() and neigbouring_check()
+    data.frame() #Convert the GR to a data frame so that I can use medCorVMR()
   ### Check that the VMRs contain surrounding probes only if we have potential canonical VMRs
   if(nrow(canonical_VMRs) > 0){
     canonical_VMRs = canonical_VMRs %>%
