@@ -4,6 +4,8 @@
 # RAMEN <a href="https://github.com/ErickNavarroD/RAMEN"><img src="man/figures/logo.png" align="right" height="150"/></a>
 
 <!-- badges: start -->
+
+[![DOI](https://zenodo.org/badge/585986641.svg)](https://zenodo.org/badge/latestdoi/585986641)
 <!-- badges: end -->
 
 ## Overview
