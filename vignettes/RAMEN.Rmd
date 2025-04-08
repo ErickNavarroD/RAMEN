@@ -139,8 +139,8 @@ This is printed in the screen just to warn us that `RAMEN::findVMRs()` is runnin
 Finally, we will convert the output of `RAMEN::findVMRs()` to a data frame, which is an object that we can easily use to produce plots and explore the results, and the object that is needed for the following parts of the pipeline. 
 
 ```{r}
-VMRs_df = as.data.frame(VMRs[["canonical_VMRs"]]) %>% 
-  rbind(as.data.frame(VMRs[["non_canonical_VMRs"]])) %>% 
+VMRs_df = data.frame(VMRs[["canonical_VMRs"]]) %>% 
+  rbind(data.frame(VMRs[["non_canonical_VMRs"]])) %>% 
   dplyr::select( -strand)
 
 head(VMRs_df)
