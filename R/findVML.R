@@ -1,8 +1,7 @@
 #'  Map revmap column to probe names after reducing a GenomicRanges object
 #'
 #'  Given a revmap row (e.g. 1 5 6), we map those positions to their corresponding probe names
-#'  (and end up with something like "cg00000029",  "cg00000158", "cg00000165".This is a helper function
-#'  of findVML()).
+#'  (and end up with something like "cg00000029",  "cg00000158", "cg00000165".This is a helper function of findVML()).
 #'
 #' @param positions A revmap row in the form of a vector
 #' @param manifest_hvp the manifest of the highly variable probes used in the findVML() function
@@ -24,7 +23,7 @@ map_revmap_names = function(positions, manifest_hvp){
 
 #' Identify Variable Methylated Loci in microarrays
 #'
-#' Identifies Highly Variable Probes (HVP) and merges them into Variable Methylated Loci (VML) given an Illumina manifest.The output of this function provides the HVPs, and the identified VML, which are made of Variable Methylated Regions and sparse Variable Methylated Probes. See Details below for more information.
+#' Identifies Highly Variable Probes (HVP) and groups them into Variable Methylated Loci (VML) given an Illumina manifest.The output of this function provides the HVPs, and the identified VML, which are made of Variable Methylated Regions and sparse Variable Methylated Probes. See Details below for more information.
 #'
 #' This function identifies HVPs based on MAD scores or variance, and groups them into VML, which are defined as genomic regions with high DNA methylation variability.To best capture methylome variability patterns in microarrays, we identify two types of VML: Variably Methylated Regions (VMRs) and sparse Variably Methylated Probes (sVMPs) .
 #'
