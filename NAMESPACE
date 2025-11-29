@@ -2,7 +2,7 @@
 
 export("%>%")
 export(findCisSNPs)
-export(findVMRs)
+export(findVML)
 export(lmGE)
 export(medCorVMR)
 export(nullDistGE)
