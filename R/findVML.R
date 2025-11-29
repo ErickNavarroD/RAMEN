@@ -32,14 +32,10 @@ map_revmap_names = function(positions, manifest_hvp){
 #'
 #'In addition to traditional VMRs, we also identified sparse Variably Methylated Probes (sVMPs), a second type of VML that takes into account the sparse and non-uniformly distributed coverage of CpGs in microarrays to tailor our analysis to this DNAme platform. sVMPs aimed to retain genomic regions with high DNAme variability measured by single probes, where probe grouping based on proximity and correlation is therefore not applicable. This is particularly relevant in the Illumina EPIC v1 array, where most covered regulatory regions (up to 93%) are represented by just one probe. Notably, based on empirical comparisons with whole-genome bisulfite sequencing data, these single probes are mostly representative of local regional DNAme levels due to their positioning (98.5-99.5%)
 #'
-#' This function uses GenomicRanges::reduce() to group the regions, which is strand-sensitive. In the Illumina microarrays, the MAPINFO for all the probes
-#' is usually provided as for the + strand. If you are using this array, we recommend to first
-#' convert the strand of all the probes to "+".
+#' This function uses GenomicRanges::reduce() to group the regions, which is strand-sensitive. In the Illumina microarrays, the MAPINFO for all the probes is usually provided for the + strand. If you are using this array, we recommend to first convert the strand of all the probes to "+".
 #'
 #' This function supports parallel computing for increased speed. To do so, you have to set the parallel backend
-#' in your R session BEFORE running the function (e.g., doFuture::registerDoFuture()) and then the evaluation strategy (e.g., future::plan(multisession)). After that,
-#' the function can be run as usual. When working with big datasets, the parallel backend might throw an error if you exceed
-#' the maximum allowed size of globals exported for future expression. This can be fixed by increasing the allowed size (e.g. running options(future.globals.maxSize= +Inf) )
+#' in your R session BEFORE running the function (e.g., *doParallel::registerDoParallel(4)*). After that, the function can be run as usual. When working with big datasets, the parallel backend might throw an error if you exceed the maximum allowed size of globals exported for future expression. This can be fixed by increasing the allowed size (e.g. running *options(future.globals.maxSize= +Inf)*)
 #'
 #'Note: this function does not exclude sex chromosomes. If you want to exclude them, you can do so in the methylation_data object before running the function.
 #'
@@ -49,8 +45,8 @@ map_revmap_names = function(positions, manifest_hvp){
 #' all VMRs will have a median pairwise probe correlation higher than this threshold).
 #' @param var_method A string indicating the metric to use to represent variability in the data set. The options are "mad" (median absolute deviation)
 #' or "variance".
-#' @param var_distribution A string indicating which probes in the data set should be used to create a variability distribution; the threshold to identify Highly Variable Probes (determined also with the var_threshold_percentile argument) is established based on this distribution. The options are "ultrastable" (a subset of CpGs that are stably methylated/unmethylated across human tissues and developmental states described by [Edgar R., et al.](https://doi.org/10.1186/1756-8935-7-28) in 2014); and "all" (all probes in the data set). The "ultrastable" option is only compatible with Illumina human microarrays. The default is "ultrastable".
-#' @param var_threshold_percentile The percentile (0-1) to be used as cutoff to define Highly Variable Probes (which are then grouped into VML). If using the variability of the "ultrastable" probes, we recommend a high threshold (default is 0.99), since these probes are expected to display a very low variation in human tissues. If using the variability of "all" probes, we recommend using a percentile of 0.9 since it captures the top 10% most variable probes, which has been traditionally used in studies.
+#' @param var_distribution A string indicating which probes in the data set should be used to create a variability distribution; the threshold to identify Highly Variable Probes (determined also with the var_threshold_percentile argument) is established based on this distribution. The options 1 is "ultrastable" (a subset of CpGs that are stably methylated/unmethylated across human tissues and developmental states described by [Edgar R., et al.](https://doi.org/10.1186/1756-8935-7-28) in 2014). This option is recommended, especially if you want to compare different populations or tissues, as the threshold value should be comparable. On the other hand, the user can use option 2: "all" (all probes in the data set). The "ultrastable" option is only compatible with Illumina human microarrays. The default is "ultrastable".
+#' @param var_threshold_percentile The percentile (0-1) to be used as cutoff to define Highly Variable Probes (which are then grouped into VML). If using the variability of the "ultrastable" probes, we recommend a high threshold (default is 0.99), since these probes are expected to display a very low variation in human tissues. If using the variability of "all" probes, we recommend using a percentile of 0.9 since it captures the top 10% most variable probes, which has been traditionally used in studies. It is important to note that the top 10% most variable probes will capture the same amount of probes in a data set regardless of their overall variability levels, which might differ between tissues or populations.
 #' @param max_distance Maximum distance in base pairs allowed for two probes to be grouped into a region. The default is 1000.
 #'
 #' @return A list with the following elements:
@@ -235,7 +231,8 @@ findVML = function(methylation_data,
       dplyr::filter(TargetID %in% manifest_hvp$TargetID),
     VML = data.frame(VMRs) %>%
       rbind(data.frame(sVMPs)) %>%
-      mutate(type = ifelse(n_VMPs > 1, "VMR", "sVMP"))
+      mutate(type = ifelse(n_VMPs > 1, "VMR", "sVMP"),
+             VML_index = as.character(row_number()))
   ))
 }
 
