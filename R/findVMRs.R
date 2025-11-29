@@ -2,10 +2,10 @@
 #'
 #'  Given a revmap row (e.g. 1 5 6), we map those positions to their corresponding probe names
 #'  (and end up with something like "cg00000029",  "cg00000158", "cg00000165".This is a helper function
-#'  of findVMRs()).
+#'  of findVML()).
 #'
 #' @param positions A revmap row in the form of a vector
-#' @param manifest_hvp the manifest of the highly variable probes used in the findVMRs() function
+#' @param manifest_hvp the manifest of the highly variable probes used in the findVML() function
 #' with the probes as row names
 #'
 #' @return a vector with the names of the probes that conform one reduced region
@@ -22,13 +22,15 @@ map_revmap_names = function(positions, manifest_hvp){
 
 
 
-#' Identify Variable Methylated Regions in microarrays
+#' Identify Variable Methylated Loci in microarrays
 #'
-#' Identifies Highly Variable Probes (HVP) and merges them into Variable Methylated Regions (VMRs) given an Illumina manifest.
+#' Identifies Highly Variable Probes (HVP) and merges them into Variable Methylated Loci (VML) given an Illumina manifest.The output of this function provides the HVPs, and the identified VML, which are made of Variable Methylated Regions and sparse Variable Methylated Probes. See Details below for more information.
 #'
-#' This function identifies HVPs using MAD scores or variance metrics, and groups them into VMRs, which are defined as clusters of proximal and correlated HVPs (distance and correlation defined by the user). To identify VMR, RAMEN::findVMRs() relies first on the identification of Highly Variable Probes in a data set. We support two methods for labelling probes as highly variable in the data set: 1)
+#' This function identifies HVPs based on MAD scores or variance, and groups them into VML, which are defined as genomic regions with high DNA methylation variability.To best capture methylome variability patterns in microarrays, we identify two types of VML: Variably Methylated Regions (VMRs) and sparse Variably Methylated Probes (sVMPs) .
 #'
-#'  Output VMRs can be separated into canonical and non canonical. Canonical VMRs are regions that meet the correlation and closeness criteria. For guidance on which correlation threshold to use, we recommend checking the Supplementary Figure 1 of the CoMeBack R package (Gatev *et al.*, 2020) where a simulation to empirically determine a default guidance specification for a correlation threshold parameter dependent on sample size is done. As default, we use a threshold of 0.15 as per the CoMeBack authors minimum threshold suggestion. On the other hand, non canonical VMRs are regions that are composed of HVPs that have no nearby probes measured in the array (according to the max_distance parameter); this category was created to account for the Illumina EPIC array design, which has a high number of probes in regulatory regions that are represented by a single probe. Furthermore, these probes have been shown to be good representatives of the methylation state of its surroundings (Pidsley et al., 2016). By creating this category, we recover those informative HVPs that otherwise would be excluded from the analysis because of the array design.
+#' In one hand, we defined VMRs as two or more proximal highly variable probes (default: < 1kb apart) with correlated DNAme level (default: r > 0.15). Modelling DNAme variability through regions rather than individual CpGs provides several methodological advantages in association studies, since CpGs display a significant correlation for co-methylation when they are close (≤1 kilobase). Modelling DNAme variability through regions rather than individual CpGs provides several methodological advantages in association studies, since CpGs display a significant correlation for co-methylation when they are close (≤1 kilobase)
+#'
+#'In addition to traditional VMRs, we also identified sparse Variably Methylated Probes (sVMPs), a second type of VML that takes into account the sparse and non-uniformly distributed coverage of CpGs in microarrays to tailor our analysis to this DNAme platform. sVMPs aimed to retain genomic regions with high DNAme variability measured by single probes, where probe grouping based on proximity and correlation is therefore not applicable. This is particularly relevant in the Illumina EPIC v1 array, where most covered regulatory regions (up to 93%) are represented by just one probe. Notably, based on empirical comparisons with whole-genome bisulfite sequencing data, these single probes are mostly representative of local regional DNAme levels due to their positioning (98.5-99.5%)
 #'
 #' This function uses GenomicRanges::reduce() to group the regions, which is strand-sensitive. In the Illumina microarrays, the MAPINFO for all the probes
 #' is usually provided as for the + strand. If you are using this array, we recommend to first
@@ -45,26 +47,21 @@ map_revmap_names = function(positions, manifest_hvp){
 #' @param methylation_data A data frame containing M or B values, with samples as columns and probes as rows. Data is expected to have already passed through quality control and cleaning steps.
 #' @param cor_threshold Numeric value (0-1) to be used as the median pearson correlation threshold for identifying VMRs (i.e.
 #' all VMRs will have a median pairwise probe correlation higher than this threshold).
-#' @param var_method A string indicating the method to use to measure variability in the data set. The options are "mad" (median absolute deviation)
+#' @param var_method A string indicating the metric to use to represent variability in the data set. The options are "mad" (median absolute deviation)
 #' or "variance".
-#' @param var_distribution A string indicating which probes in the data set should be used to create the variability distribution, from which the variability threshold is taken from (percentile threshold determined by var_threshold_percentile). The options are "ultrastable" (a subset of CpGs that are stably methylated/unmethylated across human tissues and developmental states described by [Edgar R., et al.](https://doi.org/10.1186/1756-8935-7-28) in 2014); and "all" (all probes in the data set). The "ultrastable" option is only compatible with Illumina human microarrays. The default is "ultrastable".
-#' @param var_threshold_percentile The percentile (0-1) to be used as cutoff to define Highly Variable Probes (which are then grouped into VMRs). If using the variability of the "ultrastable" probes, we recommend a high threshold (default is 0.99), since these probes are expected to display a very low variation in human tissues. If using the variability of "all" probes, we recommend using a percentile of 0.9 since it captures the top 10% most variable probes and has been traditionally used in previous studies.
-#' @param max_distance Maximum distance allowed for two probes to be grouped into a region. The default is 1000
-#' because this window has been traditionally used in previous studies.
+#' @param var_distribution A string indicating which probes in the data set should be used to create a variability distribution; the threshold to identify Highly Variable Probes (determined also with the var_threshold_percentile argument) is established based on this distribution. The options are "ultrastable" (a subset of CpGs that are stably methylated/unmethylated across human tissues and developmental states described by [Edgar R., et al.](https://doi.org/10.1186/1756-8935-7-28) in 2014); and "all" (all probes in the data set). The "ultrastable" option is only compatible with Illumina human microarrays. The default is "ultrastable".
+#' @param var_threshold_percentile The percentile (0-1) to be used as cutoff to define Highly Variable Probes (which are then grouped into VML). If using the variability of the "ultrastable" probes, we recommend a high threshold (default is 0.99), since these probes are expected to display a very low variation in human tissues. If using the variability of "all" probes, we recommend using a percentile of 0.9 since it captures the top 10% most variable probes, which has been traditionally used in studies.
+#' @param max_distance Maximum distance in base pairs allowed for two probes to be grouped into a region. The default is 1000.
 #'
 #' @return A list with the following elements:
 #'  - $var_score_threshold: threshold used to define Highly Variable Probes (mad or variance, depending on the specified choice).
 #'  - $highly_variable_probes: a data frame with the probes that passed the variability score threshold imposed by the user, and their variability score (MAD score or variance).
-#'  - $canonical_VMRs: a GRanges object with strict candidate VMRs - regions composed of two or more
-#'   contiguous, correlated and proximal Highly Variable Probes; thresholds depend on the ones specified
-#'    by the user)
-#'  - $non_canonical_VMRs: a GRanges object with highly variable probes without neighboring
-#'  CpGs measured in *max_distance* on the array. Category created to take into acccount the Illumina array design of single probes capturing the methylation state of regulatory regions.
+#'  - $VML: a GRanges-like data frame with VMRs (regions composed of two or more contiguous, correlated and proximal Highly Variable Probes), and sVMPs (highly variable probes without neighboring CpGs measured in *max_distance* on the array).
 #'
 #' @export
 #' @examples
 #'
-#' VMRs = RAMEN::findVMRs(methylation_data = RAMEN::test_methylation_data,
+#' VML = RAMEN::findVML(methylation_data = RAMEN::test_methylation_data,
 #'                        array_manifest = "IlluminaHumanMethylationEPICv1",
 #'                        cor_threshold = 0.15,
 #'                        var_method = "variance",
@@ -72,7 +69,7 @@ map_revmap_names = function(positions, manifest_hvp){
 #'                        var_threshold_percentile = 0.99,
 #'                        max_distance = 1000)
 #'
-findVMRs = function(methylation_data,
+findVML = function(methylation_data,
                     array_manifest,
                     cor_threshold = 0.15,
                     var_method = "variance",
@@ -157,8 +154,8 @@ findVMRs = function(methylation_data,
   rownames(manifest_hvp) = manifest_hvp$TargetID
   if(is.factor(manifest_hvp$chr)) manifest_hvp = manifest_hvp %>% dplyr::mutate(chr = droplevels(chr))
 
-  #### Identify probes with no neighbours####
-  message("Identifying non canonical Variable Methylated Regions...")
+  #### Identify sparse Variable Methylated Probes####
+  message("Identifying sparse Variable Methylated Probes")
   full_manifest = manifest %>%
     tibble::rownames_to_column(var = "TargetID") %>%
     dplyr::select(c(TargetID, chr, pos, strand)) %>%
@@ -178,7 +175,7 @@ findVMRs = function(methylation_data,
     strand = S4Vectors::Rle(rle(as.character(full_manifest$strand))$values,
                             rle(as.character(full_manifest$strand))$lengths ))
 
-  #### Group the probes into regions to detect non-canonical VMRs
+  #### Group the probes into regions to detect sVMPs####
   regions_full_manifest = GenomicRanges::reduce(full_manifest_gr, with.revmap = TRUE, min.gapwidth = max_distance)
   #Add the number of probes in each region
   S4Vectors::mcols(regions_full_manifest)$n_probes = sapply(S4Vectors::mcols(regions_full_manifest)$revmap, length)
@@ -193,7 +190,7 @@ findVMRs = function(methylation_data,
     unlist()
 
   #### Identify VMRs####
-  message("Identifying canonical Variable Methylated Regions...")
+  message("Identifying Variable Methylated Regions...")
   #convert the highly variable probes data frame to a GenomicRanges object
   seqnames_gr = table(manifest_hvp$chr)
   gr = GenomicRanges::GRanges(
@@ -216,29 +213,29 @@ findVMRs = function(methylation_data,
   S4Vectors::mcols(candidate_VMRs)$revmap = NULL
 
   ### Capture canonical VMRs ###
-  message("Applying correlation filter to canonical Variable Methylated Regions...")
-  canonical_VMRs = candidate_VMRs[(GenomicRanges::elementMetadata(candidate_VMRs)[,"n_VMPs"] > 1)] %>%
-    #Check for correlation between probes in these strict regions #
+  message("Applying correlation filter to Variable Methylated Regions...")
+  VMRs = candidate_VMRs[(GenomicRanges::elementMetadata(candidate_VMRs)[,"n_VMPs"] > 1)] %>%
     data.frame() #Convert the GR to a data frame so that I can use medCorVMR()
-  ### Check that the VMRs contain surrounding probes only if we have potential canonical VMRs
-  if(nrow(canonical_VMRs) > 0){
-    canonical_VMRs = canonical_VMRs %>%
+  ### Check for correlation between probes only if we have VMRs
+  if(nrow(VMRs) > 0){
+    VMRs = VMRs %>%
       medCorVMR(VMR_df = ., methylation_data = methylation_data) %>% # Compute the median correlation of each region
       dplyr::filter(median_correlation > cor_threshold) %>%  #Remove VMRs whose CpGs are not correlated
       GenomicRanges::makeGRangesFromDataFrame(keep.extra.columns = TRUE) #Create a GR object again
   } else warning("No canonical VMRs were found in this data set")
 
   ### Capture non-canonical VMRs ###
-  non_canonical_VMRs =  candidate_VMRs[(GenomicRanges::elementMetadata(candidate_VMRs)[,"probes"] %in% lonely_probes)] #Select the lonely probes
-  GenomicRanges::mcols(non_canonical_VMRs)$median_correlation = rep(NA, nrow(GenomicRanges::mcols(non_canonical_VMRs))) #Add a column of NAs under the name of median_correlation to match the strict_VMRs
+  sVMPs =  candidate_VMRs[(GenomicRanges::elementMetadata(candidate_VMRs)[,"probes"] %in% lonely_probes)] #Select the lonely probes
+  GenomicRanges::mcols(sVMPs)$median_correlation = rep(NA, nrow(GenomicRanges::mcols(sVMPs))) #Add a column of NAs under the name of median_correlation to match the strict_VMRs
 
   return(list(
     var_score_threshold = var_threshold,
     highly_variable_probes = var_scores %>%
       tibble::rownames_to_column(var = "TargetID") %>%
       dplyr::filter(TargetID %in% manifest_hvp$TargetID),
-    canonical_VMRs = canonical_VMRs,
-    non_canonical_VMRs = non_canonical_VMRs
+    VML = data.frame(VMRs) %>%
+      rbind(data.frame(sVMPs)) %>%
+      mutate(type = ifelse(n_VMPs > 1, "VMR", "sVMP"))
   ))
 }
 
