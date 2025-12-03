@@ -34,7 +34,7 @@ RAMEN consists of six main functions:
 
 - `findVML()` identifies Variable Methylated Loci (VML) from microarray
   data
-- `summarizeVMRs()`summarizes the regional methylation state of each VML
+- `summarizeVML()`summarizes the regional methylation state of each VML
 - `findCisSNPs()` identifies the SNPs in *cis* of each VML
 - `selectVariables()` conducts a LASSO-based feature selection strategy
   to identify potentially relevant *cis* SNPs and environmental
@@ -72,8 +72,7 @@ tasks, such as:
 - Fit additive and interaction models given a set of variables of
   interest and select the best explanatory model for DNAme data
   (e.g. epistasis or ExE studies).
-- Quickly identify SNPs in *cis* of CpG probes for variable reduction
-  during mQTL analyses.
+- Quickly identify SNPs in *cis* of CpG probes.
 - Get the median correlation of probes in custom regions of interest
   with `medCorVMR()`.
 
@@ -92,8 +91,8 @@ package. Also, I want to thank the members of the Kobor and Korthauer
 lab for their comments and discussion.
 
 The RAMEN package logo was created by Carlos Cortés-Quiñones and Dorothy
-Lin. Carlos created the drawing, and Dorothy refined the logo and did
-the lettering.
+Lin. Carlos created the draw, and Dorothy refined the logo and did the
+lettering.
 
 ## Funding
 
