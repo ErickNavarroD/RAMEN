@@ -7,23 +7,16 @@
 \format{
 \subsection{\code{ultrastable_cpgs}}{
 
-A vector with XXXXX
-\describe{
-\item{\emph{rownames}}{Probe ID - for storage reasons, this variable was stored as row names, but rownames have to be converted to a new column called "TargetID" prior to its use in RAMEN.}
-\item{MAPINFO}{Probe genomic position (h19)}
-\item{CHR}{Chromosome}
-\item{STRAND}{Strand}
-...
-}
+A vector with the name of the 15,224 ultrastable probes identified by Edgar et al. (2014). The name of the probes are based on the Illumina 450k manifest.
 }
 }
 \source{
-XX
+https://static-content.springer.com/esm/art\%3A10.1186\%2F1756-8935-7-28/MediaObjects/13072_2014_333_MOESM2_ESM.txt
 }
 \usage{
 ultrastable_cpgs
 }
 \description{
-A DESCRIPTION OF THE DATASET
+This data set contains the list of ultrastable probes identified by \href{https://epigeneticsandchromatin.biomedcentral.com/articles/10.1186/1756-8935-7-28}{Rachel Edgar et. al.,(2014)}. This publication identified ultrastable CpGs across many tissues and conditions using the Illumina 450k array. Ultrastable probes are defined as CpGs consistently methylated or unmethylated in every sample (1,737 samples from 30 publically available studies). These CpGs are used to create a "null DNAme variance" distribution in the RAMEN package, from which a threshold is taken to identify Highly Variable Probes.
 }
 \keyword{datasets}

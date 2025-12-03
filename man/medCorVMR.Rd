@@ -23,6 +23,5 @@ its median pairwise probe correlation.
 }
 \details{
 This function supports parallel computing for increased speed. To do so, you have to set the parallel backend
-in your R session before running the function (e.g., doFuture::registerDoFuture()) and then the evaluation strategy (e.g., future::plan(multisession)). After that,
-the function can be run as usual. It is recommended to also set options(future.globals.maxSize= +Inf).
+in your R session before running the function (e.g., \emph{doParallel::registerDoParallel(4)})). After that, the function can be run as usual. It is recommended to also set options(future.globals.maxSize= +Inf).
 }

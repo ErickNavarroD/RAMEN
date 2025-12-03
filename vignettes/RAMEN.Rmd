@@ -114,6 +114,7 @@ VMRs = RAMEN::findVMRs(methylation_data = RAMEN::test_methylation_data,
                        array_manifest = "IlluminaHumanMethylationEPICv1",
                        cor_threshold = 0, 
                        var_method = "variance", 
+                       var_distribution = "ultrastable",
                        var_threshold_percentile = 0.9, 
                        max_distance = 1000)
 
