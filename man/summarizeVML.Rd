@@ -4,10 +4,10 @@
 \alias{summarizeVML}
 \title{Summarize the methylation states of Variable Methylated Loci (VML)}
 \usage{
-summarizeVML(VML, methylation_data)
+summarizeVML(VML_df, methylation_data)
 }
 \arguments{
-\item{VML}{A GRanges-like data frame. Must contain the following columns:
+\item{VML_df}{A GRanges-like data frame. Must contain the following columns:
 "seqnames", "start", "end" and "probes" (containing lists as elements, where each contains a vector with the probes constituting the VML). This is the "VML" object returned by the \emph{findVML()} function.}
 
 \item{methylation_data}{A data frame containing M or B values, with samples as columns and probes as rows. Row names must be the CpG probe IDs.}

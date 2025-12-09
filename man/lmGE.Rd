@@ -6,7 +6,7 @@
 \usage{
 lmGE(
   selected_variables,
-  summarized_methyl_VMR,
+  summarized_methyl_VML,
   genotype_matrix,
   environmental_matrix,
   covariates = NULL,
@@ -14,9 +14,9 @@ lmGE(
 )
 }
 \arguments{
-\item{selected_variables}{A data frame obtained with \emph{RAMEN::selectVariables()}. This data frame must contain three columns: 'VMR_index' with characters of an unique ID of each VMR; ´selected_genot' and 'selected_env' with the SNPs and environmental variables, respectively, that will be used for fitting the genotype (G), environment (E), additive (G + E) or interaction (G x E) models. The columns 'selected_env' and 'selected_genot' must contain lists as elements; VMRs with no environmental or genotype selected variables must contain an empty list with NULL, NA , character(0) or "" inside.}
+\item{selected_variables}{A data frame obtained with \emph{RAMEN::selectVariables()}. This data frame must contain three columns: 'VML_index' with characters of an unique ID of each VML; ´selected_genot' and 'selected_env' with the SNPs and environmental variables, respectively, that will be used for fitting the genotype (G), environment (E), additive (G + E) or interaction (G x E) models. The columns 'selected_env' and 'selected_genot' must contain lists as elements; VML with no environmental or genotype selected variables must contain an empty list with NULL, NA , character(0) or "" inside.}
 
-\item{summarized_methyl_VMR}{A data frame containing each individual's VMR summarized region methylation. It is suggested to use the output of RAMEN::summarizeVMRs().Rows must reflects individuals, and columns VMRs The names of the columns must correspond to the index of said VMR, and it must match the index of VMRs_df$VMR_index. The names of the rows must correspond to the sample IDs, and must match with the IDs of the other matrices.}
+\item{summarized_methyl_VML}{A data frame containing each individual's VML summarized methylation. It is suggested to use the output of RAMEN::summarizeVML().Rows must reflects individuals, and columns VML The names of the columns must correspond to the index of said VML, and it must match the index of VML_df$VML_index. The names of the rows must correspond to the sample IDs, and must match with the IDs of the other matrices.}
 
 \item{genotype_matrix}{A matrix of number-encoded genotypes. Columns must correspond to samples, and rows to SNPs. We suggest using a gene-dosage model, which would encode the SNPs ordinally depending on the genotype allele charge, such as 2 (AA), 1 (AB) and 0 (BB). The column names must correspond with individual IDs.}
 
@@ -24,19 +24,19 @@ lmGE(
 
 \item{covariates}{A matrix containing the covariates (i.e., concomitant variables / variables that are not the ones you are interested in) that will be adjusted for in the final GxE models (e.g., cell type proportions, age, etc.). Each column should correspond to a covariate and each row to an individual. Row names must correspond to the individual IDs.}
 
-\item{model_selection}{Which metric to use to select the best model for each VMR. Supported options are "AIC" or BIC". More information about which one to use can be found in the Details section.}
+\item{model_selection}{Which metric to use to select the best model for each VML. Supported options are "AIC" or BIC". More information about which one to use can be found in the Details section.}
 }
 \value{
 A data frame with the following columns:
 \itemize{
-\item VMR_index: The unique ID of the VMR
+\item VML_index: The unique ID of the VML
 \item model_group: The group to which the winning model belongs to (i.e., G, E, G+E or GxE)
 \item variables: The variable(s) that are present in the winning model (excluding the covariates, which are included in all the models)
 \item tot_r_squared: R squared of the winning model
 \item g_r_squared: Estimated R2 allocated to the G in the winning model, if applicable.
 \item e_r_squared: Estimated R2 allocated to the E in the winning model, if applicable.
 \item gxe_r_squared: Estimated R2 allocated to the interaction in the winning model (GxE), if applicable.
-\item AIC/BIC: AIC or BIC metric from the best model in each VMR (depending on the option specified in the argument model_selection).
+\item AIC/BIC: AIC or BIC metric from the best model in each VML (depending on the option specified in the argument model_selection).
 \item second_winner: The second group that possesses the next best model after the winning one (i.e., G, E, G+E or GxE). This column may have NA if the variables in selected_variables correspond only to one group (G or E), so that there is no other model groups to compare to.
 \item delta_aic/delta_bic: The difference of AIC or BIC value (depending on the option specified in the argument model_selection) of the winning model and the best model from the second_winner group (i.e., G, E, G+E or GxE). This column may have NA if the variables in selected_variables correspond only to one group (G or E), so that there is no other groups to compare to.
 \item delta_r_squared: The R2 of the winning model - R2 of the second winner model. This column may have NA if the variables in selected_variables correspond only to one group (G or E), so that there is no other groups to compare to.
@@ -45,14 +45,14 @@ A data frame with the following columns:
 }
 }
 \description{
-For a set of Variable Methylated Region (VMR), this function fits a set of genotype (G), environment (E), pairwise additive (G + E) or pairwise interaction (G x E) models, one variable at a time, and selects the best fitting one. Additional information for each winning model is provided, such as its R2, its R2 increase comparing it to a basal model (i.e., a model only fitted with the concomitant variables), the delta AIC/BIC to the next best model from a different category, and the explained variance decomposed for the G, E and GxE components (when applicable).
+For a set of Variable Methylated Loci (VML), this function fits a set of genotype (G), environment (E), pairwise additive (G + E) or pairwise interaction (G x E) models, one variable at a time, and selects the best fitting one. Additional information for each winning model is provided, such as its R2, its R2 increase comparing it to a basal model (i.e., a model only fitted with the concomitant variables), the delta AIC/BIC to the next best model from a different category, and the explained variance decomposed for the G, E and GxE components (when applicable).
 }
 \details{
 This function supports parallel computing for increased speed. To do so, you have to set the parallel backend
-in your R session before running the function (e.g., doFuture::registerDoFuture()) and then the evaluation strategy (e.g., future::plan(multisession)). After that,
+in your R session before running the function (e.g., \emph{doParallel::registerDoParallel(4)})). After that,
 the function can be run as usual. It is recommended to also set options(future.globals.maxSize= +Inf).
 
-For each VMR, this function computes a set of models using the variables indicated in the selected_variables object. From the indicated G and E variables, lmGE() fits four groups of models:
+For each VML, this function computes a set of models using the variables indicated in the selected_variables object. From the indicated G and E variables, lmGE() fits four groups of models:
 \itemize{
 \item G: Genetics model - fitted one SNP at a time.
 \item E: Environmental model - fitted one environmental variable at a time.
@@ -60,11 +60,11 @@ For each VMR, this function computes a set of models using the variables indicat
 \item GxE: Interaction model - fitted for each pairwise combination of G and E variables indicated in selected_variables.
 }
 
-These models are fit only if the VMR has G or E variables in the selected_variables object. If a VMR does not have neither G nor E variables, that VMR will be ignored and will not be returned in the output object.
+These models are fit only if the VML has G or E variables in the selected_variables object. If a VML does not have neither G nor E variables, that VML will be ignored and will not be returned in the output object.
 
 \strong{Model selection}
 
-Following the model fitting stage, the best model \strong{per group} is selected using Akaike Information Criterion (AIC) or Bayesian Information Criterion (BIC). Both of these metrics are statistical approaches to select the best model in the same data set, and they have strengths and limitations that make them excel in different situations. We recommend using AIC because BIC assumes that the true model is in the set of compared models. Since this function fits models with individual variables, and we assume that DNAme variability is more likely to be influenced by more than one single SNP/environmental exposure at a time, we hypothesize that in most cases, the true model will not be in the set of compared models. Also, AIC excels in situations where all models in the model space are "incorrect", and AIC is preferentially used in cases where the true underlying function is unknown and our selected model could belong to a very large class of functions where the relationship could be pretty complex. It is worth mentioning however that, both metrics tend to pick the same model in a large number of scenarios. We suggest the users to read Arijit Chakrabarti & Jayanta K. Ghosh, 2011 for further information about the difference between these metrics.
+Following the model fitting stage, the best model \strong{per group} is selected using Akaike Information Criterion (AIC) or Bayesian Information Criterion (BIC). Both of these metrics are statistical approaches to select the best model in the same data set, and they have strengths and limitations that make them excel in different situations. We recommend using AIC because BIC assumes that the true model is in the set of compared models. Since this function fits models with individual variables, and we assume that DNAme variability is more likely to be influenced by more than one single SNP/environmental exposure at a time, we hypothesize that in most cases, the true model will not be in the set of compared models. Also, AIC excels in situations where all models in the model space are "incomplete", and AIC is preferentially used in cases where the true underlying function is unknown and our selected model could belong to a very large class of functions where the relationship could be pretty complex. It is worth mentioning however that, both metrics tend to pick the same model in a large number of scenarios. We suggest the users to read Arijit Chakrabarti & Jayanta K. Ghosh, 2011 for further information about the difference between these metrics.
 
 After selecting the best model per group (G,E,G+E pr GxE), the model with the lowest AIC or BIC is declared as the winning model. The delta AIC/BIC and difference of R2 is computed relative to the model with the second lowest AIC/BIC (i.e., the best model from a different group to the winning one), and reported in the final object.
 

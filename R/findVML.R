@@ -231,7 +231,8 @@ findVML = function(methylation_data,
     VML = data.frame(VMRs) %>%
       rbind(data.frame(sVMPs)) %>%
       mutate(type = ifelse(n_VMPs > 1, "VMR", "sVMP"),
-             VML_index = as.character(row_number()))
+             VML_index = paste("VML", as.character(dplyr::row_number()), sep = "")) %>%
+      select(VML_index, type, seqnames, start, end, width, strand, probes, n_VMPs, median_correlation)
   ))
 }
 

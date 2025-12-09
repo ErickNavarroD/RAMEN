@@ -32,7 +32,7 @@ findCisSNPs = function(VML_df, genotype_information, distance = 1e6){
   VML_df_with_cisSNPs = VML_df
   if(!"VML_index" %in% colnames(VML_df_with_cisSNPs)){ # Add a VML index to each region if not already existing
     VML_df_with_cisSNPs = VML_df_with_cisSNPs %>%
-      tibble::rownames_to_column(var = "VML_index")
+      mutate(VML_index = paste("VML", as.character(dplyr::row_number()), sep = ""))
   }
 
   #### Get the number of overlaps per extended VML ####

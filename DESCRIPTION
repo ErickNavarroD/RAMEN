@@ -1,6 +1,6 @@
 Package: RAMEN
 Title: RAMEN: Regional Association of Methylome variability with the Exposome and geNome
-Version: 1.0.0.9002
+Version: 1.0.0.9003
 Authors@R: 
     person("Erick I.", "Navarro-Delgado", , "ericknadel98@hotmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-1040-3519"))

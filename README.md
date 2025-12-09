@@ -101,10 +101,12 @@ Children’s Hospital Research Institute and the Social Exposome Cluster.
 
 ## Citing RAMEN
 
-The manuscript detailing RAMEN and its use is currently in press in
-[Genome Biology](https://genomebiology.biomedcentral.com). In the
-meantime, you can check the pre-print version of the manuscript in
-[bioRxiv](https://www.biorxiv.org/content/10.1101/2025.05.08.652964v1).
+If you use RAMEN for any of your analyses, please cite the following
+publication:
+
+- Navarro-Delgado EI, *et al*. RAMEN: Dissecting individual, additive
+  and interactive gene-environment contributions to DNA methylome
+  variability in cord blood. *Genome Biology* (2025)
 
 ## Licence
 
