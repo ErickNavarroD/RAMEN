@@ -45,7 +45,7 @@ A data frame with the following columns:
 }
 }
 \description{
-For a set of Variable Methylated Loci (VML), this function fits a set of genotype (G), environment (E), pairwise additive (G + E) or pairwise interaction (G x E) models, one variable at a time, and selects the best fitting one. Additional information for each winning model is provided, such as its R2, its R2 increase comparing it to a basal model (i.e., a model only fitted with the concomitant variables), the delta AIC/BIC to the next best model from a different category, and the explained variance decomposed for the G, E and GxE components (when applicable).
+For a set of Variable Methylated Loci (VML), this function fits a set of genotype (G), environment (E), pairwise additive (G + E) or pairwise interaction (G x E) models, one variable at a time, and selects the best fitting one. Additional information for each winning model is provided, such as its R2, its R2 increase comparing it to a basal model (i.e., a model only fitted with the concomitant variables), the delta AIC/BIC to the next best model from a different category, and the explained variance decomposed for the G, E and GxE components (when applicable). If a VML has no variables selected in the selected_variables object, it will be returned with "B" (basal) as the best model (interpreted as no G or E associated effect).
 }
 \details{
 This function supports parallel computing for increased speed. To do so, you have to set the parallel backend
@@ -60,7 +60,7 @@ For each VML, this function computes a set of models using the variables indicat
 \item GxE: Interaction model - fitted for each pairwise combination of G and E variables indicated in selected_variables.
 }
 
-These models are fit only if the VML has G or E variables in the selected_variables object. If a VML does not have neither G nor E variables, that VML will be ignored and will not be returned in the output object.
+These models are fit only if the VML has G or E variables in the selected_variables object. If a VML does not have neither G nor E variables, that VML will be ignored and will be returned in the output object with "B" (baseline) as the best explanatory model.
 
 \strong{Model selection}
 
