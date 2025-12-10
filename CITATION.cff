@@ -39,6 +39,7 @@ preferred-citation:
   authors:
     - family-names: "Navarro-Delgado"
       given-names: "Erick I."
+    - family-names: "et al."
   title: "RAMEN: Dissecting individual, additive and interactive gene-environment contributions to DNA methylome variability in cord blood"
   journal: "Genome Biology"
   issue: "421"
