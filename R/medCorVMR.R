@@ -16,35 +16,38 @@
 #' @importFrom foreach %dopar%
 #' @export
 #'
-medCorVMR = function(VMR_df, methylation_data){
-  if(!is.list(VMR_df$probes)){
+medCorVMR <- function(VMR_df, methylation_data) {
+  if (!is.list(VMR_df$probes)) {
     stop("Please make sure the 'probes' column in VMR_df is a column of lists")
   }
 
-  VMR_probes = VMR_df$probes #generate a list where each element will contain a vector with the probes present in one VMR
-  #Compute correlations
-  median_correlation = foreach::foreach(i = seq_along(VMR_probes), # For each VMR
-                                        .combine = "c" #Combine outputs in a vector
-                                        ) %dopar% {
-    if (length(VMR_probes[[i]]) == 1){ #If the VMR has one probe
+  VMR_probes <- VMR_df$probes # generate a list where each element will contain a vector with the probes present in one VMR
+  # Compute correlations
+  median_correlation <- foreach::foreach(
+    i = seq_along(VMR_probes), # For each VMR
+    .combine = "c" # Combine outputs in a vector
+  ) %dopar% {
+    if (length(VMR_probes[[i]]) == 1) { # If the VMR has one probe
       NA
-    }
-    else{
-      VMR_correlation = c()
-      for (probe_x_i in 1:(length(VMR_probes[[i]])-1)){ #For each probe except the last one
-        primary_probe = VMR_probes[[i]][probe_x_i]
-        for (probe_y_i in (probe_x_i+1):length(VMR_probes[[i]])){ #compute the pairwise correlation with the downstream probes
-          secondary_probe = VMR_probes[[i]][probe_y_i]
-          VMR_correlation =  c(VMR_correlation,
-                               stats::cor(unlist(methylation_data[primary_probe,]), #unlist added to make the subset df a vector
-                                          unlist(methylation_data[secondary_probe,]),
-                                          method= "pearson"))
+    } else {
+      VMR_correlation <- c()
+      for (probe_x_i in 1:(length(VMR_probes[[i]]) - 1)) { # For each probe except the last one
+        primary_probe <- VMR_probes[[i]][probe_x_i]
+        for (probe_y_i in (probe_x_i + 1):length(VMR_probes[[i]])) { # compute the pairwise correlation with the downstream probes
+          secondary_probe <- VMR_probes[[i]][probe_y_i]
+          VMR_correlation <- c(
+            VMR_correlation,
+            stats::cor(unlist(methylation_data[primary_probe, ]), # unlist added to make the subset df a vector
+              unlist(methylation_data[secondary_probe, ]),
+              method = "pearson"
+            )
+          )
         }
       }
-      median_correlation = stats::median(VMR_correlation)
+      median_correlation <- stats::median(VMR_correlation)
     }
   }
 
-  VMR_df$median_correlation = median_correlation
+  VMR_df$median_correlation <- median_correlation
   return(VMR_df)
 }

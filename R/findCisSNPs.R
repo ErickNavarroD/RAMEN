@@ -13,35 +13,38 @@
 #'  - The cis SNPs identified for each VML and the number of SNPs surrounding each VML in the specified window
 #' @export
 
-findCisSNPs = function(VML_df, genotype_information, distance = 1e6){
-  #Check arguments
-  if(!all(c("seqnames","start","end") %in% colnames(VML_df))) stop("Please make sure the VML_df object has the required columns with the appropiate names (check documentation for further information)")
-  if(!all(c("CHROM","POS","ID") %in% colnames(genotype_information))) stop("Please make sure the genotype_information object has the required columns with the appropiate names (check documentation for further information)")
+findCisSNPs <- function(VML_df, genotype_information, distance = 1e6) {
+  # Check arguments
+  if (!all(c("seqnames", "start", "end") %in% colnames(VML_df))) stop("Please make sure the VML_df object has the required columns with the appropiate names (check documentation for further information)")
+  if (!all(c("CHROM", "POS", "ID") %in% colnames(genotype_information))) stop("Please make sure the genotype_information object has the required columns with the appropiate names (check documentation for further information)")
   message("Reminder: please make sure that the positions of the VML data frame and the ones in the genotype information are from the same genome build.")
-  #Convert VML and snp data into a GenomicRanges object
-  VML_gr = GenomicRanges::makeGRangesFromDataFrame(VML_df, keep.extra.columns = TRUE)
-  genotype_information = genotype_information %>% dplyr::arrange(CHROM) #important step for using Rle later when constructing the GenomicRanges object!
-  seqnames_gr = table(genotype_information$CHROM)
-  genot_gr = GenomicRanges::GRanges(
-    seqnames =  S4Vectors::Rle(names(seqnames_gr), as.numeric(seqnames_gr)), #Number of chromosome; as.numeric to convert from table to numeric vector
-    ranges = IRanges::IRanges(genotype_information$POS, end = genotype_information$POS ,
-                              names = genotype_information$ID))
-  #Extend each VML 1 Mb up and downstream
-  VML_extended = VML_gr + distance
+  # Convert VML and snp data into a GenomicRanges object
+  VML_gr <- GenomicRanges::makeGRangesFromDataFrame(VML_df, keep.extra.columns = TRUE)
+  genotype_information <- genotype_information %>% dplyr::arrange(CHROM) # important step for using Rle later when constructing the GenomicRanges object!
+  seqnames_gr <- table(genotype_information$CHROM)
+  genot_gr <- GenomicRanges::GRanges(
+    seqnames = S4Vectors::Rle(names(seqnames_gr), as.numeric(seqnames_gr)), # Number of chromosome; as.numeric to convert from table to numeric vector
+    ranges = IRanges::IRanges(genotype_information$POS,
+      end = genotype_information$POS,
+      names = genotype_information$ID
+    )
+  )
+  # Extend each VML 1 Mb up and downstream
+  VML_extended <- VML_gr + distance
 
-  VML_df_with_cisSNPs = VML_df
-  if(!"VML_index" %in% colnames(VML_df_with_cisSNPs)){ # Add a VML index to each region if not already existing
-    VML_df_with_cisSNPs = VML_df_with_cisSNPs %>%
+  VML_df_with_cisSNPs <- VML_df
+  if (!"VML_index" %in% colnames(VML_df_with_cisSNPs)) { # Add a VML index to each region if not already existing
+    VML_df_with_cisSNPs <- VML_df_with_cisSNPs %>%
       mutate(VML_index = paste("VML", as.character(dplyr::row_number()), sep = ""))
   }
 
   #### Get the number of overlaps per extended VML ####
-  VML_df_with_cisSNPs$surrounding_SNPs =  GenomicRanges::countOverlaps(VML_extended, genot_gr)
+  VML_df_with_cisSNPs$surrounding_SNPs <- GenomicRanges::countOverlaps(VML_extended, genot_gr)
 
-  ####Identify the SNPs that are present in each VML ####
-  snps_per_vml_find =  GenomicRanges::findOverlaps(VML_extended, genot_gr, select = "all")
-  rownames(genotype_information) = genotype_information$ID
-  VML_df_with_cisSNPs = VML_df_with_cisSNPs %>%
+  #### Identify the SNPs that are present in each VML ####
+  snps_per_vml_find <- GenomicRanges::findOverlaps(VML_extended, genot_gr, select = "all")
+  rownames(genotype_information) <- genotype_information$ID
+  VML_df_with_cisSNPs <- VML_df_with_cisSNPs %>%
     dplyr::mutate(SNP = sapply(snps_per_vml_find, map_revmap_names, genotype_information))
 
   return(VML_df_with_cisSNPs)

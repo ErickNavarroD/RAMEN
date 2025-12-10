@@ -21,77 +21,87 @@
 #' @export
 #'
 
-nullDistGE = function(VML_df,
-                     genotype_matrix,
-                     environmental_matrix,
-                     summarized_methyl_VML,
-                     permutations = 10,
-                     covariates = NULL,
-                     seed = NULL,
-                     model_selection = "AIC"
-){
-  #Get the shuffle order
+nullDistGE <- function(VML_df,
+                       genotype_matrix,
+                       environmental_matrix,
+                       summarized_methyl_VML,
+                       permutations = 10,
+                       covariates = NULL,
+                       seed = NULL,
+                       model_selection = "AIC") {
+  # Get the shuffle order
   if (!is.null(seed)) set.seed(seed)
-  permutation_order = data.frame(sample(rownames(summarized_methyl_VML),
-                                        size = length(rownames(summarized_methyl_VML))))
-  for (i in 1:(permutations-1)){
-    permutation_order= cbind(permutation_order,
-                             data.frame(sample(rownames(summarized_methyl_VML),
-                                               size = length(rownames(summarized_methyl_VML)))))
+  permutation_order <- data.frame(sample(rownames(summarized_methyl_VML),
+    size = length(rownames(summarized_methyl_VML))
+  ))
+  for (i in 1:(permutations - 1)) {
+    permutation_order <- cbind(
+      permutation_order,
+      data.frame(sample(rownames(summarized_methyl_VML),
+        size = length(rownames(summarized_methyl_VML))
+      ))
+    )
   }
-  colnames(permutation_order) = 1:permutations
+  colnames(permutation_order) <- 1:permutations
 
-  #Put the environmental and genotype matrix in the same order to the summarized VML object
-  genotype_matrix = genotype_matrix[,rownames(summarized_methyl_VML)]
-  environmental_matrix = environmental_matrix[rownames(summarized_methyl_VML),]
+  # Put the environmental and genotype matrix in the same order to the summarized VML object
+  genotype_matrix <- genotype_matrix[, rownames(summarized_methyl_VML)]
+  environmental_matrix <- environmental_matrix[rownames(summarized_methyl_VML), ]
 
   # Permutation analysis
-  null_dist = foreach::foreach(i = 1:permutations, .combine = rbind) %do% {
+  null_dist <- foreach::foreach(i = 1:permutations, .combine = rbind) %do% {
     message("Starting permutation ", i, " of ", permutations)
-    #Shuffle the datasets
-    permutated_genotype = genotype_matrix[,permutation_order[,i]] %>%
+    # Shuffle the datasets
+    permutated_genotype <- genotype_matrix[, permutation_order[, i]] %>%
       as.matrix()
-    rownames(permutated_genotype) = rownames(genotype_matrix)
-    colnames(permutated_genotype) = colnames(genotype_matrix)
-    permutated_environment = environmental_matrix[permutation_order[,i],] %>%
+    rownames(permutated_genotype) <- rownames(genotype_matrix)
+    colnames(permutated_genotype) <- colnames(genotype_matrix)
+    permutated_environment <- environmental_matrix[permutation_order[, i], ] %>%
       as.matrix()
-    colnames(permutated_environment) = colnames(environmental_matrix)
-    rownames(permutated_environment) = rownames(environmental_matrix)
+    colnames(permutated_environment) <- colnames(environmental_matrix)
+    rownames(permutated_environment) <- rownames(environmental_matrix)
 
     # Run RAMEN
     message("Starting variable selection of permutation ", i, " of ", permutations)
-    selected_variables = RAMEN::selectVariables(VML_df = VML_df,
-                                                genotype_matrix = permutated_genotype,
-                                                environmental_matrix = permutated_environment,
-                                                covariates = covariates,
-                                                summarized_methyl_VML = summarized_methyl_VML,
-                                                seed = 1)
+    selected_variables <- RAMEN::selectVariables(
+      VML_df = VML_df,
+      genotype_matrix = permutated_genotype,
+      environmental_matrix = permutated_environment,
+      covariates = covariates,
+      summarized_methyl_VML = summarized_methyl_VML,
+      seed = 1
+    )
 
     message("Starting lmGE in permutation ", i, " of ", permutations)
-    lmGE_res = RAMEN::lmGE(selected_variables = selected_variables,
-                           summarized_methyl_VML = summarized_methyl_VML,
-                           genotype_matrix = permutated_genotype,
-                           environmental_matrix = permutated_environment,
-                           covariates = covariates,
-                           model_selection = model_selection)
-    if(model_selection=="AIC"){
-      results_perm = data.frame(VML_index = lmGE_res$VML_index,
-                                tot_r_squared = lmGE_res$tot_r_squared,
-                                model_group = lmGE_res$model_group,
-                                R2_difference = lmGE_res$tot_r_squared - lmGE_res$basal_rsquared,
-                                AIC_difference = lmGE_res$AIC - lmGE_res$basal_rsquared)
-    } else if (model_selection=="BIC"){
-      results_perm = data.frame(VML_index = lmGE_res$VML_index,
-                                model_group = lmGE_res$model_group,
-                                tot_r_squared = lmGE_res$tot_r_squared,
-                                R2_difference = lmGE_res$tot_r_squared - lmGE_res$basal_rsquared,
-                                BIC_difference = lmGE_res$BIC - lmGE_res$basal_rsquared)
+    lmGE_res <- RAMEN::lmGE(
+      selected_variables = selected_variables,
+      summarized_methyl_VML = summarized_methyl_VML,
+      genotype_matrix = permutated_genotype,
+      environmental_matrix = permutated_environment,
+      covariates = covariates,
+      model_selection = model_selection
+    )
+    if (model_selection == "AIC") {
+      results_perm <- data.frame(
+        VML_index = lmGE_res$VML_index,
+        tot_r_squared = lmGE_res$tot_r_squared,
+        model_group = lmGE_res$model_group,
+        R2_difference = lmGE_res$tot_r_squared - lmGE_res$basal_rsquared,
+        AIC_difference = lmGE_res$AIC - lmGE_res$basal_rsquared
+      )
+    } else if (model_selection == "BIC") {
+      results_perm <- data.frame(
+        VML_index = lmGE_res$VML_index,
+        model_group = lmGE_res$model_group,
+        tot_r_squared = lmGE_res$tot_r_squared,
+        R2_difference = lmGE_res$tot_r_squared - lmGE_res$basal_rsquared,
+        BIC_difference = lmGE_res$BIC - lmGE_res$basal_rsquared
+      )
     }
     message("Wrapping up permutation ", i, " of ", permutations)
-    results_perm$permutation = i #add the number of permutation
+    results_perm$permutation <- i # add the number of permutation
     results_perm
   }
 
   return(null_dist)
 }
-

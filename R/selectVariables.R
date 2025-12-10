@@ -27,140 +27,172 @@
 #' @importFrom doRNG %dorng%
 #' @export
 #'
-selectVariables = function(VML_df,
-                           genotype_matrix,
-                           environmental_matrix,
-                           covariates = NULL,
-                           summarized_methyl_VML,
-                           seed = NULL) {
+selectVariables <- function(VML_df,
+                            genotype_matrix,
+                            environmental_matrix,
+                            covariates = NULL,
+                            summarized_methyl_VML,
+                            seed = NULL) {
   ## Arguments check
   # Check that genotype_matrix, environmental_matrix, covariate matrix (in case it is provided) and summarized_methyl_VML have the same samples
-  if(!all(rownames(summarized_methyl_VML) %in% colnames(genotype_matrix))) stop("Individual IDs in summarized_methyl_VML do not match individual IDs in genotype_matrix")
+  if (!all(rownames(summarized_methyl_VML) %in% colnames(genotype_matrix))) stop("Individual IDs in summarized_methyl_VML do not match individual IDs in genotype_matrix")
   if (!all(rownames(summarized_methyl_VML) %in% rownames(environmental_matrix))) stop("Individual IDs in summarized_methyl_VML do not match individual IDs in environmental_matrix")
-  if(!is.null(covariates)){
-    if (!all(rownames(summarized_methyl_VML) %in% rownames(covariates)))stop("Individual IDs in summarized_methyl_VML do not match individual IDs in the covariates matrix")}
-  #Check that VML_df has index and SNP column
-  if(!all(c("VML_index","SNP") %in% colnames(VML_df))) stop("Please make sure the VML data frame (VML_df) contains the columns 'SNP' and 'VML_index'.")
-  #Check that the SNP column on VML_df is a list
-  if(!is.list(VML_df$SNP)) stop("Please make sure the 'SNP' column in VML_df is a column containing lists as values")
-  if(!is.character(VML_df$VML_index)) stop("Please make sure the 'VML_index' column in VML_df is a column of characters")
-  #Check that genotype, environment and covariates are matrices
+  if (!is.null(covariates)) {
+    if (!all(rownames(summarized_methyl_VML) %in% rownames(covariates))) stop("Individual IDs in summarized_methyl_VML do not match individual IDs in the covariates matrix")
+  }
+  # Check that VML_df has index and SNP column
+  if (!all(c("VML_index", "SNP") %in% colnames(VML_df))) stop("Please make sure the VML data frame (VML_df) contains the columns 'SNP' and 'VML_index'.")
+  # Check that the SNP column on VML_df is a list
+  if (!is.list(VML_df$SNP)) stop("Please make sure the 'SNP' column in VML_df is a column containing lists as values")
+  if (!is.character(VML_df$VML_index)) stop("Please make sure the 'VML_index' column in VML_df is a column of characters")
+  # Check that genotype, environment and covariates are matrices
   if (!is.matrix(genotype_matrix)) stop("Please make sure the genotype data is provided as a matrix.")
-  if(!is.null(environmental_matrix)){
-    if (!is.matrix(environmental_matrix)) stop("Please make sure the environmental data is provided as a matrix.")}
-  if (!is.null(covariates)){
-    if (!is.matrix(covariates)) stop("Please make sure the covariates data is provided as a matrix.")}
-  if (sum(is.na(genotype_matrix)) > 1 | sum(is.na(environmental_matrix)) > 1 | sum(is.na(covariates)) ) stop("Data contains missing values. Please consider handling NAs by imputation or removal.")
+  if (!is.null(environmental_matrix)) {
+    if (!is.matrix(environmental_matrix)) stop("Please make sure the environmental data is provided as a matrix.")
+  }
+  if (!is.null(covariates)) {
+    if (!is.matrix(covariates)) stop("Please make sure the covariates data is provided as a matrix.")
+  }
+  if (sum(is.na(genotype_matrix)) > 1 | sum(is.na(environmental_matrix)) > 1 | sum(is.na(covariates))) stop("Data contains missing values. Please consider handling NAs by imputation or removal.")
 
   ## Set the seed
   if (!is.null(seed)) set.seed(seed)
 
-  lasso_results = foreach::foreach(VML_i = iterators::iter(VML_df, by = "row"), .combine = "rbind") %dorng%{
-    #Select summarized VML information
-    summVMLi = summarized_methyl_VML %>%
+  lasso_results <- foreach::foreach(VML_i = iterators::iter(VML_df, by = "row"), .combine = "rbind") %dorng% {
+    # Select summarized VML information
+    summVMLi <- summarized_methyl_VML %>%
       dplyr::select(VML_i$VML_index)
     ## Prepare data
-    #subset the genotyping data and match genotype, environment and DNAme IDs
-    if(VML_i$SNP %in% list(NULL) | # Catch VML with no surrounding SNPs
-       VML_i$SNP %in% list("") |
-       VML_i$SNP %in% list(NA) |
-       VML_i$SNP %in% list(character(0))){
-      genot_VMLi = c()
-      any_snp = FALSE
-    } else if (length(VML_i$SNP[[1]]) == 1){ #Special case of sub-setting if SNP is only one because the result is a vector and not a matrix
-      genot_VMLi = genotype_matrix[unlist(VML_i$SNP), rownames(summVMLi)] %>%
+    # subset the genotyping data and match genotype, environment and DNAme IDs
+    if (VML_i$SNP %in% list(NULL) | # Catch VML with no surrounding SNPs
+      VML_i$SNP %in% list("") |
+      VML_i$SNP %in% list(NA) |
+      VML_i$SNP %in% list(character(0))) {
+      genot_VMLi <- c()
+      any_snp <- FALSE
+    } else if (length(VML_i$SNP[[1]]) == 1) { # Special case of sub-setting if SNP is only one because the result is a vector and not a matrix
+      genot_VMLi <- genotype_matrix[unlist(VML_i$SNP), rownames(summVMLi)] %>%
         as.matrix()
-      colnames(genot_VMLi) = VML_i$SNP[[1]]
-      any_snp = TRUE
+      colnames(genot_VMLi) <- VML_i$SNP[[1]]
+      any_snp <- TRUE
     } else {
-      genot_VMLi = genotype_matrix[unlist(VML_i$SNP), rownames(summVMLi)] %>%
+      genot_VMLi <- genotype_matrix[unlist(VML_i$SNP), rownames(summVMLi)] %>%
         t()
-      any_snp = TRUE
+      any_snp <- TRUE
     }
-    if(ncol(environmental_matrix) == 1){
-      environ_VMLi = environmental_matrix[rownames(summVMLi),] %>%
+    if (ncol(environmental_matrix) == 1) {
+      environ_VMLi <- environmental_matrix[rownames(summVMLi), ] %>%
         as.matrix()
-      colnames(environ_VMLi) = colnames(environmental_matrix)
-    } else environ_VMLi = environmental_matrix[rownames(summVMLi),]
-    environ_genot_VMLi = cbind(genot_VMLi, environ_VMLi)
-    #Bind covariates data
-    if (!is.null(covariates)){
-      if (ncol(covariates) == 1){
-        covariates_VMLi = covariates[rownames(summVMLi),] %>% #Match the covariates dataset with the VML information
+      colnames(environ_VMLi) <- colnames(environmental_matrix)
+    } else {
+      environ_VMLi <- environmental_matrix[rownames(summVMLi), ]
+    }
+    environ_genot_VMLi <- cbind(genot_VMLi, environ_VMLi)
+    # Bind covariates data
+    if (!is.null(covariates)) {
+      if (ncol(covariates) == 1) {
+        covariates_VMLi <- covariates[rownames(summVMLi), ] %>% # Match the covariates dataset with the VML information
           as.matrix()
-        colnames(covariates_VMLi) = colnames(covariates)
-      } else covariates_VMLi = covariates[rownames(summVMLi),]
-      genot_VMLi = cbind(genot_VMLi,covariates_VMLi)
-      environ_VMLi = cbind(environ_VMLi, covariates_VMLi)
-      environ_genot_VMLi = cbind(environ_genot_VMLi, covariates_VMLi)
-      ncol_covariates = ncol(covariates_VMLi)
-    } else ncol_covariates = 0
+        colnames(covariates_VMLi) <- colnames(covariates)
+      } else {
+        covariates_VMLi <- covariates[rownames(summVMLi), ]
+      }
+      genot_VMLi <- cbind(genot_VMLi, covariates_VMLi)
+      environ_VMLi <- cbind(environ_VMLi, covariates_VMLi)
+      environ_genot_VMLi <- cbind(environ_genot_VMLi, covariates_VMLi)
+      ncol_covariates <- ncol(covariates_VMLi)
+    } else {
+      ncol_covariates <- 0
+    }
 
     ### Run LASSOs
     ## Genotype only
-    #Get coefficients with the optimal lambda found by k-fold cross-validation
-    if (any_snp){ #Catch cases when VML dont have surrounding genotyped SNPs
-      coef_genot = stats::coef(glmnet::cv.glmnet(x = genot_VMLi, #Variables
-                                                 y = summVMLi[,VML_i$VML_index], #Response
-                                                 alpha = 1,
-                                                 nfolds = 5,
-                                                 penalty.factor = c(rep(1, ncol(genot_VMLi)- ncol_covariates),
-                                                                    rep(0, ncol_covariates))), #Unpenalize the variables in covariates (i.e., force LASSO to keep them in all the situations)
-                               s = "lambda.min")
-      #Select the variables with a coefficient > 0
-      coef_genot = coef_genot[abs(coef_genot[,1]) > 0,]
-      selected_vars_genot = names(coef_genot)[-1]
-      selected_vars_genot = selected_vars_genot[!selected_vars_genot %in% colnames(covariates)] #Remove covariates from selected variables
-    } else selected_vars_genot = character(0)
-
-    #Environment only
-    #Get coefficients with the optimal lambda found by k-fold cross-validation
-    if (!is.null(environ_VMLi)){ #catch scenario where users would not add environmental variables
-      coef_env = stats::coef(glmnet::cv.glmnet(x = environ_VMLi, #Variables
-                                               y = summVMLi[,VML_i$VML_index], #Response
-                                               alpha = 1,
-                                               nfolds = 5,
-                                               penalty.factor = c(rep(1, ncol(environ_VMLi)- ncol_covariates), #Unpenalize the variables in covariates (i.e., force LASSO to keep them in all the situations)
-                                                                  rep(0, ncol_covariates))),
-                             s = "lambda.min")
-      #Select the variables with a coefficient > 0
-      coef_env = coef_env[abs(coef_env[,1]) > 0,]
-      selected_vars_env = names(coef_env)[-1] #Remove the intercept from the variables
-      selected_vars_env = selected_vars_env[!selected_vars_env %in% colnames(covariates)] #Remove covariates from selected variables
-
-      if (any_snp){
-        #Joint (environment + genotype) only when we have Genotype and Environmental variables.
-        #Get coefficients with the optimal lambda found by k-fold cross-validation
-        coef_joint = stats::coef(glmnet::cv.glmnet(x = environ_genot_VMLi, #Variables
-                                                   y = summVMLi[,VML_i$VML_index], #Response
-                                                   alpha = 1,
-                                                   nfolds = 5,
-                                                   penalty.factor = c(rep(1, ncol(environ_genot_VMLi) - ncol_covariates),
-                                                                      rep(0, ncol_covariates))), #Unpenalize the variables in covariates (i.e., force LASSO to keep them in all the situations)
-                                 s = "lambda.min")
-        #Select the variables with an abs(coefficient) > 0
-        coef_joint = coef_joint[abs(coef_joint[,1]) > 0,]
-        selected_vars_joint = names(coef_joint)[-1] #Remove the intercept from the variables
-        selected_vars_joint = selected_vars_joint[!selected_vars_joint %in% colnames(covariates)] #Remove covariates from selected variables
-      } else selected_vars_joint = character(0)
+    # Get coefficients with the optimal lambda found by k-fold cross-validation
+    if (any_snp) { # Catch cases when VML dont have surrounding genotyped SNPs
+      coef_genot <- stats::coef(
+        glmnet::cv.glmnet(
+          x = genot_VMLi, # Variables
+          y = summVMLi[, VML_i$VML_index], # Response
+          alpha = 1,
+          nfolds = 5,
+          penalty.factor = c(
+            rep(1, ncol(genot_VMLi) - ncol_covariates),
+            rep(0, ncol_covariates)
+          )
+        ), # Unpenalize the variables in covariates (i.e., force LASSO to keep them in all the situations)
+        s = "lambda.min"
+      )
+      # Select the variables with a coefficient > 0
+      coef_genot <- coef_genot[abs(coef_genot[, 1]) > 0, ]
+      selected_vars_genot <- names(coef_genot)[-1]
+      selected_vars_genot <- selected_vars_genot[!selected_vars_genot %in% colnames(covariates)] # Remove covariates from selected variables
     } else {
-      selected_vars_env = character(0)
-      selected_vars_joint = character(0)
+      selected_vars_genot <- character(0)
     }
 
-    #Merge results
-    selected_union_genot = c(selected_vars_genot, selected_vars_joint) %>%
+    # Environment only
+    # Get coefficients with the optimal lambda found by k-fold cross-validation
+    if (!is.null(environ_VMLi)) { # catch scenario where users would not add environmental variables
+      coef_env <- stats::coef(
+        glmnet::cv.glmnet(
+          x = environ_VMLi, # Variables
+          y = summVMLi[, VML_i$VML_index], # Response
+          alpha = 1,
+          nfolds = 5,
+          penalty.factor = c(
+            rep(1, ncol(environ_VMLi) - ncol_covariates), # Unpenalize the variables in covariates (i.e., force LASSO to keep them in all the situations)
+            rep(0, ncol_covariates)
+          )
+        ),
+        s = "lambda.min"
+      )
+      # Select the variables with a coefficient > 0
+      coef_env <- coef_env[abs(coef_env[, 1]) > 0, ]
+      selected_vars_env <- names(coef_env)[-1] # Remove the intercept from the variables
+      selected_vars_env <- selected_vars_env[!selected_vars_env %in% colnames(covariates)] # Remove covariates from selected variables
+
+      if (any_snp) {
+        # Joint (environment + genotype) only when we have Genotype and Environmental variables.
+        # Get coefficients with the optimal lambda found by k-fold cross-validation
+        coef_joint <- stats::coef(
+          glmnet::cv.glmnet(
+            x = environ_genot_VMLi, # Variables
+            y = summVMLi[, VML_i$VML_index], # Response
+            alpha = 1,
+            nfolds = 5,
+            penalty.factor = c(
+              rep(1, ncol(environ_genot_VMLi) - ncol_covariates),
+              rep(0, ncol_covariates)
+            )
+          ), # Unpenalize the variables in covariates (i.e., force LASSO to keep them in all the situations)
+          s = "lambda.min"
+        )
+        # Select the variables with an abs(coefficient) > 0
+        coef_joint <- coef_joint[abs(coef_joint[, 1]) > 0, ]
+        selected_vars_joint <- names(coef_joint)[-1] # Remove the intercept from the variables
+        selected_vars_joint <- selected_vars_joint[!selected_vars_joint %in% colnames(covariates)] # Remove covariates from selected variables
+      } else {
+        selected_vars_joint <- character(0)
+      }
+    } else {
+      selected_vars_env <- character(0)
+      selected_vars_joint <- character(0)
+    }
+
+    # Merge results
+    selected_union_genot <- c(selected_vars_genot, selected_vars_joint) %>%
       unique() %>%
-      dplyr::setdiff(colnames(environ_VMLi)) #Remove environmental variables and covariates from the joint selection
-    selected_union_env = c(selected_vars_env, selected_vars_joint) %>%
+      dplyr::setdiff(colnames(environ_VMLi)) # Remove environmental variables and covariates from the joint selection
+    selected_union_env <- c(selected_vars_env, selected_vars_joint) %>%
       unique() %>%
-      dplyr::setdiff(colnames(genot_VMLi)) #Remove genotype variables and covariates from the joint selection
+      dplyr::setdiff(colnames(genot_VMLi)) # Remove genotype variables and covariates from the joint selection
 
     ### Create final data frame
-    selected_variables_final = data.frame(
-      VML_index = VML_i$VML_index)
-    selected_variables_final$selected_genot = list(selected_union_genot)
-    selected_variables_final$selected_env = list(selected_union_env)
+    selected_variables_final <- data.frame(
+      VML_index = VML_i$VML_index
+    )
+    selected_variables_final$selected_genot <- list(selected_union_genot)
+    selected_variables_final$selected_env <- list(selected_union_env)
     selected_variables_final
   }
 
