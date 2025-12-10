@@ -60,7 +60,7 @@ In addition to the [standard gene-environment interaction modeling pipeline][ Ge
 
 If you use RAMEN for any of your analyses, please cite the following publication:
 
-  -   Navarro-Delgado EI, *et al*. RAMEN: Dissecting individual, additive and interactive gene-environment contributions to DNA methylome variability in cord blood. *Genome Biology* (2025)
+  -   Navarro-Delgado, E.I., Czamara, D., Edwards, K. et al. RAMEN: Dissecting individual, additive and interactive gene-environment contributions to DNA methylome variability in cord blood. *Genome Biol* 26, 421 (2025). https://doi.org/10.1186/s13059-025-03864-4
 
 # Gene-environment interaction analysis
 
