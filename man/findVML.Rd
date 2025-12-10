@@ -58,12 +58,14 @@ Note: this function does not exclude sex chromosomes. If you want to exclude the
 }
 \examples{
 
-VML = RAMEN::findVML(methylation_data = RAMEN::test_methylation_data,
-                       array_manifest = "IlluminaHumanMethylationEPICv1",
-                       cor_threshold = 0.15,
-                       var_method = "variance",
-                       var_distribution = "ultrastable",
-                       var_threshold_percentile = 0.99,
-                       max_distance = 1000)
+VML <- RAMEN::findVML(
+  methylation_data = RAMEN::test_methylation_data,
+  array_manifest = "IlluminaHumanMethylationEPICv1",
+  cor_threshold = 0.15,
+  var_method = "variance",
+  var_distribution = "ultrastable",
+  var_threshold_percentile = 0.99,
+  max_distance = 1000
+)
 
 }
