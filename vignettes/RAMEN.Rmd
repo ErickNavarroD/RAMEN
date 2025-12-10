@@ -32,12 +32,13 @@ knitr::opts_chunk$set(
 ```{r modelstable, echo=FALSE}
 library(knitr)
 
-models = data.frame(Model = c("DNAme ~ G + covars", "DNAme ~ E + covars", "DNAme ~ G + E + covars", "DNAme ~ G + E + G*E + covars"),
-                    Name = c("Genetics", "Environmental exposure", "Additive", "Interaction"),
-                    Abbreviation = c("G", "E", "G+E", "GxE")) 
+models <- data.frame(
+  Model = c("DNAme ~ G + covars", "DNAme ~ E + covars", "DNAme ~ G + E + covars", "DNAme ~ G + E + G*E + covars"),
+  Name = c("Genetics", "Environmental exposure", "Additive", "Interaction"),
+  Abbreviation = c("G", "E", "G+E", "GxE")
+)
 
-kable(models, caption = 'Fitted models')
-
+kable(models, caption = "Fitted models")
 ```
 
 where G variables are represented by SNPs, E variables by environmental exposures, and where covars are concomitant variables (i.e. variables that are adjusted for in the model and not of interest in the study such as cell type proportion, age, etc.).
@@ -91,7 +92,7 @@ where:
 In the following sections we will go through each of these steps and guide the user regarding the recommended parameters to use in each function of the package. For illustration purposes, we provide small toy data sets that do not intend to simulate the real biological phenomenon. These data sets are already available in the RAMEN package. 
 
 ```{r setup, warning=FALSE, message=FALSE}
-#Load the packages used throughout the vignette
+# Load the packages used throughout the vignette
 library(RAMEN)
 library(dplyr)
 library(ggplot2)
@@ -117,8 +118,10 @@ We need to chose a metric to quantify the variability of each probe across indiv
   
 ```{r}
 set.seed(1)
-sample = c(rep(0.2, 110), 
-           sample(x = 0:10, size = 90, replace = TRUE)/10)
+sample <- c(
+  rep(0.2, 110),
+  sample(x = 0:10, size = 90, replace = TRUE) / 10
+)
 stats::var(sample)
 stats::mad(sample)
 ```
@@ -150,17 +153,19 @@ We recommend using the "ultrastable" option, as it provides a more objective and
 So, after covering all the basics and understanding how the function works, we can start our analysis! Let's give it a try. 
 
 ```{r}
-VML = RAMEN::findVML(methylation_data = RAMEN::test_methylation_data, 
-                       array_manifest = "IlluminaHumanMethylationEPICv1",
-                       cor_threshold = 0, 
-                       var_method = "variance", 
-                       var_distribution = "ultrastable",
-                       var_threshold_percentile = 0.99, 
-                       max_distance = 1000)
+VML <- RAMEN::findVML(
+  methylation_data = RAMEN::test_methylation_data,
+  array_manifest = "IlluminaHumanMethylationEPICv1",
+  cor_threshold = 0,
+  var_method = "variance",
+  var_distribution = "ultrastable",
+  var_threshold_percentile = 0.99,
+  max_distance = 1000
+)
 
-#Take a look at the resulting object 
-dplyr::glimpse(VML$var_score_threshold) #check the specific threshold that was used to label HVPs
-head(VML$highly_variable_probes) #check the HVPs identified and their variability score
+# Take a look at the resulting object
+dplyr::glimpse(VML$var_score_threshold) # check the specific threshold that was used to label HVPs
+head(VML$highly_variable_probes) # check the HVPs identified and their variability score
 head(VML$VML) # Take a look at the identified VML data frame
 ```
 
@@ -175,25 +180,27 @@ This is printed in the screen just to warn us that `RAMEN::findVML()` is running
 Finally, we will extract the VML data frame, which we can use to produce plots and explore the results. This data frame will also be used for the following parts of the pipeline. 
 
 ```{r}
-VML_df = VML$VML
+VML_df <- VML$VML
 
-#Example of an epxloration plot
-VML_df %>% 
-  dplyr::filter(width > 1) %>% #Only plot VMRs, since sVMPs all have a lenght of 1
-  ggplot2::ggplot(aes(x = width))+
-  ggplot2::geom_histogram(binwidth = 50, fill = "#BAB4D8")+
-  ggplot2::theme_classic()+
-  ggplot2::ggtitle("VMRs width (bp)") 
+# Example of an epxloration plot
+VML_df %>%
+  dplyr::filter(width > 1) %>% # Only plot VMRs, since sVMPs all have a lenght of 1
+  ggplot2::ggplot(aes(x = width)) +
+  ggplot2::geom_histogram(binwidth = 50, fill = "#BAB4D8") +
+  ggplot2::theme_classic() +
+  ggplot2::ggtitle("VMRs width (bp)")
 ```
 
 Next, we want to summarize the DNAme level of each VML per individual. To do this, we use `RAMEN::summarizeVML()`. For sparse VMPs, there is nothing to summarize as we have one probe per loci, so the DNAme level of the corresponding probe is returned. For VMRs, the median DNAme level of all the probes in the region is returned per individual as the representative value. 
 
 ```{r}
-summarized_methyl_VML = RAMEN::summarizeVML(VML_df = VML_df,
-                                             methylation_data = test_methylation_data)
+summarized_methyl_VML <- RAMEN::summarizeVML(
+  VML_df = VML_df,
+  methylation_data = test_methylation_data
+)
 
 # Look at the resulting object
-summarized_methyl_VML[1:5,1:5]
+summarized_methyl_VML[1:5, 1:5]
 ```
 
 The result is a data frame of VML IDs as columns and individual IDs as rows. 
@@ -205,12 +212,14 @@ After identifying the VML, we recommend to use only SNPs in *cis* of each loci, 
 There is not a clear consensus on how close a SNP has to be from a DNAme site to be considered *cis* - the distance threshold tend to go from few kb to 1 megabase. We recommend to use a 1 Mb window to cast a wide net and catch most potentially relevant SNPs.
 
 ```{r}
-VML_cis_snps = RAMEN::findCisSNPs(VML_df = VML_df, 
-                            genotype_information = RAMEN::test_genotype_information, 
-                            distance = 1e+06)
+VML_cis_snps <- RAMEN::findCisSNPs(
+  VML_df = VML_df,
+  genotype_information = RAMEN::test_genotype_information,
+  distance = 1e+06
+)
 
-#Take a look at the result
-head(VML_cis_snps) 
+# Take a look at the result
+head(VML_cis_snps)
 ```
 
 We can see that the resulting data frame is almost exactly the same, but with two new columns (*surrounding_SNPs* and *SNP*) that contain information about how many SNPs were found in *cis* and what are their IDs according to the genotype data that we have. 
@@ -220,16 +229,18 @@ It is important to highlight the columns *probes* and *SNP* contain **lists** as
 We can also explore the resulting object through plots such as the following: 
 
 ```{r cissnps, fig.cap="Disribution of SNPs in cis of VML."}
-VML_cis_snps %>% 
-  dplyr::mutate(surrounding_SNPs = case_when( surrounding_SNPs > 3000 ~ 3000,
-                                              TRUE ~ surrounding_SNPs)) %>% 
+VML_cis_snps %>%
+  dplyr::mutate(surrounding_SNPs = case_when(
+    surrounding_SNPs > 3000 ~ 3000,
+    TRUE ~ surrounding_SNPs
+  )) %>%
   ggplot2::ggplot(aes(x = surrounding_SNPs)) +
   ggplot2::geom_density() +
   ggplot2::facet_grid("type") +
-  ggplot2::xlab("Number of cis SNPs")+
+  ggplot2::xlab("Number of cis SNPs") +
   ggplot2::theme_classic()
 
-#Check the average number of cis snps in out VML data set 
+# Check the average number of cis snps in out VML data set
 mean(VML_cis_snps$surrounding_SNPs)
 ```
 
@@ -249,10 +260,10 @@ Overall, conducting our variable selection strategy reduces the downstream compu
 Please make sure that your data has no NAs, since the LASSO implementation we use in RAMEN does not support missing values, and that all values are numeric. If your data has missing values, consider [handling](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3668100/) them. 
 
 ```{r}
-selected_variables = RAMEN::selectVariables(
+selected_variables <- RAMEN::selectVariables(
   VML_df = VML_cis_snps,
   genotype_matrix = RAMEN::test_genotype_matrix,
-  environmental_matrix= RAMEN::test_environmental_matrix,
+  environmental_matrix = RAMEN::test_environmental_matrix,
   covariates = RAMEN::test_covariates,
   summarized_methyl_VML = summarized_methyl_VML,
   seed = 1
@@ -270,22 +281,28 @@ dplyr::glimpse(selected_variables)
 We can see how using `RAMEN::selectVariables()` reduces the number of variables (originally 100 environmental variables and `r mean(VML_cis_snps$surrounding_SNPs)` SNPs per VML on average as seen in Figure \@ref(fig:cissnps)). 
 
 ```{r selectedvars, fig.cap="Number of G and E selected variables."}
-selected_variables %>% 
-  dplyr::left_join(VML_cis_snps %>% 
-              select(c(VML_index,type)),
-            by = "VML_index") %>% 
-  dplyr::transmute(VML_index = VML_index,
-                   type = type,
-                   Genome = lengths(selected_genot),
-                   Exposome = lengths(selected_env)) %>% 
-  tidyr::pivot_longer(-c(VML_index, type)) %>% 
-  dplyr::rename(group = name,
-         variables = value) %>% 
+selected_variables %>%
+  dplyr::left_join(
+    VML_cis_snps %>%
+      select(c(VML_index, type)),
+    by = "VML_index"
+  ) %>%
+  dplyr::transmute(
+    VML_index = VML_index,
+    type = type,
+    Genome = lengths(selected_genot),
+    Exposome = lengths(selected_env)
+  ) %>%
+  tidyr::pivot_longer(-c(VML_index, type)) %>%
+  dplyr::rename(
+    group = name,
+    variables = value
+  ) %>%
   ggplot2::ggplot(aes(x = type, y = variables)) +
-  ggplot2::geom_violin() + 
-  ggplot2::geom_boxplot(width=0.1, outlier.shape=NA) +
-  ggplot2::facet_wrap(~group)+
-  ggplot2::ggtitle("Selected variables")  +
+  ggplot2::geom_violin() +
+  ggplot2::geom_boxplot(width = 0.1, outlier.shape = NA) +
+  ggplot2::facet_wrap(~group) +
+  ggplot2::ggtitle("Selected variables") +
   ggplot2::theme_classic()
 ```
 
@@ -306,7 +323,7 @@ After fitting this model, the best model per group (group = G, E, G+E or GxE) is
 Additionally, `RAMEN::lmGE()` conducts a variance decomposition analysis, so that the relative R2 contribution of each of the variables of interest (G, E and GxE) is reported. This decomposition is done using the `r CRANpkg("relaimpo")` R package, using the Lindeman, Merenda and Gold (lmg) method, which is based on the heuristic approach of averaging the relative R contribution of each variable over all input orders in the linear model.
 
 ```{r}
-lmge_res = RAMEN::lmGE(
+lmge_res <- RAMEN::lmGE(
   selected_variables = selected_variables,
   summarized_methyl_VML = summarized_methyl_VML,
   genotype_matrix = RAMEN::test_genotype_matrix,
@@ -345,8 +362,8 @@ For clarification, please note that in this vignette when we refer to SNPxEE, we
 Under the assumption that after adjusting for the concomitant variables all VML across the genome share a minimum increment of explained variance, we can pool the delta R squared values from all VML to create a null distribution taking advantage of the high number of VML in the dataset. This assumption decreases significantly the number of permutations required to create a null distribution and reduces the computational time. For further information on how this is done please read the RAMEN paper (Navarro-Delgado EI *et al.*, 2025). `RAMEN::nullDistGE()` shuffles the G and E variables in the dataset and runs findVML, selectVariables() and lmGE(). This is repeated as many times as indicated in the *permutations* parameter. 
 
 ```{r}
-# Compute the null distribution 
-null_dist = RAMEN::nullDistGE(
+# Compute the null distribution
+null_dist <- RAMEN::nullDistGE(
   VML_df = VML_cis_snps,
   genotype_matrix = RAMEN::test_genotype_matrix,
   environmental_matrix = RAMEN::test_environmental_matrix,
@@ -357,7 +374,7 @@ null_dist = RAMEN::nullDistGE(
   model_selection = "AIC"
 )
 
-#Take a look at the object 
+# Take a look at the object
 head(null_dist)
 ```
 
@@ -367,10 +384,10 @@ We recommend to use two different thresholds for the winning models depending of
 
 ```{r, fig.cap = "R2 difference (winner - basal) in a suffled data set."}
 # See the distribution of R2_difference across different winning models
-null_dist %>% 
-  drop_na() %>%  #Remove Basal models from the results, where there is no difference between chosen model and basal model
+null_dist %>%
+  drop_na() %>% # Remove Basal models from the results, where there is no difference between chosen model and basal model
   ggplot2::ggplot(aes(x = R2_difference)) +
-  ggplot2::geom_histogram() + 
+  ggplot2::geom_histogram() +
   ggplot2::facet_grid("model_group") +
   ggplot2::xlab("R2 difference") +
   ggplot2::theme_classic()
@@ -380,31 +397,41 @@ We suggest using the 95th percentile of those distributions as a threshold to re
 
 ```{r}
 # Get a cutoff of the 95th percentile of the null distribution for single and joint models
-cutoff_single = quantile(null_dist %>% 
-                           filter(model_group %in% c("G","E")) %>% 
-                           pull(R2_difference), 
-                         0.95)
-cutoff_joint = quantile(null_dist %>% 
-                           filter(model_group %in% c("G+E","GxE")) %>% 
-                           pull(R2_difference), 
-                         0.95)
+cutoff_single <- quantile(
+  null_dist %>%
+    filter(model_group %in% c("G", "E")) %>%
+    pull(R2_difference),
+  0.95
+)
+cutoff_joint <- quantile(
+  null_dist %>%
+    filter(model_group %in% c("G+E", "GxE")) %>%
+    pull(R2_difference),
+  0.95
+)
 
-#Get a data frame with the final results results
-final_res = lmge_res %>% 
-  dplyr::mutate(r2_difference_basal = tot_r_squared - basal_rsquared,
-                #Label if the best explanatory model passes its corresponding threshold
-                pass_cutoff_threshold = case_when(model_group %in% c("G", "E") ~ r2_difference_basal > cutoff_single,
-                                           model_group %in% c("G+E", "GxE") ~ r2_difference_basal > cutoff_joint),
-                #Label the final model group, replacing bad performing winning models with "B" (basal)
-                model_group = case_when(pass_cutoff_threshold ~ model_group,
-                                              TRUE ~ "B")) %>% 
-  dplyr::select(-pass_cutoff_threshold) #Drop temporary column
+# Get a data frame with the final results results
+final_res <- lmge_res %>%
+  dplyr::mutate(
+    r2_difference_basal = tot_r_squared - basal_rsquared,
+    # Label if the best explanatory model passes its corresponding threshold
+    pass_cutoff_threshold = case_when(
+      model_group %in% c("G", "E") ~ r2_difference_basal > cutoff_single,
+      model_group %in% c("G+E", "GxE") ~ r2_difference_basal > cutoff_joint
+    ),
+    # Label the final model group, replacing bad performing winning models with "B" (basal)
+    model_group = case_when(
+      pass_cutoff_threshold ~ model_group,
+      TRUE ~ "B"
+    )
+  ) %>%
+  dplyr::select(-pass_cutoff_threshold) # Drop temporary column
 
-#Keep only VML that have informative models with out data
-filtered_res = final_res %>% 
-  dplyr::filter(!model_group == "B") #Filter based on the cutoff threshold
+# Keep only VML that have informative models with out data
+filtered_res <- final_res %>%
+  dplyr::filter(!model_group == "B") # Filter based on the cutoff threshold
 
-#Check the VML with informative models
+# Check the VML with informative models
 dplyr::glimpse(filtered_res)
 ```
 
@@ -413,16 +440,15 @@ We can see that the final data set in this example dropped almost all of the VMR
 We recommend the users of the package to include the number of VML with Basal models (i.e. where we could not find a conclusive best model in the final results either because no variables were selected with `RAMEN::selectVariables()` or because they did not pass the R2_difference threshold obtained with `RAMEN::nullDistGE()`). 
 
 ```{r finalresults, fig.cap="Variable Methylated Loci best explanatory models"}
-
 # Plot final results
-final_res %>% 
-  dplyr::group_by(model_group) %>% 
-  dplyr::summarise(count = n()) %>% 
+final_res %>%
+  dplyr::group_by(model_group) %>%
+  dplyr::summarise(count = n()) %>%
   ggplot2::ggplot(aes(x = model_group, y = count)) +
   ggplot2::geom_col() +
   ggplot2::xlab("Best explanatory model") +
   ggplot2::ylab("VML") +
-  ggplot2::theme_classic() 
+  ggplot2::theme_classic()
 ```
 
 So, we can see that for this toy example, we got the following results:
@@ -465,10 +491,12 @@ Saving the data frames produced by RAMEN might seem difficult because it has lis
 data.table::fwrite(selected_variables, file = "path/selected_variables.csv")
 
 # Read the csv file and make lists the elements in the required columns
-selected_variables = fread("path/selected_variables.csv", data.table = FALSE) %>% 
-    mutate(selected_genot = str_split(selected_genot, pattern = "\\|"), # fwrite saves lists as strings separated by |, so we need to splut them
-         selected_env =str_split(selected_env, pattern = "\\|"),
-         VMR_index = as.character(VMR_index)) 
+selected_variables <- fread("path/selected_variables.csv", data.table = FALSE) %>%
+  mutate(
+    selected_genot = str_split(selected_genot, pattern = "\\|"), # fwrite saves lists as strings separated by |, so we need to splut them
+    selected_env = str_split(selected_env, pattern = "\\|"),
+    VMR_index = as.character(VMR_index)
+  )
 ```
 
   2.    Save files as .rds
@@ -477,9 +505,8 @@ selected_variables = fread("path/selected_variables.csv", data.table = FALSE) %>
 # Example for saving the selected_variables object
 saveRDS(selected_variables, file = "path/selected_variables.Rds")
 
-#Load the object
+# Load the object
 readRDS(file = "path/selected_variables.Rds")
-
 ```
 
 # Session info

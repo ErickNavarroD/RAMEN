@@ -3,10 +3,11 @@
 load(test_genotype_information.Rdata)
 
 set.seed(123)
-test_genotype_matrix = matrix(rbinom(nrow(test_genotype_information)*sample_size, 2, 0.5),
-                              ncol = sample_size,
-                              nrow = nrow(test_genotype_information))
-colnames(test_genotype_matrix) = paste("ID", as.character(1:sample_size), sep = "")
-rownames(test_genotype_matrix) = test_genotype_information$ID
+test_genotype_matrix <- matrix(rbinom(nrow(test_genotype_information) * sample_size, 2, 0.5),
+  ncol = sample_size,
+  nrow = nrow(test_genotype_information)
+)
+colnames(test_genotype_matrix) <- paste("ID", as.character(1:sample_size), sep = "")
+rownames(test_genotype_matrix) <- test_genotype_information$ID
 
 usethis::use_data(test_genotype_matrix, overwrite = TRUE)
