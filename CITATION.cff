@@ -34,3 +34,14 @@ keywords:
 license: GPL-3.0+
 version: 1.0.0
 date-released: '2024-03-01'
+preferred-citation:
+  type: article
+  authors:
+    - family-names: "Navarro-Delgado"
+      given-names: "Erick I."
+  title: "RAMEN: Dissecting individual, additive and interactive gene-environment contributions to DNA methylome variability in cord blood"
+  journal: "Genome Biology"
+  issue: "421"
+  volume: "26"
+  year: 2025
+  doi: "10.1186/s13059-025-03864-4"
