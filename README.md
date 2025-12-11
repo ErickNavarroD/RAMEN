@@ -6,6 +6,8 @@
 <!-- badges: start -->
 
 [![DOI](https://zenodo.org/badge/585986641.svg)](https://zenodo.org/badge/latestdoi/585986641)
+[![status](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+
 <!-- badges: end -->
 
 ## Overview
@@ -108,6 +110,12 @@ publication:
   Dissecting individual, additive and interactive gene-environment
   contributions to DNA methylome variability in cord blood. *Genome
   Biol* 26, 421 (2025). <https://doi.org/10.1186/s13059-025-03864-4>
+
+## Code of conduct
+
+Please note that this package is released with a [Contributor Code of
+Conduct](https://ropensci.org/code-of-conduct/). By contributing to this
+project, you agree to abide by its terms.
 
 ## Licence
 
