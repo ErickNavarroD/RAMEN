@@ -1,0 +1,26 @@
+# Map revmap column to probe names after reducing a GenomicRanges object
+
+Given a revmap row (e.g. 1 5 6), we map those positions to their
+corresponding probe names (and end up with something like "cg00000029",
+"cg00000158", "cg00000165".This is a helper function of findVML()).
+
+## Usage
+
+``` r
+map_revmap_names(positions, manifest_hvp)
+```
+
+## Arguments
+
+- positions:
+
+  A revmap row in the form of a vector
+
+- manifest_hvp:
+
+  the manifest of the highly variable probes used in the findVML()
+  function with the probes as row names
+
+## Value
+
+a vector with the names of the probes that conform one reduced region
