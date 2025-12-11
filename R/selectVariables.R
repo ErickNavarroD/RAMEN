@@ -27,6 +27,41 @@
 #' @importFrom doRNG %dorng%
 #' @export
 #'
+#' @examples
+#' ## Find VML in test data
+#' VML <- RAMEN::findVML(
+#'    methylation_data = RAMEN::test_methylation_data,
+#'    array_manifest = "IlluminaHumanMethylationEPICv1",
+#'    cor_threshold = 0,
+#'    var_method = "variance",
+#'    var_distribution = "ultrastable",
+#'    var_threshold_percentile = 0.99,
+#'    max_distance = 1000
+#'    )
+#' ## Find cis SNPs around VML
+#' VML_with_cis_snps <- RAMEN::findCisSNPs(
+#'   VML_df = VML$VML,
+#'   genotype_information = RAMEN::test_genotype_information,
+#'   distance = 1e6
+#'   )
+#'
+#' ## Summarize methylation levels in VML
+#' summarized_methyl_VML <- RAMEN::summarizeVML(
+#'  methylation_data = RAMEN::test_methylation_data,
+#'  VML_df = VML_with_cis_snps,
+#'  array_manifest = "IlluminaHumanMethylationEPICv1"
+#'  )
+#'
+#'  ## Select relevant genotype and environmental variables
+#'  selected_vars <- RAMEN::selectVariables(
+#'    VML_df = VML_with_cis_snps,
+#'    genotype_matrix = RAMEN::test_genotype_matrix,
+#'    environmental_matrix = RAMEN::test_environmental_matrix,
+#'    covariates = RAMEN::test_covariates,
+#'    summarized_methyl_VML = summarized_methyl_VML,
+#'    seed = 1
+#'  )
+#'
 selectVariables <- function(VML_df,
                             genotype_matrix,
                             environmental_matrix,
@@ -65,9 +100,9 @@ selectVariables <- function(VML_df,
     ## Prepare data
     # subset the genotyping data and match genotype, environment and DNAme IDs
     if (VML_i$SNP %in% list(NULL) | # Catch VML with no surrounding SNPs
-      VML_i$SNP %in% list("") |
-      VML_i$SNP %in% list(NA) |
-      VML_i$SNP %in% list(character(0))) {
+        VML_i$SNP %in% list("") |
+        VML_i$SNP %in% list(NA) |
+        VML_i$SNP %in% list(character(0))) {
       genot_VMLi <- c()
       any_snp <- FALSE
     } else if (length(VML_i$SNP[[1]]) == 1) { # Special case of sub-setting if SNP is only one because the result is a vector and not a matrix

@@ -40,3 +40,22 @@ each VML using a distance threshold.
 \strong{Important}: please make sure that the positions of the VML data frame and
 the ones in the genotype information are from the same genome build.
 }
+\examples{
+## Find VML in test data
+VML <- RAMEN::findVML(
+   methylation_data = RAMEN::test_methylation_data,
+   array_manifest = "IlluminaHumanMethylationEPICv1",
+   cor_threshold = 0,
+   var_method = "variance",
+   var_distribution = "ultrastable",
+   var_threshold_percentile = 0.99,
+   max_distance = 1000
+   )
+## Find cis SNPs around VML
+VML_with_cis_snps <- RAMEN::findCisSNPs(
+  VML_df = VML$VML,
+  genotype_information = RAMEN::test_genotype_information,
+  distance = 1e6
+  )
+
+}

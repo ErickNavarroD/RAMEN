@@ -9,6 +9,12 @@
 #'
 #' @return a vector with the names of the probes that conform one reduced region
 #'
+#' @example
+#' target = data.frame(row.names = c("a", "b", "c", "d"), values = c(1,1,1,1))
+#' query = c(2,1)
+#'
+#' map_revmap_names(positions = query, manifest_hvp = target)
+#' ## Expected output: c("b", "a")
 map_revmap_names <- function(positions, manifest_hvp) {
   # We start with 1 5 6
   # We want to end with cg00000029,  cg00000158 cg00000165
@@ -152,8 +158,8 @@ findVML <- function(methylation_data,
     dplyr::filter(
       !is.na(pos), # Remove probes with no map info
       TargetID %in% row.names(var_scores %>%
-        dplyr::filter(var_score >= var_threshold))
-    ) %>% # Remove probes that have no methylation information in the processed data and are not highly variable
+                                dplyr::filter(var_score >= var_threshold))
+      ) %>% # Remove probes that have no methylation information in the processed data and are not highly variable
     dplyr::left_join(
       var_scores %>% # Add variability information
         tibble::rownames_to_column(var = "TargetID"),
@@ -227,8 +233,6 @@ findVML <- function(methylation_data,
   candidate_VMRs <- GenomicRanges::reduce(gr, with.revmap = TRUE, min.gapwidth = max_distance)
   # Add the number of probes in each region
   S4Vectors::mcols(candidate_VMRs)$n_VMPs <- sapply(S4Vectors::mcols(candidate_VMRs)$revmap, length)
-  # Add the width of each region
-  # S4Vectors::mcols(candidate_VMRs)$width = S4Vectors::width(candidate_VMRs)
   # Substitute revmap with the name of the probes in each VMR
   S4Vectors::mcols(candidate_VMRs)$probes <- sapply(S4Vectors::mcols(candidate_VMRs)$revmap, map_revmap_names, manifest_hvp)
   # Remove revmap mcol

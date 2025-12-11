@@ -14,12 +14,31 @@
 #'
 #' @importFrom foreach %dopar%
 #' @export
+#'
+#' @examples
+#' ## Find VML in test data
+#' VML <- RAMEN::findVML(
+#'    methylation_data = RAMEN::test_methylation_data,
+#'    array_manifest = "IlluminaHumanMethylationEPICv1",
+#'    cor_threshold = 0,
+#'    var_method = "variance",
+#'    var_distribution = "ultrastable",
+#'    var_threshold_percentile = 0.99,
+#'    max_distance = 1000
+#'    )
+#'
+#' ## Summarize methylation states of the found VML
+#' summarized_VML <- RAMEN::summarizeVML(
+#'   VML_df = VML$VML,
+#'   methylation_data = RAMEN::test_methylation_data
+#'   )
+#'
 
 summarizeVML <- function(VML_df,
                          methylation_data) {
   if (!"VML_index" %in% colnames(VML_df)) { # Add a VML index to each region if not already existing
     VML_df <- VML_df %>%
-      mutate(VML_index = paste("VML", as.character(dplyr::row_number()), sep = ""))
+      dplyr::mutate(VML_index = paste("VML", as.character(dplyr::row_number()), sep = ""))
   }
 
   if (!all(unique(unlist(VML_df$probes)) %in% rownames(methylation_data))) {

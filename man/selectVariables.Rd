@@ -47,3 +47,39 @@ in your R session before running the function  (e.g., \emph{doParallel::register
 
 Note: If you want to conduct the variable selection step only in one data set (i.e., only in the genotype), you can set the argument \emph{environmental_matrix = NULL}.
 }
+\examples{
+## Find VML in test data
+VML <- RAMEN::findVML(
+   methylation_data = RAMEN::test_methylation_data,
+   array_manifest = "IlluminaHumanMethylationEPICv1",
+   cor_threshold = 0,
+   var_method = "variance",
+   var_distribution = "ultrastable",
+   var_threshold_percentile = 0.99,
+   max_distance = 1000
+   )
+## Find cis SNPs around VML
+VML_with_cis_snps <- RAMEN::findCisSNPs(
+  VML_df = VML$VML,
+  genotype_information = RAMEN::test_genotype_information,
+  distance = 1e6
+  )
+
+## Summarize methylation levels in VML
+summarized_methyl_VML <- RAMEN::summarizeVML(
+ methylation_data = RAMEN::test_methylation_data,
+ VML_df = VML_with_cis_snps,
+ array_manifest = "IlluminaHumanMethylationEPICv1"
+ )
+
+ ## Select relevant genotype and environmental variables
+ selected_vars <- RAMEN::selectVariables(
+   VML_df = VML_with_cis_snps,
+   genotype_matrix = RAMEN::test_genotype_matrix,
+   environmental_matrix = RAMEN::test_environmental_matrix,
+   covariates = RAMEN::test_covariates,
+   summarized_methyl_VML = summarized_methyl_VML,
+   seed = 1
+ )
+
+}

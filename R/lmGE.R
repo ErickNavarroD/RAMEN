@@ -44,6 +44,50 @@
 #' @importFrom foreach %dopar%
 #' @importFrom foreach %do%
 #' @export
+#' @examples
+#' ## Find VML in test data
+#' VML <- RAMEN::findVML(
+#'    methylation_data = RAMEN::test_methylation_data,
+#'    array_manifest = "IlluminaHumanMethylationEPICv1",
+#'    cor_threshold = 0,
+#'    var_method = "variance",
+#'    var_distribution = "ultrastable",
+#'    var_threshold_percentile = 0.99,
+#'    max_distance = 1000
+#'    )
+#' ## Find cis SNPs around VML
+#' VML_with_cis_snps <- RAMEN::findCisSNPs(
+#'   VML_df = VML$VML,
+#'   genotype_information = RAMEN::test_genotype_information,
+#'   distance = 1e6
+#'   )
+#'
+#' ## Summarize methylation levels in VML
+#' summarized_methyl_VML <- RAMEN::summarizeVML(
+#'  methylation_data = RAMEN::test_methylation_data,
+#'  VML_df = VML_with_cis_snps,
+#'  array_manifest = "IlluminaHumanMethylationEPICv1"
+#'  )
+#'
+#'  ## Select relevant genotype and environmental variables
+#'  selected_vars <- RAMEN::selectVariables(
+#'    VML_df = VML_with_cis_snps,
+#'    genotype_matrix = RAMEN::test_genotype_matrix,
+#'    environmental_matrix = RAMEN::test_environmental_matrix,
+#'    covariates = RAMEN::test_covariates,
+#'    summarized_methyl_VML = summarized_methyl_VML,
+#'    seed = 1
+#'  )
+#'
+#' ## Fit G, E, G+E and GxE models and select the winning one
+#' lmge_res <- RAMEN::lmGE(
+#'    selected_variables = selected_vars,
+#'    summarized_methyl_VML = summarized_methyl_VML,
+#'    genotype_matrix = RAMEN::test_genotype_matrix,
+#'    environmental_matrix = RAMEN::test_environmental_matrix,
+#'    covariates = RAMEN::test_covariates,
+#'    model_selection = "AIC"
+#'  )
 #'
 lmGE <- function(selected_variables,
                  summarized_methyl_VML,
@@ -75,10 +119,10 @@ lmGE <- function(selected_variables,
   # Filter VML that have no selected G and no selected E
   no_vars_VML <- selected_variables %>%
     dplyr::filter((selected_env %in% c(list(NULL), list(""), list(NA), list(character(0))) &
-      selected_genot %in% c(list(NULL), list(""), list(NA), list(character(0)))))
+                     selected_genot %in% c(list(NULL), list(""), list(NA), list(character(0)))))
   selected_variables <- selected_variables %>%
     dplyr::filter(!(selected_env %in% c(list(NULL), list(""), list(NA), list(character(0))) &
-      selected_genot %in% c(list(NULL), list(""), list(NA), list(character(0)))))
+                      selected_genot %in% c(list(NULL), list(""), list(NA), list(character(0)))))
 
   # Select the winning model
   winning_models <- foreach::foreach(
@@ -142,7 +186,6 @@ lmGE <- function(selected_variables,
         if (model_selection == "AIC") model_g_df$AIC <- stats::AIC(model_g)
         if (model_selection == "BIC") model_g_df$BIC <- stats::BIC(model_g)
         model_g_df$tot_r_squared <- summary(model_g)$r.squared
-        # model_g_df$tot_adj_r_squared = summary(model_g)$adj.r.squared
 
         if (!VML_i$selected_env %in% c(list(NULL), list(""), list(NA), list(character(0)))) {
           ### Fit GxE and G+E models if E is not empty

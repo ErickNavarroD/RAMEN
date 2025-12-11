@@ -50,3 +50,40 @@ The core pipeline from the RAMEN package identifies the best explanatory model p
 
 Under the assumption that after adjusting for the concomitant variables all VML across the genome follow the same behavior regarding an increment of explained variance with randomized G and E data, we can pool the delta R squared values from all VML to create a null distribution taking advantage of the high number of VML in the dataset. This assumption decreases significantly the number of permutations required to create a null distribution and reduces the computational time. For further information please read the RAMEN paper (in preparation).
 }
+\examples{
+## Find VML in test data
+VML <- RAMEN::findVML(
+   methylation_data = RAMEN::test_methylation_data,
+   array_manifest = "IlluminaHumanMethylationEPICv1",
+   cor_threshold = 0,
+   var_method = "variance",
+   var_distribution = "ultrastable",
+   var_threshold_percentile = 0.99,
+   max_distance = 1000
+   )
+## Find cis SNPs around VML
+VML_with_cis_snps <- RAMEN::findCisSNPs(
+  VML_df = VML$VML,
+  genotype_information = RAMEN::test_genotype_information,
+  distance = 1e6
+  )
+
+## Summarize methylation levels in VML
+summarized_methyl_VML <- RAMEN::summarizeVML(
+ methylation_data = RAMEN::test_methylation_data,
+ VML_df = VML_with_cis_snps,
+ array_manifest = "IlluminaHumanMethylationEPICv1"
+ )
+
+## Simulate null distribution of G and E contributions on DNAme variability
+null_dist <- RAMEN::nullDistGE(
+   VML_df = VML_with_cis_snps,
+   genotype_matrix = RAMEN::test_genotype_matrix,
+   environmental_matrix = RAMEN::test_environmental_matrix,
+   summarized_methyl_VML = summarized_methyl_VML,
+   permutations = 5,
+   covariates = RAMEN::test_covariates,
+   seed = 1,
+   model_selection = "AIC"
+ )
+}

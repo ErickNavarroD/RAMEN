@@ -26,7 +26,24 @@
 #'  - The cis SNPs identified for each VML and the number of SNPs surrounding
 #'  each VML in the specified window
 #' @export
-
+#' @examples
+#' ## Find VML in test data
+#' VML <- RAMEN::findVML(
+#'    methylation_data = RAMEN::test_methylation_data,
+#'    array_manifest = "IlluminaHumanMethylationEPICv1",
+#'    cor_threshold = 0,
+#'    var_method = "variance",
+#'    var_distribution = "ultrastable",
+#'    var_threshold_percentile = 0.99,
+#'    max_distance = 1000
+#'    )
+#' ## Find cis SNPs around VML
+#' VML_with_cis_snps <- RAMEN::findCisSNPs(
+#'   VML_df = VML$VML,
+#'   genotype_information = RAMEN::test_genotype_information,
+#'   distance = 1e6
+#'   )
+#'
 findCisSNPs <- function(VML_df, genotype_information, distance = 1e6) {
   # Check arguments
   if (!all(c("seqnames", "start", "end") %in% colnames(VML_df))) stop("Please make sure the VML_df object has the required columns with the appropiate names (check documentation for further information)")
