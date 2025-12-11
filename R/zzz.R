@@ -14,7 +14,7 @@
                 '.           .'
                   '--.....--'
 
-If you use RAMEN for your analysis, please cite Navarro-Delgado, E.I.,
+If you use RAMEN for your analysis, please cite: Navarro-Delgado, E.I.,
 Czamara, D., Edwards, K. et al. RAMEN: Dissecting individual, additive
 and interactive gene-environment contributions to DNA methylome variability
 in cord blood. Genome Biol 26, 421 (2025).

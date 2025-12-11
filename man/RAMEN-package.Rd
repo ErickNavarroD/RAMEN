@@ -14,6 +14,7 @@ R package that identifies which genetic (G), environmental (E), additive (G+E) o
 Useful links:
 \itemize{
   \item \url{https://ericknavarrod.github.io/RAMEN/}
+  \item Report bugs at \url{https://github.com/ErickNavarroD/RAMEN/issues}
 }
 
 }

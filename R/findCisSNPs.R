@@ -1,16 +1,30 @@
 #' Find cis SNPs around a set of Variable Methylated Loci (VML)
 #'
-#' Identification of genotyped Single Nucleotide Polymorphisms (SNPs) close to each VML using a distance threshold.
+#' Identification of genotyped Single Nucleotide Polymorphisms (SNPs) close to
+#' each VML using a distance threshold.
 #'
-#' **Important**: please make sure that the positions of the VML data frame and the ones in the genotype information are from the same genome build.
+#' **Important**: please make sure that the positions of the VML data frame and
+#' the ones in the genotype information are from the same genome build.
 #'
-#' @param VML_df A GRanges-like data frame (i.e. the same columns as a GRanges object converted to a data frame). Must contain the following columns:
-#' "seqnames", "start", "end". These columns are present automatically when doing the object conversion and correspond to the chromosome number, and range of the region.
-#' @param genotype_information A data frame with information about genotyped sites of interest. It must contain the following columns: "CHROM" (chromosome number), "POS" (Genomic basepair position of the SNP (must be an integer), and "ID" (SNP ID). The nomenclature of CHROM must match with the one used in the VML_df seqnames column (i.e., if VML_df$seqnames uses 1, 2, 3, X, Y or Chr1, Chr2, Chr3, ChrX, ChrY, etc. as chromosome number, the genotype_information$CHROM values must be encoded in the same way).
-#' @param distance The distance threshold in basepairs to be used to identify cis SNPs. Default is 1 Mb.
+#' @param VML_df A GRanges-like data frame (i.e. the same columns as a GRanges
+#' object converted to a data frame). Must contain the following columns:
+#' "seqnames", "start", "end". These columns are present automatically when
+#' doing the object conversion and correspond to the chromosome number, and
+#' range of the region.
+#' @param genotype_information A data frame with information about genotyped
+#' sites of interest. It must contain the following columns: "CHROM"
+#' (chromosome number), "POS" (Genomic basepair position of the SNP (must be an
+#' integer), and "ID" (SNP ID). The nomenclature of CHROM must match with the
+#' one used in the VML_df seqnames column (i.e., if VML_df$seqnames uses 1, 2,
+#' 3, X, Y or Chr1, Chr2, Chr3, ChrX, ChrY, etc. as chromosome number, the
+#' genotype_information$CHROM values must be encoded in the same way).
+#' @param distance The distance threshold in basepairs to be used to identify
+#' cis SNPs. Default is 1 Mb.
 #'
-#' @return The same VML data frame (a data frame compatible with GRanges conversion) with the following new columns:
-#'  - The cis SNPs identified for each VML and the number of SNPs surrounding each VML in the specified window
+#' @return The same VML data frame (a data frame compatible with GRanges
+#' conversion) with the following new columns:
+#'  - The cis SNPs identified for each VML and the number of SNPs surrounding
+#'  each VML in the specified window
 #' @export
 
 findCisSNPs <- function(VML_df, genotype_information, distance = 1e6) {
@@ -35,7 +49,7 @@ findCisSNPs <- function(VML_df, genotype_information, distance = 1e6) {
   VML_df_with_cisSNPs <- VML_df
   if (!"VML_index" %in% colnames(VML_df_with_cisSNPs)) { # Add a VML index to each region if not already existing
     VML_df_with_cisSNPs <- VML_df_with_cisSNPs %>%
-      mutate(VML_index = paste("VML", as.character(dplyr::row_number()), sep = ""))
+      dplyr::mutate(VML_index = paste("VML", as.character(dplyr::row_number()), sep = ""))
   }
 
   #### Get the number of overlaps per extended VML ####
