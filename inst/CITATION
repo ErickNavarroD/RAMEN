@@ -1,0 +1,11 @@
+bibentry(
+  bibtype  = "Article",
+  title    = "RAMEN: Dissecting individual, additive and interactive gene-environment contributions to DNA methylome variability in cord blood",
+  author   = "Navarro-Delgado, E.I., Czamara, D., Edwards, K. et al.",
+  journal  = "Genome Biology",
+  year     = "2025",
+  volume   = "26",
+  number   = "1",
+  pages    = "29",
+  doi      = "10.1186/s13059-025-03864-4"
+)
