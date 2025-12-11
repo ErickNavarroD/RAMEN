@@ -1,0 +1,299 @@
+{
+  "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+  "@type": "SoftwareSourceCode",
+  "identifier": "RAMEN",
+  "description": "R package that identifies which genetic (G), environmental (E), additive (G+E) or interaction (GxE) effect better explains DNA methylation levels in Variable Methylated Loci using microarray data.",
+  "name": "RAMEN: RAMEN: Regional Association of Methylome variability with the Exposome and geNome",
+  "codeRepository": "https://github.com/ErickNavarroD/RAMEN",
+  "issueTracker": "https://github.com/ErickNavarroD/RAMEN/issues",
+  "license": "https://spdx.org/licenses/GPL-3.0",
+  "version": "1.0.0.9003",
+  "programmingLanguage": {
+    "@type": "ComputerLanguage",
+    "name": "R",
+    "url": "https://r-project.org"
+  },
+  "runtimePlatform": "R version 4.4.2 (2024-10-31)",
+  "author": [
+    {
+      "@type": "Person",
+      "givenName": "Erick I.",
+      "familyName": "Navarro-Delgado",
+      "email": "ericknadel98@hotmail.com",
+      "@id": "https://orcid.org/0000-0003-1040-3519"
+    }
+  ],
+  "maintainer": [
+    {
+      "@type": "Person",
+      "givenName": "Erick I.",
+      "familyName": "Navarro-Delgado",
+      "email": "ericknadel98@hotmail.com",
+      "@id": "https://orcid.org/0000-0003-1040-3519"
+    }
+  ],
+  "softwareSuggestions": [
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "BiocStyle",
+      "name": "BiocStyle",
+      "provider": {
+        "@id": "https://www.bioconductor.org",
+        "@type": "Organization",
+        "name": "Bioconductor",
+        "url": "https://www.bioconductor.org"
+      },
+      "sameAs": "https://bioconductor.org/packages/release/bioc/html/BiocStyle.html"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "knitr",
+      "name": "knitr",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=knitr"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "rmarkdown",
+      "name": "rmarkdown",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=rmarkdown"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "ggplot2",
+      "name": "ggplot2",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=ggplot2"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "tidyr",
+      "name": "tidyr",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=tidyr"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "testthat",
+      "name": "testthat",
+      "version": ">= 3.0.0",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=testthat"
+    }
+  ],
+  "softwareRequirements": {
+    "1": {
+      "@type": "SoftwareApplication",
+      "identifier": "doRNG",
+      "name": "doRNG",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=doRNG"
+    },
+    "2": {
+      "@type": "SoftwareApplication",
+      "identifier": "dplyr",
+      "name": "dplyr",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=dplyr"
+    },
+    "3": {
+      "@type": "SoftwareApplication",
+      "identifier": "foreach",
+      "name": "foreach",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=foreach"
+    },
+    "4": {
+      "@type": "SoftwareApplication",
+      "identifier": "GenomicRanges",
+      "name": "GenomicRanges",
+      "provider": {
+        "@id": "https://www.bioconductor.org",
+        "@type": "Organization",
+        "name": "Bioconductor",
+        "url": "https://www.bioconductor.org"
+      },
+      "sameAs": "https://bioconductor.org/packages/release/bioc/html/GenomicRanges.html"
+    },
+    "5": {
+      "@type": "SoftwareApplication",
+      "identifier": "glmnet",
+      "name": "glmnet",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=glmnet"
+    },
+    "6": {
+      "@type": "SoftwareApplication",
+      "identifier": "IlluminaHumanMethylation450kanno.ilmn12.hg19",
+      "name": "IlluminaHumanMethylation450kanno.ilmn12.hg19"
+    },
+    "7": {
+      "@type": "SoftwareApplication",
+      "identifier": "IlluminaHumanMethylationEPICanno.ilm10b4.hg19",
+      "name": "IlluminaHumanMethylationEPICanno.ilm10b4.hg19"
+    },
+    "8": {
+      "@type": "SoftwareApplication",
+      "identifier": "IlluminaHumanMethylationEPICv2anno.20a1.hg38",
+      "name": "IlluminaHumanMethylationEPICv2anno.20a1.hg38"
+    },
+    "9": {
+      "@type": "SoftwareApplication",
+      "identifier": "IRanges",
+      "name": "IRanges",
+      "provider": {
+        "@id": "https://www.bioconductor.org",
+        "@type": "Organization",
+        "name": "Bioconductor",
+        "url": "https://www.bioconductor.org"
+      },
+      "sameAs": "https://bioconductor.org/packages/release/bioc/html/IRanges.html"
+    },
+    "10": {
+      "@type": "SoftwareApplication",
+      "identifier": "iterators",
+      "name": "iterators",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=iterators"
+    },
+    "11": {
+      "@type": "SoftwareApplication",
+      "identifier": "lifecycle",
+      "name": "lifecycle",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=lifecycle"
+    },
+    "12": {
+      "@type": "SoftwareApplication",
+      "identifier": "magrittr",
+      "name": "magrittr",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=magrittr"
+    },
+    "13": {
+      "@type": "SoftwareApplication",
+      "identifier": "relaimpo",
+      "name": "relaimpo",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=relaimpo"
+    },
+    "14": {
+      "@type": "SoftwareApplication",
+      "identifier": "S4Vectors",
+      "name": "S4Vectors",
+      "provider": {
+        "@id": "https://www.bioconductor.org",
+        "@type": "Organization",
+        "name": "Bioconductor",
+        "url": "https://www.bioconductor.org"
+      },
+      "sameAs": "https://bioconductor.org/packages/release/bioc/html/S4Vectors.html"
+    },
+    "15": {
+      "@type": "SoftwareApplication",
+      "identifier": "stats",
+      "name": "stats"
+    },
+    "16": {
+      "@type": "SoftwareApplication",
+      "identifier": "stringr",
+      "name": "stringr",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=stringr"
+    },
+    "17": {
+      "@type": "SoftwareApplication",
+      "identifier": "tibble",
+      "name": "tibble",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=tibble"
+    },
+    "18": {
+      "@type": "SoftwareApplication",
+      "identifier": "R",
+      "name": "R",
+      "version": ">= 4.2.0"
+    },
+    "SystemRequirements": null
+  },
+  "fileSize": "3425.405KB",
+  "relatedLink": "https://ericknavarrod.github.io/RAMEN/",
+  "readme": "https://github.com/ErickNavarroD/RAMEN/blob/master/README.md",
+  "keywords": ["exposome", "genome", "methylation-analysis", "methylation-microarrays", "multiomics", "r-package", "bioinformatics-tool", "dna-methylation"]
+}
