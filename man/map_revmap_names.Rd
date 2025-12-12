@@ -19,3 +19,12 @@ a vector with the names of the probes that conform one reduced region
 Given a revmap row (e.g. 1 5 6), we map those positions to their corresponding probe names
 (and end up with something like "cg00000029",  "cg00000158", "cg00000165".This is a helper function of findVML()).
 }
+\examples{
+\dontrun{
+  target = data.frame(row.names = c("a", "b", "c", "d"), values = c(1,1,1,1))
+  query = c(2,1)
+
+  map_revmap_names(positions = query, manifest_hvp = target)
+  ## Expected output: c("b", "a")
+}
+}

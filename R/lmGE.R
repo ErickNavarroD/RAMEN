@@ -64,9 +64,8 @@
 #'
 #' ## Summarize methylation levels in VML
 #' summarized_methyl_VML <- RAMEN::summarizeVML(
-#'  methylation_data = RAMEN::test_methylation_data,
-#'  VML_df = VML_with_cis_snps,
-#'  array_manifest = "IlluminaHumanMethylationEPICv1"
+#'    methylation_data = RAMEN::test_methylation_data,
+#'    VML_df = VML_with_cis_snps
 #'  )
 #'
 #'  ## Select relevant genotype and environmental variables
@@ -365,7 +364,7 @@ lmGE <- function(selected_variables,
 
   return(winning_models %>%
     rbind(no_vars_VML %>% # Attach VML with no variables selected in selectVariables()
-      select(-selected_genot, -selected_env) %>% # remove empty columns
+      dplyr::select(-selected_genot, -selected_env) %>% # remove empty columns
       dplyr::mutate(
         model_group = "B",
         variables = list(NA_character_),

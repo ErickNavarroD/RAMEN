@@ -25,3 +25,18 @@ its median pairwise probe correlation.
 This function supports parallel computing for increased speed. To do so, you have to set the parallel backend
 in your R session before running the function (e.g., \emph{doParallel::registerDoParallel(4)})). After that, the function can be run as usual. It is recommended to also set options(future.globals.maxSize= +Inf).
 }
+\examples{
+
+#Create a VML data.frame
+VMR_df <- data.frame(seqnames = c("chr21", "chr21"),
+  start = c(10861376, 10862171),
+  end = c(10862507, 10883548),
+  probes =  I(list(c("cg15043638", "cg18287590", "cg17975851"),
+                   c("cg13893907", "cg17035109", "cg06187584"))))
+
+# Compute median correlation for each VMR
+medCorVMR(VMR_df = VMR_df, methylation_data = RAMEN::test_methylation_data)
+
+
+
+}

@@ -16,6 +16,20 @@
 #' @importFrom foreach %dopar%
 #' @export
 #'
+#' @examples
+#'
+#' #Create a VML data.frame
+#' VMR_df <- data.frame(seqnames = c("chr21", "chr21"),
+#'   start = c(10861376, 10862171),
+#'   end = c(10862507, 10883548),
+#'   probes =  I(list(c("cg15043638", "cg18287590", "cg17975851"),
+#'                    c("cg13893907", "cg17035109", "cg06187584"))))
+#'
+#' # Compute median correlation for each VMR
+#' medCorVMR(VMR_df = VMR_df, methylation_data = RAMEN::test_methylation_data)
+#'
+#'
+#'
 medCorVMR <- function(VMR_df, methylation_data) {
   if (!is.list(VMR_df$probes)) {
     stop("Please make sure the 'probes' column in VMR_df is a column of lists")

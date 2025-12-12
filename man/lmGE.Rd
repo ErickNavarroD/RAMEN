@@ -92,9 +92,8 @@ VML_with_cis_snps <- RAMEN::findCisSNPs(
 
 ## Summarize methylation levels in VML
 summarized_methyl_VML <- RAMEN::summarizeVML(
- methylation_data = RAMEN::test_methylation_data,
- VML_df = VML_with_cis_snps,
- array_manifest = "IlluminaHumanMethylationEPICv1"
+   methylation_data = RAMEN::test_methylation_data,
+   VML_df = VML_with_cis_snps
  )
 
  ## Select relevant genotype and environmental variables

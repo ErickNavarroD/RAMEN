@@ -9,12 +9,15 @@
 #'
 #' @return a vector with the names of the probes that conform one reduced region
 #'
-#' @example
-#' target = data.frame(row.names = c("a", "b", "c", "d"), values = c(1,1,1,1))
-#' query = c(2,1)
+#' @examples
+#' \dontrun{
+#'   target = data.frame(row.names = c("a", "b", "c", "d"), values = c(1,1,1,1))
+#'   query = c(2,1)
 #'
-#' map_revmap_names(positions = query, manifest_hvp = target)
-#' ## Expected output: c("b", "a")
+#'   map_revmap_names(positions = query, manifest_hvp = target)
+#'   ## Expected output: c("b", "a")
+#' }
+
 map_revmap_names <- function(positions, manifest_hvp) {
   # We start with 1 5 6
   # We want to end with cg00000029,  cg00000158 cg00000165

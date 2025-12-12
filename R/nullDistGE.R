@@ -40,8 +40,7 @@
 #' ## Summarize methylation levels in VML
 #' summarized_methyl_VML <- RAMEN::summarizeVML(
 #'  methylation_data = RAMEN::test_methylation_data,
-#'  VML_df = VML_with_cis_snps,
-#'  array_manifest = "IlluminaHumanMethylationEPICv1"
+#'  VML_df = VML_with_cis_snps
 #'  )
 #'
 #' ## Simulate null distribution of G and E contributions on DNAme variability
