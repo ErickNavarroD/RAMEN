@@ -14,10 +14,10 @@ methodology.
 
 ``` r
 nullDistGE(
-  VML_df,
+  VMRs_df,
   genotype_matrix,
   environmental_matrix,
-  summarized_methyl_VML,
+  summarized_methyl_VMR,
   permutations = 10,
   covariates = NULL,
   seed = NULL,
@@ -27,18 +27,18 @@ nullDistGE(
 
 ## Arguments
 
-- VML_df:
+- VMRs_df:
 
   A data frame converted from a GRanges object. Recommended to use the
-  output of *RAMEN::findCisSNPs()*. Must have one VML per row, and
-  contain the following columns: "VML_index" (a unique ID for each VML
-  in VML_df AS CHARACTERS) and "SNP" (a column with a list as
+  output of *RAMEN::findCisSNPs()*. Must have one VMR per row, and
+  contain the following columns: "VMR_index" (a unique ID for each VMR
+  in VMRs_df AS CHARACTERS) and "SNP" (a column with a list as
   observation, containing the name of the SNPs surrounding the
-  corresponding VML). The SNPs contained in the "SNP" column must be
+  corresponding VMR). The SNPs contained in the "SNP" column must be
   present in the object that is indicated in the genotype_matrix
-  argument, and it must contain all the VML contained in
-  summarized_methyl_VML. VML with no surrounding SNPs must have an empty
-  list in the SNP column (either list(NULL), list(NA), list("") or
+  argument, and it must contain all the VMRs contained in
+  summarized_methyl_VMR. VMRs with no surrounding SNPs must have an
+  empty list in the SNP column (either list(NULL), list(NA), list("") or
   list(character(0)) ).
 
 - genotype_matrix:
@@ -57,14 +57,15 @@ nullDistGE(
   than two levels. Columns must correspond to environmental variables
   and rows to individuals. Row names must be the individual IDs.
 
-- summarized_methyl_VML:
+- summarized_methyl_VMR:
 
-  A data frame containing each individual's VML summarized methylation.
-  It is suggested to use the output of RAMEN::summarizeVML().Rows must
-  reflects individuals, and columns VML The names of the columns must
-  correspond to the index of said VML, and it must match the index of
-  VML_df\$VML_index. The names of the rows must correspond to the sample
-  IDs, and must match with the IDs of the other matrices.
+  A data frame containing each individual's VMR summarized region
+  methylation. It is suggested to use the output of
+  RAMEN::summarizeVMRs().Rows must reflects individuals, and columns
+  VMRs The names of the columns must correspond to the index of said
+  VMR, and it must match the index of VMRs_df\$VMR_index. The names of
+  the rows must correspond to the sample IDs, and must match with the
+  IDs of the other matrices.
 
 - permutations:
 
@@ -88,7 +89,7 @@ nullDistGE(
 
 - model_selection:
 
-  Which metric to use to select the best model for each VML. Supported
+  Which metric to use to select the best model for each VMR. Supported
   options are "AIC" or BIC". More information about which one to use can
   be found in the Details section.
 
@@ -96,7 +97,7 @@ nullDistGE(
 
 A data frame with the following columns:
 
-- VML_index: The unique ID of the VML.
+- VMR_index: The unique ID of the VMR.
 
 - model_group: The group to which the winning model belongs to (i.e., G,
   E, G+E or GxE)
@@ -117,7 +118,7 @@ A data frame with the following columns:
 ## Details
 
 The core pipeline from the RAMEN package identifies the best explanatory
-model per VML. However, despite these models being winners in comparison
+model per VMR. However, despite these models being winners in comparison
 to models including any other G/E variable(s) in the dataset, some
 winning models might perform no better than what we would expect by
 chance. Therefore, the goal of this function is to create a distribution
@@ -133,10 +134,10 @@ not add more to the explained variance of the basal model than what
 randomized data do.
 
 Under the assumption that after adjusting for the concomitant variables
-all VML across the genome follow the same behavior regarding an
+all VMRs across the genome follow the same behavior regarding an
 increment of explained variance with randomized G and E data, we can
-pool the delta R squared values from all VML to create a null
-distribution taking advantage of the high number of VML in the dataset.
+pool the delta R squared values from all VMRs to create a null
+distribution taking advantage of the high number of VMRs in the dataset.
 This assumption decreases significantly the number of permutations
 required to create a null distribution and reduces the computational
 time. For further information please read the RAMEN paper (in

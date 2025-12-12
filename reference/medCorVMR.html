@@ -11,7 +11,7 @@ its median pairwise probe correlation."><meta property="og:image" content="https
 
     <a class="navbar-brand me-2" href="../index.html">RAMEN</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0.9003</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,7 +67,8 @@ constituting the VMR).</p></dd>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This function supports parallel computing for increased speed. To do so, you have to set the parallel backend
-in your R session before running the function (e.g., <em>doParallel::registerDoParallel(4)</em>)). After that, the function can be run as usual. It is recommended to also set options(future.globals.maxSize= +Inf).</p>
+in your R session before running the function (e.g., doFuture::registerDoFuture()) and then the evaluation strategy (e.g., future::plan(multisession)). After that,
+the function can be run as usual. It is recommended to also set options(future.globals.maxSize= +Inf).</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

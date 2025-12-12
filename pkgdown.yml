@@ -3,7 +3,7 @@ pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   RAMEN: RAMEN.html
-last_built: 2025-12-11T01:43Z
+last_built: 2025-12-12T22:08Z
 urls:
   reference: https://ericknavarrod.github.io/RAMEN/reference
   article: https://ericknavarrod.github.io/RAMEN/articles

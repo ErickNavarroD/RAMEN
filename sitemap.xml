@@ -5,9 +5,8 @@
 <url><loc>https://ericknavarrod.github.io/RAMEN/articles/index.html</loc></url>
 <url><loc>https://ericknavarrod.github.io/RAMEN/authors.html</loc></url>
 <url><loc>https://ericknavarrod.github.io/RAMEN/index.html</loc></url>
-<url><loc>https://ericknavarrod.github.io/RAMEN/reference/RAMEN-package.html</loc></url>
 <url><loc>https://ericknavarrod.github.io/RAMEN/reference/findCisSNPs.html</loc></url>
-<url><loc>https://ericknavarrod.github.io/RAMEN/reference/findVML.html</loc></url>
+<url><loc>https://ericknavarrod.github.io/RAMEN/reference/findVMRs.html</loc></url>
 <url><loc>https://ericknavarrod.github.io/RAMEN/reference/index.html</loc></url>
 <url><loc>https://ericknavarrod.github.io/RAMEN/reference/lmGE.html</loc></url>
 <url><loc>https://ericknavarrod.github.io/RAMEN/reference/map_revmap_names.html</loc></url>
@@ -15,13 +14,12 @@
 <url><loc>https://ericknavarrod.github.io/RAMEN/reference/nullDistGE.html</loc></url>
 <url><loc>https://ericknavarrod.github.io/RAMEN/reference/pipe.html</loc></url>
 <url><loc>https://ericknavarrod.github.io/RAMEN/reference/selectVariables.html</loc></url>
-<url><loc>https://ericknavarrod.github.io/RAMEN/reference/summarizeVML.html</loc></url>
+<url><loc>https://ericknavarrod.github.io/RAMEN/reference/summarizeVMRs.html</loc></url>
 <url><loc>https://ericknavarrod.github.io/RAMEN/reference/test_array_manifest.html</loc></url>
 <url><loc>https://ericknavarrod.github.io/RAMEN/reference/test_covariates.html</loc></url>
 <url><loc>https://ericknavarrod.github.io/RAMEN/reference/test_environmental_matrix.html</loc></url>
 <url><loc>https://ericknavarrod.github.io/RAMEN/reference/test_genotype_information.html</loc></url>
 <url><loc>https://ericknavarrod.github.io/RAMEN/reference/test_genotype_matrix.html</loc></url>
 <url><loc>https://ericknavarrod.github.io/RAMEN/reference/test_methylation_data.html</loc></url>
-<url><loc>https://ericknavarrod.github.io/RAMEN/reference/ultrastable_cpgs.html</loc></url>
 </urlset>
 

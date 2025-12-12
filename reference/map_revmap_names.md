@@ -2,7 +2,7 @@
 
 Given a revmap row (e.g. 1 5 6), we map those positions to their
 corresponding probe names (and end up with something like "cg00000029",
-"cg00000158", "cg00000165".This is a helper function of findVML()).
+"cg00000158", "cg00000165".This is a helper function of findVMRs()).
 
 ## Usage
 
@@ -18,7 +18,7 @@ map_revmap_names(positions, manifest_hvp)
 
 - manifest_hvp:
 
-  the manifest of the highly variable probes used in the findVML()
+  the manifest of the highly variable probes used in the findVMRs()
   function with the probes as row names
 
 ## Value

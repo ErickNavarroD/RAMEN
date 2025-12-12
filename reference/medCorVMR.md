@@ -36,6 +36,7 @@ median pairwise correlation.
 
 This function supports parallel computing for increased speed. To do so,
 you have to set the parallel backend in your R session before running
-the function (e.g., *doParallel::registerDoParallel(4)*)). After that,
-the function can be run as usual. It is recommended to also set
+the function (e.g., doFuture::registerDoFuture()) and then the
+evaluation strategy (e.g., future::plan(multisession)). After that, the
+function can be run as usual. It is recommended to also set
 options(future.globals.maxSize= +Inf).

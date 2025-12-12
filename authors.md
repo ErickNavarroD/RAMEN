@@ -9,12 +9,12 @@
 
 Navarro-Delgado E (2025). *RAMEN: RAMEN: Regional Association of
 Methylome variability with the Exposome and geNome*. R package version
-1.0.0.9003, <https://ericknavarrod.github.io/RAMEN/>.
+1.0.0, <https://ericknavarrod.github.io/RAMEN/>.
 
     @Manual{,
       title = {RAMEN: RAMEN: Regional Association of Methylome variability with the Exposome and geNome},
       author = {Erick I. Navarro-Delgado},
       year = {2025},
-      note = {R package version 1.0.0.9003},
+      note = {R package version 1.0.0},
       url = {https://ericknavarrod.github.io/RAMEN/},
     }
