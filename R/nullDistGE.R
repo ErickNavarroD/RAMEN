@@ -64,6 +64,15 @@ nullDistGE <- function(VML_df,
                        covariates = NULL,
                        seed = NULL,
                        model_selection = "AIC") {
+  ## Check that genotype_matrix, environmental_matrix, and covariates (in case
+  ## it is provided) have only numeric values and no NA, NaN, Inf values
+  if (sum(!is.numeric(genotype_matrix)) > 0) stop ("Please make sure the genotype matrix contains only numeric values.")
+  if (sum(!is.numeric(environmental_matrix)) > 0) stop ("Please make sure the environmental matrix contains only numeric values.")
+  if (!is.null(covariates)) {
+    if (sum(!is.numeric(covariates)) > 0) stop("Please make sure the covariates matrix contains only numeric values.")
+  }
+  if (sum(!is.numeric(summarized_methyl_VML)) > 0) stop("Please make sure the summarized_methyl_VML matrix or data frame contains only numeric values.")
+
   # Get the shuffle order
   if (!is.null(seed)) set.seed(seed)
   permutation_order <- data.frame(sample(rownames(summarized_methyl_VML),

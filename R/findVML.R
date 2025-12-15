@@ -95,6 +95,10 @@ findVML <- function(methylation_data,
   } else {
     stop("The array_manifest object is not a data.frame nor a string. Please provide a manifest with the required columns or provide a string with one of the supported human microarrays ('IlluminaHumanMethylation450k', 'IlluminaHumanMethylationEPICv1','IlluminaHumanMethylationEPICv2')")
   }
+  #Check that cor_threshold is numeric and between 0 and 1
+  if (!is.numeric(cor_threshold) | cor_threshold <= 0 | cor_threshold >= 1) {
+    stop("'cor_threshold' must be of type 'numeric' and from 0 to 1")
+  }
 
   # Check that the method choice is correct
   if (var_method == "mad") {

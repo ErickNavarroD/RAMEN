@@ -67,19 +67,19 @@ selectVariables <- function(VML_df,
                             covariates = NULL,
                             summarized_methyl_VML,
                             seed = NULL) {
-  ## Arguments check
-  # Check that genotype_matrix, environmental_matrix, covariate matrix (in case it is provided) and summarized_methyl_VML have the same samples
+  # Arguments check
+  ## Check that genotype_matrix, environmental_matrix, covariate matrix (in case it is provided) and summarized_methyl_VML have the same samples
   if (!all(rownames(summarized_methyl_VML) %in% colnames(genotype_matrix))) stop("Individual IDs in summarized_methyl_VML do not match individual IDs in genotype_matrix")
   if (!all(rownames(summarized_methyl_VML) %in% rownames(environmental_matrix))) stop("Individual IDs in summarized_methyl_VML do not match individual IDs in environmental_matrix")
   if (!is.null(covariates)) {
     if (!all(rownames(summarized_methyl_VML) %in% rownames(covariates))) stop("Individual IDs in summarized_methyl_VML do not match individual IDs in the covariates matrix")
   }
-  # Check that VML_df has index and SNP column
+  ## Check that VML_df has index and SNP column
   if (!all(c("VML_index", "SNP") %in% colnames(VML_df))) stop("Please make sure the VML data frame (VML_df) contains the columns 'SNP' and 'VML_index'.")
-  # Check that the SNP column on VML_df is a list
+  ## Check that the SNP column on VML_df is a list
   if (!is.list(VML_df$SNP)) stop("Please make sure the 'SNP' column in VML_df is a column containing lists as values")
   if (!is.character(VML_df$VML_index)) stop("Please make sure the 'VML_index' column in VML_df is a column of characters")
-  # Check that genotype, environment and covariates are matrices
+  ## Check that genotype, environment and covariates are matrices
   if (!is.matrix(genotype_matrix)) stop("Please make sure the genotype data is provided as a matrix.")
   if (!is.null(environmental_matrix)) {
     if (!is.matrix(environmental_matrix)) stop("Please make sure the environmental data is provided as a matrix.")
@@ -88,6 +88,14 @@ selectVariables <- function(VML_df,
     if (!is.matrix(covariates)) stop("Please make sure the covariates data is provided as a matrix.")
   }
   if (sum(is.na(genotype_matrix)) > 1 | sum(is.na(environmental_matrix)) > 1 | sum(is.na(covariates))) stop("Data contains missing values. Please consider handling NAs by imputation or removal.")
+  ## Check that genotype_matrix, environmental_matrix, and covariates (in case
+  ## it is provided) have only numeric values and no NA, NaN, Inf values
+  if (sum(!is.numeric(genotype_matrix)) > 0) stop ("Please make sure the genotype matrix contains only numeric values.")
+  if (sum(!is.numeric(environmental_matrix)) > 0) stop ("Please make sure the environmental matrix contains only numeric values.")
+  if (!is.null(covariates)) {
+    if (sum(!is.numeric(covariates)) > 0) stop("Please make sure the covariates matrix contains only numeric values.")
+  }
+  if (sum(!is.numeric(summarized_methyl_VML)) > 0) stop("Please make sure the summarized_methyl_VML matrix or data frame contains only numeric values.")
 
   ## Set the seed
   if (!is.null(seed)) set.seed(seed)

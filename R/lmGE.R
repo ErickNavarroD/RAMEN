@@ -114,6 +114,14 @@ lmGE <- function(selected_variables,
     if (!is.matrix(covariates)) stop("Please make sure the covariates data is provided as a matrix.")
   }
   if (!model_selection %in% c("AIC", "BIC")) stop("Please make sure your model_selection method is 'AIC' or 'BIC'")
+  ## Check that genotype_matrix, environmental_matrix, and covariates (in case
+  ## it is provided) have only numeric values and no NA, NaN, Inf values
+  if (sum(!is.numeric(genotype_matrix)) > 0) stop ("Please make sure the genotype matrix contains only numeric values.")
+  if (sum(!is.numeric(environmental_matrix)) > 0) stop ("Please make sure the environmental matrix contains only numeric values.")
+  if (!is.null(covariates)) {
+    if (sum(!is.numeric(covariates)) > 0) stop("Please make sure the covariates matrix contains only numeric values.")
+  }
+  if (sum(!is.numeric(summarized_methyl_VML)) > 0) stop("Please make sure the summarized_methyl_VML data frame or matrix contains only numeric values.")
 
   # Filter VML that have no selected G and no selected E
   no_vars_VML <- selected_variables %>%
