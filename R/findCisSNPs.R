@@ -46,6 +46,8 @@
 #'
 findCisSNPs <- function(VML_df, genotype_information, distance = 1e6) {
   # Check arguments
+  if (!is.data.frame(VML_df)) stop("Please make sure the VML_df object is a data frame.")
+  if (!is.data.frame(genotype_information)) stop("Please make sure the genotype_information object is a data frame.")
   if (!all(c("seqnames", "start", "end") %in% colnames(VML_df))) stop("Please make sure the VML_df object has the required columns with the appropiate names (check documentation for further information)")
   if (!all(c("CHROM", "POS", "ID") %in% colnames(genotype_information))) stop("Please make sure the genotype_information object has the required columns with the appropiate names (check documentation for further information)")
   message("Reminder: please make sure that the positions of the VML data frame and the ones in the genotype information are from the same genome build.")

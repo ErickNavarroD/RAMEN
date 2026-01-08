@@ -66,12 +66,39 @@ nullDistGE <- function(VML_df,
                        model_selection = "AIC") {
   ## Check that genotype_matrix, environmental_matrix, and covariates (in case
   ## it is provided) have only numeric values and no NA, NaN, Inf values
-  if (sum(!is.numeric(genotype_matrix)) > 0) stop ("Please make sure the genotype matrix contains only numeric values.")
-  if (sum(!is.numeric(environmental_matrix)) > 0) stop ("Please make sure the environmental matrix contains only numeric values.")
-  if (!is.null(covariates)) {
-    if (sum(!is.numeric(covariates)) > 0) stop("Please make sure the covariates matrix contains only numeric values.")
-  }
-  if (sum(!is.numeric(summarized_methyl_VML)) > 0) stop("Please make sure the summarized_methyl_VML matrix or data frame contains only numeric values.")
+  if (
+    sum(sapply(genotype_matrix, is.na)) > 0 ||
+    sum(sapply(genotype_matrix, is.nan)) > 0 ||
+    sum(!sapply(genotype_matrix, is.numeric)) > 0 ||
+    sum(sapply(genotype_matrix, is.infinite)) > 0
+  ) stop (
+    "Please make sure the genotype matrix contains only finite numeric values."
+  )
+  if (
+    sum(sapply(environmental_matrix, is.na)) > 0 ||
+    sum(sapply(environmental_matrix, is.nan)) > 0 ||
+    sum(!sapply(environmental_matrix, is.numeric)) > 0 ||
+    sum(sapply(environmental_matrix, is.infinite)) > 0
+  ) stop (
+    "Please make sure the environmental matrix contains only finite numeric values."
+  )
+  if (
+    sum(sapply(covariates, is.na)) > 0 ||
+    sum(sapply(covariates, is.nan)) > 0 ||
+    sum(!sapply(covariates, is.numeric)) > 0 ||
+    sum(sapply(covariates, is.infinite)) > 0
+  ) stop (
+    "Please make sure the covariates matrix contains only finite numeric values."
+  )
+  if (
+    sum(sapply(summarized_methyl_VML, is.na)) > 0 ||
+    sum(sapply(summarized_methyl_VML, is.nan)) > 0 ||
+    sum(!sapply(summarized_methyl_VML, is.numeric)) > 0 ||
+    sum(sapply(summarized_methyl_VML, is.infinite)) > 0
+  ) stop (
+    "Please make sure the summarized_methyl_VML matrix or data frame contains only finite numeric values."
+  )
+
 
   # Get the shuffle order
   if (!is.null(seed)) set.seed(seed)

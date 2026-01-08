@@ -81,6 +81,7 @@ findVML <- function(methylation_data,
                     var_distribution = "ultrastable",
                     var_threshold_percentile = 0.99,
                     max_distance = 1000) {
+  #### Argument checks ####
   # Check that the array manifest is in the right format
   if (is.data.frame(array_manifest)) {
     if (!all(c("chr", "pos", "strand") %in% colnames(array_manifest))) stop("The array_manifest data frame does not have the required columns. Please provide a manifest with the required columns or provide a string with one of the supported human microarrays ('IlluminaHumanMethylation450k', 'IlluminaHumanMethylationEPICv1','IlluminaHumanMethylationEPICv2')")
@@ -96,10 +97,11 @@ findVML <- function(methylation_data,
     stop("The array_manifest object is not a data.frame nor a string. Please provide a manifest with the required columns or provide a string with one of the supported human microarrays ('IlluminaHumanMethylation450k', 'IlluminaHumanMethylationEPICv1','IlluminaHumanMethylationEPICv2')")
   }
   #Check that cor_threshold is numeric and between 0 and 1
-  if (!is.numeric(cor_threshold) | cor_threshold <= 0 | cor_threshold >= 1) {
+  if (!(is.numeric(cor_threshold) && cor_threshold >= 0 && cor_threshold <= 1)) {
     stop("'cor_threshold' must be of type 'numeric' and from 0 to 1")
   }
-
+  if (!is.data.frame(methylation_data)) stop("The methylation_data object must be a data frame with samples as columns and probes as rows.")
+  if (!var_distribution %in% c("all","ultrastable")) stop("'var_distribution' must be one of 'all' or 'ultrastable'")
   # Check that the method choice is correct
   if (var_method == "mad") {
     var_scores <- apply(methylation_data, 1, stats::mad) %>%

@@ -36,6 +36,7 @@
 
 summarizeVML <- function(VML_df,
                          methylation_data) {
+  if (!is.data.frame(VML_df)) stop("Please provide a data frame in VML_df" )
   if (!"VML_index" %in% colnames(VML_df)) { # Add a VML index to each region if not already existing
     VML_df <- VML_df %>%
       dplyr::mutate(VML_index = paste("VML", as.character(dplyr::row_number()), sep = ""))
