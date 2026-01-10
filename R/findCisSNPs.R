@@ -78,7 +78,7 @@ findCisSNPs <- function(VML_df, genotype_information, distance = 1e6) {
   snps_per_vml_find <- GenomicRanges::findOverlaps(VML_extended, genot_gr, select = "all")
   rownames(genotype_information) <- genotype_information$ID
   VML_df_with_cisSNPs <- VML_df_with_cisSNPs %>%
-    dplyr::mutate(SNP = sapply(snps_per_vml_find, map_revmap_names, genotype_information))
+    dplyr::mutate(SNP = lapply(snps_per_vml_find, map_revmap_names, genotype_information))
 
   return(VML_df_with_cisSNPs)
 }
