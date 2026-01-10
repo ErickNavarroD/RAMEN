@@ -155,10 +155,10 @@ nullDistGE <- function(VML_df,
     if (model_selection == "AIC") {
       results_perm <- data.frame(
         VML_index = lmGE_res$VML_index,
-        tot_r_squared = lmGE_res$tot_r_squared,
         model_group = lmGE_res$model_group,
+        tot_r_squared = lmGE_res$tot_r_squared,
         R2_difference = lmGE_res$tot_r_squared - lmGE_res$basal_rsquared,
-        AIC_difference = lmGE_res$AIC - lmGE_res$basal_rsquared
+        AIC_difference = lmGE_res$AIC - lmGE_res$basal_AIC
       )
     } else if (model_selection == "BIC") {
       results_perm <- data.frame(
@@ -166,7 +166,7 @@ nullDistGE <- function(VML_df,
         model_group = lmGE_res$model_group,
         tot_r_squared = lmGE_res$tot_r_squared,
         R2_difference = lmGE_res$tot_r_squared - lmGE_res$basal_rsquared,
-        BIC_difference = lmGE_res$BIC - lmGE_res$basal_rsquared
+        BIC_difference = lmGE_res$BIC - lmGE_res$basal_BIC
       )
     }
     message("Wrapping up permutation ", i, " of ", permutations)
