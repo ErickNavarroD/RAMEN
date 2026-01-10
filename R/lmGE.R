@@ -396,22 +396,43 @@ lmGE <- function(selected_variables,
       as.data.frame()
   }
 
+  if (model_selection == "AIC") {
+    return(winning_models %>%
+             rbind(no_vars_VML %>% # Attach VML with no variables selected in selectVariables()
+                     dplyr::select(-selected_genot, -selected_env) %>% # remove empty columns
+                     dplyr::mutate(
+                       model_group = "B",
+                       variables = list(NA_character_),
+                       tot_r_squared = NA_real_,
+                       g_r_squared = NA_real_,
+                       e_r_squared = NA_real_,
+                       gxe_r_squared = NA_real_,
+                       AIC = NA_real_,
+                       second_winner = NA_character_,
+                       delta_aic = NA_real_,
+                       delta_r_squared = NA_real_,
+                       basal_AIC = NA_real_,
+                       basal_rsquared = NA_real_
+                     )))
+  }
+  if (model_selection == "BIC") {
+    return(winning_models %>%
+             rbind(no_vars_VML %>% # Attach VML with no variables selected in selectVariables()
+                     dplyr::select(-selected_genot, -selected_env) %>% # remove empty columns
+                     dplyr::mutate(
+                       model_group = "B",
+                       variables = list(NA_character_),
+                       tot_r_squared = NA_real_,
+                       g_r_squared = NA_real_,
+                       e_r_squared = NA_real_,
+                       gxe_r_squared = NA_real_,
+                       BIC = NA_real_,
+                       second_winner = NA_character_,
+                       delta_bic = NA_real_,
+                       delta_r_squared = NA_real_,
+                       basal_BIC = NA_real_,
+                       basal_rsquared = NA_real_
+                     )))
+  }
 
-  return(winning_models %>%
-    rbind(no_vars_VML %>% # Attach VML with no variables selected in selectVariables()
-      dplyr::select(-selected_genot, -selected_env) %>% # remove empty columns
-      dplyr::mutate(
-        model_group = "B",
-        variables = list(NA_character_),
-        tot_r_squared = NA_real_,
-        g_r_squared = NA_real_,
-        e_r_squared = NA_real_,
-        gxe_r_squared = NA_real_,
-        AIC = NA_real_,
-        second_winner = NA_character_,
-        delta_aic = NA_real_,
-        delta_r_squared = NA_real_,
-        basal_AIC = NA_real_,
-        basal_rsquared = NA_real_
-      )))
 }
