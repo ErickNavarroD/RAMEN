@@ -258,7 +258,7 @@ findVML <- function(methylation_data,
       dplyr::filter(median_correlation > cor_threshold) %>% # Remove VMRs whose CpGs are not correlated
       GenomicRanges::makeGRangesFromDataFrame(keep.extra.columns = TRUE) # Create a GR object again
   } else {
-    warning("No canonical VMRs were found in this data set")
+    warning("No VMRs were found in this data set")
   }
 
   ### Capture non-canonical VMRs ###
