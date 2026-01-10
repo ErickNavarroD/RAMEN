@@ -87,7 +87,6 @@ selectVariables <- function(VML_df,
   if (!is.null(covariates)) {
     if (!is.matrix(covariates)) stop("Please make sure the covariates data is provided as a matrix.")
   }
-  if (sum(is.na(genotype_matrix)) > 1 | sum(is.na(environmental_matrix)) > 1 | sum(is.na(covariates))) stop("Data contains missing values. Please consider handling NAs by imputation or removal.")
   ## Check that genotype_matrix, environmental_matrix, and covariates (in case
   ## it is provided) have only numeric values and no NA, NaN, Inf values
   if (
@@ -106,14 +105,17 @@ selectVariables <- function(VML_df,
   ) stop (
     "Please make sure the environmental matrix contains only finite numeric values."
   )
-  if (
-    sum(sapply(covariates, is.na)) > 0 ||
-    sum(sapply(covariates, is.nan)) > 0 ||
-    sum(!sapply(covariates, is.numeric)) > 0 ||
-    sum(sapply(covariates, is.infinite)) > 0
-  ) stop (
-    "Please make sure the covariates matrix contains only finite numeric values."
-  )
+  if (!is.null(covariates)) {
+    if (
+      sum(sapply(covariates, is.na)) > 0 ||
+      sum(sapply(covariates, is.nan)) > 0 ||
+      sum(!sapply(covariates, is.numeric)) > 0 ||
+      sum(sapply(covariates, is.infinite)) > 0
+    ) stop (
+      "Please make sure the covariates matrix contains only finite numeric values."
+    )
+  }
+
   if (
     sum(sapply(summarized_methyl_VML, is.na)) > 0 ||
     sum(sapply(summarized_methyl_VML, is.nan)) > 0 ||
