@@ -210,9 +210,11 @@ findVML <- function(methylation_data,
   #### Group the probes into regions to detect sVMPs####
   regions_full_manifest <- GenomicRanges::reduce(full_manifest_gr, with.revmap = TRUE, min.gapwidth = max_distance)
   # Add the number of probes in each region
-  S4Vectors::mcols(regions_full_manifest)$n_probes <- sapply(S4Vectors::mcols(regions_full_manifest)$revmap, length)
+  S4Vectors::mcols(regions_full_manifest)$n_probes <- vapply(S4Vectors::mcols(regions_full_manifest)$revmap,
+                                                             length,
+                                                             FUN.VALUE = numeric(1))
   # Substitute revmap with the name of the probes in each region
-  S4Vectors::mcols(regions_full_manifest)$probes <- sapply(S4Vectors::mcols(regions_full_manifest)$revmap, map_revmap_names, full_manifest)
+  S4Vectors::mcols(regions_full_manifest)$probes <- lapply(S4Vectors::mcols(regions_full_manifest)$revmap, map_revmap_names, full_manifest)
   # Remove revmap mcol
   S4Vectors::mcols(regions_full_manifest)$revmap <- NULL
   # Keep elements with only one probe
@@ -241,9 +243,11 @@ findVML <- function(methylation_data,
   # Create the regions
   candidate_VMRs <- GenomicRanges::reduce(gr, with.revmap = TRUE, min.gapwidth = max_distance)
   # Add the number of probes in each region
-  S4Vectors::mcols(candidate_VMRs)$n_VMPs <- sapply(S4Vectors::mcols(candidate_VMRs)$revmap, length)
+  S4Vectors::mcols(candidate_VMRs)$n_VMPs <- vapply(S4Vectors::mcols(candidate_VMRs)$revmap,
+                                                    length,
+                                                    FUN.VALUE = numeric(1))
   # Substitute revmap with the name of the probes in each VMR
-  S4Vectors::mcols(candidate_VMRs)$probes <- sapply(S4Vectors::mcols(candidate_VMRs)$revmap, map_revmap_names, manifest_hvp)
+  S4Vectors::mcols(candidate_VMRs)$probes <- lapply(S4Vectors::mcols(candidate_VMRs)$revmap, map_revmap_names, manifest_hvp)
   # Remove revmap mcol
   S4Vectors::mcols(candidate_VMRs)$revmap <- NULL
 

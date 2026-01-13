@@ -537,7 +537,7 @@ test_that("selectVariables throws errors when expected", {
       covariates = RAMEN::test_covariates,
       summarized_methyl_VML = test_summeth_na
     ),
-    "Please make sure the summarized_methyl_VML matrix or data frame contains only finite numeric values.",
+    "Please make sure the summarized_methyl_VML data frame contains only finite numeric values.",
     fixed = TRUE
   )
 })
@@ -707,7 +707,7 @@ test_that("nullDistGE throws errors when expected", {
       seed = 1,
       model_selection = "AIC"
     ),
-    "Please make sure the summarized_methyl_VML matrix or data frame contains only finite numeric values.",
+    "Please make sure the summarized_methyl_VML data frame contains only finite numeric values.",
     fixed = TRUE
   )
 }

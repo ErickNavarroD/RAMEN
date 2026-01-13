@@ -96,6 +96,7 @@ lmGE <- function(selected_variables,
                  model_selection = "AIC") {
   # Check arguments
   # Check that genotype_matrix, environmental_matrix, covariate matrix (in case it is provided) and summarized_methyl_VML have the same samples
+  if (!is.data.frame(summarized_methyl_VML)) stop("Please make sure summarized_methyl_VML is a data frame.")
   if (!all(rownames(summarized_methyl_VML) %in% colnames(genotype_matrix))) stop("Individual IDs in summarized_methyl_VML do not match individual IDs in genotype_matrix")
   if (!all(rownames(summarized_methyl_VML) %in% rownames(environmental_matrix))) stop("Individual IDs in summarized_methyl_VML do not match individual IDs in environmental_matrix")
   if (!is.null(covariates)) {
@@ -117,36 +118,55 @@ lmGE <- function(selected_variables,
   ## Check that genotype_matrix, environmental_matrix, and covariates (in case
   ## it is provided) have only numeric values and no NA, NaN, Inf values
   if (
-    sum(sapply(genotype_matrix, is.na)) > 0 ||
-    sum(sapply(genotype_matrix, is.nan)) > 0 ||
-    sum(!sapply(genotype_matrix, is.numeric)) > 0 ||
-    sum(sapply(genotype_matrix, is.infinite)) > 0
+    sum(vapply(genotype_matrix, is.na, FUN.VALUE = logical(1))) > 0 ||
+    sum(vapply(genotype_matrix, is.nan, FUN.VALUE = logical(1))) > 0 ||
+    sum(!vapply(genotype_matrix, is.numeric, FUN.VALUE = logical(1))) > 0 ||
+    sum(vapply(genotype_matrix, is.infinite, FUN.VALUE = logical(1))) > 0
   ) stop (
     "Please make sure the genotype matrix contains only finite numeric values."
   )
   if (
-    sum(sapply(environmental_matrix, is.na)) > 0 ||
-    sum(sapply(environmental_matrix, is.nan)) > 0 ||
-    sum(!sapply(environmental_matrix, is.numeric)) > 0 ||
-    sum(sapply(environmental_matrix, is.infinite)) > 0
+    sum(vapply(environmental_matrix, is.na, FUN.VALUE = logical(1))) > 0 ||
+    sum(vapply(environmental_matrix, is.nan, FUN.VALUE = logical(1))) > 0 ||
+    sum(!vapply(environmental_matrix, is.numeric, FUN.VALUE = logical(1))) > 0 ||
+    sum(vapply(environmental_matrix, is.infinite, FUN.VALUE = logical(1))) > 0
   ) stop (
     "Please make sure the environmental matrix contains only finite numeric values."
   )
+  if (!is.null(covariates)) {
+    if (
+      sum(vapply(covariates, is.na, FUN.VALUE = logical(1))) > 0 ||
+      sum(vapply(covariates, is.nan, FUN.VALUE = logical(1))) > 0 ||
+      sum(!vapply(covariates, is.numeric, FUN.VALUE = logical(1))) > 0 ||
+      sum(vapply(covariates, is.infinite, FUN.VALUE = logical(1))) > 0
+    ) stop (
+      "Please make sure the covariates matrix contains only finite numeric values."
+    )
+  }
+
   if (
-    sum(sapply(covariates, is.na)) > 0 ||
-    sum(sapply(covariates, is.nan)) > 0 ||
-    sum(!sapply(covariates, is.numeric)) > 0 ||
-    sum(sapply(covariates, is.infinite)) > 0
+    sum(vapply(summarized_methyl_VML,
+               is.na,
+               FUN.VALUE = logical(nrow(summarized_methyl_VML))
+               )
+    ) > 0 ||
+    sum(vapply(summarized_methyl_VML,
+               is.nan,
+               FUN.VALUE = logical(nrow(summarized_methyl_VML))
+               )
+    ) > 0 ||
+    sum(!vapply(summarized_methyl_VML,
+                is.numeric,
+                FUN.VALUE = logical(1)
+                )
+    ) > 0 ||
+    sum(vapply(summarized_methyl_VML,
+               is.infinite,
+               FUN.VALUE = logical(nrow(summarized_methyl_VML))
+               )
+    ) > 0
   ) stop (
-    "Please make sure the covariates matrix contains only finite numeric values."
-  )
-  if (
-    sum(sapply(summarized_methyl_VML, is.na)) > 0 ||
-    sum(sapply(summarized_methyl_VML, is.nan)) > 0 ||
-    sum(!sapply(summarized_methyl_VML, is.numeric)) > 0 ||
-    sum(sapply(summarized_methyl_VML, is.infinite)) > 0
-  ) stop (
-    "Please make sure the summarized_methyl_VML matrix or data frame contains only finite numeric values."
+    "Please make sure the summarized_methyl_VML data frame contains only finite numeric values."
   )
 
 
