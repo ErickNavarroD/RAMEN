@@ -182,6 +182,7 @@ Finally, we will extract the VML data frame, which we can use to produce plots a
 ```{r}
 VML_df <- VML$VML
 
+
 # Example of an epxloration plot
 VML_df %>%
   dplyr::filter(width > 1) %>% # Only plot VMRs, since sVMPs all have a lenght of 1
