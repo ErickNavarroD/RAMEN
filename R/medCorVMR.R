@@ -37,6 +37,7 @@ medCorVMR <- function(VMR_df, methylation_data) {
 
   VMR_probes <- VMR_df$probes # generate a list where each element will contain a vector with the probes present in one VMR
   # Compute correlations
+  i <- NULL #Bind variable to the environment
   median_correlation <- foreach::foreach(
     i = seq_along(VMR_probes), # For each VMR
     .combine = "c" # Combine outputs in a vector

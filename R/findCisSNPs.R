@@ -45,6 +45,7 @@
 #'   )
 #'
 findCisSNPs <- function(VML_df, genotype_information, distance = 1e6) {
+  CHROM <- NULL
   # Check arguments
   if (!is.data.frame(VML_df)) stop("Please make sure the VML_df object is a data frame.")
   if (!is.data.frame(genotype_information)) stop("Please make sure the genotype_information object is a data frame.")
@@ -53,7 +54,8 @@ findCisSNPs <- function(VML_df, genotype_information, distance = 1e6) {
   message("Reminder: please make sure that the positions of the VML data frame and the ones in the genotype information are from the same genome build.")
   # Convert VML and snp data into a GenomicRanges object
   VML_gr <- GenomicRanges::makeGRangesFromDataFrame(VML_df, keep.extra.columns = TRUE)
-  genotype_information <- genotype_information %>% dplyr::arrange(CHROM) # important step for using Rle later when constructing the GenomicRanges object!
+  genotype_information <- genotype_information %>%
+    dplyr::arrange(CHROM) # important step for using Rle later when constructing the GenomicRanges object!
   seqnames_gr <- table(genotype_information$CHROM)
   genot_gr <- GenomicRanges::GRanges(
     seqnames = S4Vectors::Rle(names(seqnames_gr), as.numeric(seqnames_gr)), # Number of chromosome; as.numeric to convert from table to numeric vector

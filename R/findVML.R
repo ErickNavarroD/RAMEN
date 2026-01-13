@@ -81,6 +81,8 @@ findVML <- function(methylation_data,
                     var_distribution = "ultrastable",
                     var_threshold_percentile = 0.99,
                     max_distance = 1000) {
+  #### Binding of variables used within the tidyverse framework ####
+  Methyl450_Loci <- epicv2_probes <- TargetID <- chr <- pos <- strand <- var_score <- probes <- . <- median_correlation <- n_VMPs <- VML_index <- type <- seqnames <- start <- end <- width <- NULL
   #### Argument checks ####
   # Check that the array manifest is in the right format
   if (is.data.frame(array_manifest)) {

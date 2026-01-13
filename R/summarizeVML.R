@@ -58,6 +58,7 @@ summarizeVML <- function(VML_df,
     stop("Please make sure the 'probes' column in the VML data frame is a column of lists")
   }
 
+  VML_index <- i <- NULL  # To avoid R CMD check notes
   summarized_VML <- foreach::foreach(i = VML_df$VML_index, .combine = "cbind") %dopar% {
     probes <- VML_df %>%
       dplyr::filter(VML_index == i) %>%

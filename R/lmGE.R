@@ -94,6 +94,9 @@ lmGE <- function(selected_variables,
                  environmental_matrix,
                  covariates = NULL,
                  model_selection = "AIC") {
+  #### Binding of variables used within the tidyverse framework ####
+  selected_env <- selected_genot <- VML_i <- SNP <- env <- model_group <- AIC <- BIC <- tot_r_squared <- VML_index <- variables <- g_r_squared <- e_r_squared <- gxe_r_squared <- second_winner <- delta_aic <- delta_r_squared <- basal_AIC <- basal_rsquared <- delta_bic <- basal_BIC <- NULL
+
   # Check arguments
   # Check that genotype_matrix, environmental_matrix, covariate matrix (in case it is provided) and summarized_methyl_VML have the same samples
   if (!is.data.frame(summarized_methyl_VML)) stop("Please make sure summarized_methyl_VML is a data frame.")

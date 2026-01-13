@@ -144,7 +144,7 @@ selectVariables <- function(VML_df,
 
   ## Set the seed
   if (!is.null(seed)) set.seed(seed)
-
+  VML_i <- NULL # To avoid R CMD check note about undefined global variable
   lasso_results <- foreach::foreach(VML_i = iterators::iter(VML_df, by = "row"), .combine = "rbind") %dorng% {
     # Select summarized VML information
     summVMLi <- summarized_methyl_VML %>%
