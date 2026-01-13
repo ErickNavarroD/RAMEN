@@ -9,6 +9,8 @@
 [![DOI](https://zenodo.org/badge/585986641.svg)](https://zenodo.org/badge/latestdoi/585986641)
 [![Lifecycle:
 stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+[![Codecov test
+coverage](https://codecov.io/gh/ErickNavarroD/RAMEN/graph/badge.svg)](https://app.codecov.io/gh/ErickNavarroD/RAMEN)
 <!-- badges: end -->
 
 ## Overview
