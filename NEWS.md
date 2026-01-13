@@ -1,7 +1,5 @@
 # RAMEN 2.0.0
 
-# RAMEN 2.0.0
-
 In this version, we have made an important change in RAMEN terminology across all the code and documentation to more accurately reflect the biological concepts represented by the data. The term "Variably Methylated Regions (VMR)" used in RAMEN v1 has been replaced by "Variably Methylated Loci (VML)" in RAMEN v2, as not all VML are composed of 2 or more highly variable probes. VML are further composed of Variably Methylated Regions (previously named "canonical VMR" in RAMEN v1) and sparse Variably Methylated Probes (sVMPs; previously named "non-canonical VMR" in RAMENv1). To be clear, there are no changes in how these VML are identified, we only changed how we label these categories.
 
 | Updated name in RAMEN v2                | Deprecated name in RAMEN v1      |
