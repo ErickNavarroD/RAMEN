@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">RAMEN</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0.9003</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -17,8 +17,10 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/RAMEN.html">Get started</a></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/ErickNavarroD/RAMEN/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul></div>
 
 
@@ -27,7 +29,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Identify Variable Methylated Loci in microarrays</h1>
-
+      <small class="dont-index">Source: <a href="https://github.com/ErickNavarroD/RAMEN/blob/main/R/findVML.R" class="external-link"><code>R/findVML.R</code></a></small>
       <div class="d-none name"><code>findVML.Rd</code></div>
     </div>
 
@@ -91,7 +93,7 @@ or "variance".</p></dd>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This function identifies HVPs based on MAD scores or variance, and groups them into VML, which are defined as genomic regions with high DNA methylation variability.To best capture methylome variability patterns in microarrays, we identify two types of VML: Variably Methylated Regions (VMRs) and sparse Variably Methylated Probes (sVMPs) .</p>
-<p>In one hand, we defined VMRs as two or more proximal highly variable probes (default: &lt; 1kb apart) with correlated DNAme level (default: r &gt; 0.15). Modelling DNAme variability through regions rather than individual CpGs provides several methodological advantages in association studies, since CpGs display a significant correlation for co-methylation when they are close (≤1 kilobase). Modelling DNAme variability through regions rather than individual CpGs provides several methodological advantages in association studies, since CpGs display a significant correlation for co-methylation when they are close (≤1 kilobase)</p>
+<p>In one hand, we defined VMRs as two or more proximal highly variable probes (default: &lt; 1kb apart) with correlated DNAme level (default: r &gt; 0.15). Modelling DNAme variability through regions rather than individual CpGs provides several methodological advantages in association studies, since CpGs display a significant correlation for co-methylation when they are close (less than or equal to 1 kilobase). Modelling DNAme variability through regions rather than individual CpGs provides several methodological advantages in association studies, since CpGs display a significant correlation for co-methylation when they are close (less than or equal to 1 kilobase)</p>
 <p>In addition to traditional VMRs, we also identified sparse Variably Methylated Probes (sVMPs), a second type of VML that takes into account the sparse and non-uniformly distributed coverage of CpGs in microarrays to tailor our analysis to this DNAme platform. sVMPs aimed to retain genomic regions with high DNAme variability measured by single probes, where probe grouping based on proximity and correlation is therefore not applicable. This is particularly relevant in the Illumina EPIC v1 array, where most covered regulatory regions (up to 93%) are represented by just one probe. Notably, based on empirical comparisons with whole-genome bisulfite sequencing data, these single probes are mostly representative of local regional DNAme levels due to their positioning (98.5-99.5%)</p>
 <p>This function uses GenomicRanges::reduce() to group the regions, which is strand-sensitive. In the Illumina microarrays, the MAPINFO for all the probes is usually provided for the + strand. If you are using this array, we recommend to first convert the strand of all the probes to "+".</p>
 <p>This function supports parallel computing for increased speed. To do so, you have to set the parallel backend
@@ -112,12 +114,9 @@ in your R session BEFORE running the function (e.g., <em>doParallel::registerDoP
 <span class="r-in"><span>  max_distance <span class="op">=</span> <span class="fl">1000</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Identifying Highly Variable Probes...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Setting options('download.file.method.GEOquery'='auto')</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Setting options('GEOquery.inmemory.gpl'=FALSE)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Identifying sparse Variable Methylated Probes</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Identifying Variable Methylated Regions...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Applying correlation filter to Variable Methylated Regions...</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>executing %dopar% sequentially: no parallel backend registered</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

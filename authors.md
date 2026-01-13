@@ -7,14 +7,22 @@
 
 ## Citation
 
-Navarro-Delgado E (2025). *RAMEN: RAMEN: Regional Association of
-Methylome variability with the Exposome and geNome*. R package version
-1.0.0, <https://ericknavarrod.github.io/RAMEN/>.
+Source:
+[`inst/CITATION`](https://github.com/ErickNavarroD/RAMEN/blob/main/inst/CITATION)
 
-    @Manual{,
-      title = {RAMEN: RAMEN: Regional Association of Methylome variability with the Exposome and geNome},
-      author = {Erick I. Navarro-Delgado},
+Navarro-Delgado, E.I., Czamara, D., Edwards, al. Ke (2025). “RAMEN:
+Dissecting individual, additive and interactive gene-environment
+contributions to DNA methylome variability in cord blood.” *Genome
+Biology*, **26**(1), 29.
+[doi:10.1186/s13059-025-03864-4](https://doi.org/10.1186/s13059-025-03864-4).
+
+    @Article{,
+      title = {RAMEN: Dissecting individual, additive and interactive gene-environment contributions to DNA methylome variability in cord blood},
+      author = {{Navarro-Delgado} and {E.I.} and {Czamara} and {D.} and {Edwards} and K. et al.},
+      journal = {Genome Biology},
       year = {2025},
-      note = {R package version 1.0.0},
-      url = {https://ericknavarrod.github.io/RAMEN/},
+      volume = {26},
+      number = {1},
+      pages = {29},
+      doi = {10.1186/s13059-025-03864-4},
     }

@@ -118,11 +118,11 @@ probes (default: \< 1kb apart) with correlated DNAme level (default: r
 \> 0.15). Modelling DNAme variability through regions rather than
 individual CpGs provides several methodological advantages in
 association studies, since CpGs display a significant correlation for
-co-methylation when they are close (≤1 kilobase). Modelling DNAme
-variability through regions rather than individual CpGs provides several
-methodological advantages in association studies, since CpGs display a
-significant correlation for co-methylation when they are close (≤1
-kilobase)
+co-methylation when they are close (less than or equal to 1 kilobase).
+Modelling DNAme variability through regions rather than individual CpGs
+provides several methodological advantages in association studies, since
+CpGs display a significant correlation for co-methylation when they are
+close (less than or equal to 1 kilobase)
 
 In addition to traditional VMRs, we also identified sparse Variably
 Methylated Probes (sVMPs), a second type of VML that takes into account
@@ -169,10 +169,7 @@ VML <- RAMEN::findVML(
   max_distance = 1000
 )
 #> Identifying Highly Variable Probes...
-#> Setting options('download.file.method.GEOquery'='auto')
-#> Setting options('GEOquery.inmemory.gpl'=FALSE)
 #> Identifying sparse Variable Methylated Probes
 #> Identifying Variable Methylated Regions...
 #> Applying correlation filter to Variable Methylated Regions...
-#> Warning: executing %dopar% sequentially: no parallel backend registered
 ```

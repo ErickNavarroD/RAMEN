@@ -16,8 +16,8 @@
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="RAMEN: Regional Association of Methylome variability with the Exposome and geNome">
-<meta name="description" content="R package that identifies which genetic (G), environmental (E), additive (G+E) or interaction (GxE) model better explains DNA methylation levels in Variable Methylated Regions using microarray data.">
-<meta property="og:description" content="R package that identifies which genetic (G), environmental (E), additive (G+E) or interaction (GxE) model better explains DNA methylation levels in Variable Methylated Regions using microarray data.">
+<meta name="description" content="R package that identifies which genetic (G), environmental (E), additive (G+E) or interaction (GxE) effect better explains DNA methylation levels in Variable Methylated Loci using microarray data.">
+<meta property="og:description" content="R package that identifies which genetic (G), environmental (E), additive (G+E) or interaction (GxE) effect better explains DNA methylation levels in Variable Methylated Loci using microarray data.">
 <meta property="og:image" content="https://ericknavarrod.github.io/RAMEN/logo.png">
 </head>
 <body>
@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="index.html">RAMEN</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,11 +39,13 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="articles/RAMEN.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/ErickNavarroD/RAMEN/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -62,7 +64,7 @@
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>Regional Association of Methylome variability with the Exposome and geNome (RAMEN) is an R package whose goal is to identify Variable Methylated Regions (VMRs) in microarray DNA methylation data. Additionally, using Genotype (G) and Environmental (E) data, it can identify which G, E, G+E or GxE model better explains this variability.</p>
+<p>Regional Association of Methylome variability with the Exposome and geNome (RAMEN) is an R package whose goal is to identify genome-wide Variable Methylated Loci (VML) from microarray DNA methylation data. Then, using genomic and exposomic data, it can identify which model out of the following explains best the DNA methylation variability at each VML: genetic (G), environmental (E), additive (G+E) or interactive (GxE).</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -78,19 +80,19 @@
 <p>RAMEN consists of six main functions:</p>
 <ul>
 <li>
-<code><a href="reference/findVMRs.html">findVMRs()</a></code> identifies Variable Methylated Regions (VMRs) in microarrays</li>
+<code><a href="reference/findVML.html">findVML()</a></code> identifies Variable Methylated Loci (VML) from microarray data</li>
 <li>
-<code><a href="reference/summarizeVMRs.html">summarizeVMRs()</a></code>summarizes the regional methylation state of each VMR</li>
+<code><a href="reference/summarizeVML.html">summarizeVML()</a></code>summarizes the regional methylation state of each VML</li>
 <li>
-<code><a href="reference/findCisSNPs.html">findCisSNPs()</a></code> identifies the SNPs in <em>cis</em> of each VMR</li>
+<code><a href="reference/findCisSNPs.html">findCisSNPs()</a></code> identifies the SNPs in <em>cis</em> of each VML</li>
 <li>
-<code><a href="reference/selectVariables.html">selectVariables()</a></code> conducts a LASSO-based variable selection strategy to identify potentially relevant <em>cis</em> SNPs and environmental variables</li>
+<code><a href="reference/selectVariables.html">selectVariables()</a></code> conducts a LASSO-based feature selection strategy to identify potentially relevant <em>cis</em> SNPs and environmental variables</li>
 <li>
-<code><a href="reference/lmGE.html">lmGE()</a></code> fits linear single-variable genetic (G) and environmental (E), and pairwise additive (G+E) and interaction (GxE) linear models and select the best explanatory model per VMR.</li>
+<code><a href="reference/lmGE.html">lmGE()</a></code> fits linear single-variable genetic (G), environmental (E), pairwise additive (G+E) and pairwise interaction (GxE) linear models, and select the best explanatory model for each VML.</li>
 <li>
-<code><a href="reference/nullDistGE.html">nullDistGE()</a></code> simulates a delta R squared null distribution of G and E effects on DNAme variability. Useful for filtering out poor-performing best explanatory models selected by <em>lmGE()</em>.</li>
+<code><a href="reference/nullDistGE.html">nullDistGE()</a></code> simulates a null distribution of G and E effects on DNAme variability. Useful for filtering out poor-performing best explanatory models selected by <em>lmGE()</em>.</li>
 </ul>
-<p>Altogether, these functions create a pipeline that takes a set of individuals with genotype, environmental exposure and DNA methylation information, and generates an estimation of the contribution of the genotype and environment to its DNA methylation variability. Functions that conduct computationally intensive tasks are compatible with parallel computing.</p>
+<p>Altogether, these functions create a pipeline that takes a set of individuals with genome, exposome and DNA methylome information, and generates an estimation of the contribution of genetic variants and environmental exposures to its DNA methylation variability. Functions that conduct computationally intensive tasks are compatible with parallel computing.</p>
 <p><img src="reference/figures/RAMEN_pipeline.png" width="600"></p>
 </div>
 <div class="section level2">
@@ -101,24 +103,24 @@
 <div class="section level2">
 <h2 id="variations-to-the-standard-workflow">Variations to the standard workflow<a class="anchor" aria-label="anchor" href="#variations-to-the-standard-workflow"></a>
 </h2>
-<p>Besides using RAMEN for completing the analysis mentioned above, the package provides individual functions that could help users in other tasks, such as:</p>
+<p>Besides using RAMEN for a gene-environment contribution analysis, the package provides individual functions that could help users in other tasks, such as:</p>
 <ul>
-<li>Reduction of tests prior to an EWAS or differential methylation analysis (i.e., conducting the analyses on identified VMRs to reduce redundant tests by grouping nearby correlated CpGs and to avoid tests in non-variant regions)</li>
-<li>Fit additive and interaction models given a set of variables of interest and select the best explanatory model for DNAme data.</li>
-<li>Quickly identify SNPs in <em>cis</em> of CpG probes for variable reduction during mQTL analyses.</li>
-<li>Get the median correlation of probes in regions of interest (with <code><a href="reference/medCorVMR.html">medCorVMR()</a></code>).</li>
+<li>Reduction of multiple hypothesis test burden in EWAS or differential methylation analysis by using VML instead of individual probes.</li>
+<li>Fit additive and interaction models given a set of variables of interest and select the best explanatory model for DNAme data (e.g. epistasis or ExE studies).</li>
+<li>Quickly identify SNPs in <em>cis</em> of CpG probes.</li>
+<li>Get the median correlation of probes in custom regions of interest with <code><a href="reference/medCorVMR.html">medCorVMR()</a></code>.</li>
 </ul>
 </div>
 <div class="section level2">
 <h2 id="how-to-get-help-for-ramen">How to get help for RAMEN<a class="anchor" aria-label="anchor" href="#how-to-get-help-for-ramen"></a>
 </h2>
-<p>If you have any question about RAMEN usage, please post an issue in this github repository so that future users also benefit from the discussion As an alternative option, you can contact Erick Navarro-Delgado at <a href="mailto:erick.navarrodelgado@bcchr.ca" class="email">erick.navarrodelgado@bcchr.ca</a>.</p>
+<p>If you have any question about RAMEN usage, please post an issue in this github repository so that future users also benefit from the discussion As an alternative option, you can contact Erick Navarro-Delgado at <a href="mailto:erick.delgado@ubc.ca" class="email">erick.delgado@ubc.ca</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="acknowledgments">Acknowledgments<a class="anchor" aria-label="anchor" href="#acknowledgments"></a>
 </h2>
 <p>I want to thank Dr. Keegan Korthauer and Dr. Michael S. Kobor for their supervision, feedback and support throughout the development of this package. Also, I want to thank the members of the Kobor and Korthauer lab for their comments and discussion.</p>
-<p>The RAMEN package logo was created by Carlos Cortés-Quiñones and Dorothy Lin. Carlos created the drawing, and Dorothy refined the logo and did the lettering.</p>
+<p>The RAMEN package logo was created by Carlos Cortés-Quiñones and Dorothy Lin. Carlos created the draw, and Dorothy refined the logo and did the lettering.</p>
 </div>
 <div class="section level2">
 <h2 id="funding">Funding<a class="anchor" aria-label="anchor" href="#funding"></a>
@@ -128,7 +130,16 @@
 <div class="section level2">
 <h2 id="citing-ramen">Citing RAMEN<a class="anchor" aria-label="anchor" href="#citing-ramen"></a>
 </h2>
-<p>The manuscript detailing RAMEN and its use is currently under preparation. For more information about this please contact Erick I. Navarro-Delgado at <a href="mailto:erick.navarrodelgado@bcchr.ca" class="email">erick.navarrodelgado@bcchr.ca</a>.</p>
+<p>If you use RAMEN for any of your analyses, please cite the following publication:</p>
+<ul>
+<li>Navarro-Delgado, E.I., Czamara, D., Edwards, K. et al. RAMEN: Dissecting individual, additive and interactive gene-environment contributions to DNA methylome variability in cord blood. <em>Genome Biol</em> 26, 421 (2025). <a href="https://doi.org/10.1186/s13059-025-03864-4" class="external-link uri">https://doi.org/10.1186/s13059-025-03864-4</a>
+</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="code-of-conduct">Code of conduct<a class="anchor" aria-label="anchor" href="#code-of-conduct"></a>
+</h2>
+<p>Please note that this package is released with a <a href="https://ropensci.org/code-of-conduct/" class="external-link">Contributor Code of Conduct</a>. By contributing to this project, you agree to abide by its terms.</p>
 </div>
 <div class="section level2">
 <h2 id="licence">Licence<a class="anchor" aria-label="anchor" href="#licence"></a>
@@ -136,7 +147,15 @@
 <p>GPL (&gt;= 3)</p>
 </div>
 </div>
-  </main><aside class="col-md-3"><div class="license">
+  </main><aside class="col-md-3"><div class="links">
+<h2 data-toc-skip>Links</h2>
+<ul class="list-unstyled">
+<li><a href="https://github.com/ErickNavarroD/RAMEN/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/ErickNavarroD/RAMEN/issues" class="external-link">Report a bug</a></li>
+</ul>
+</div>
+
+<div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li><a href="LICENSE.html">Full license</a></li>
@@ -144,6 +163,12 @@
 </ul>
 </div>
 
+<div class="community">
+<h2 data-toc-skip>Community</h2>
+<ul class="list-unstyled">
+<li><a href="CONTRIBUTING.html">Contributing guide</a></li>
+</ul>
+</div>
 
 <div class="citation">
 <h2 data-toc-skip>Citation</h2>
@@ -162,7 +187,11 @@
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
+<li><a href="https://www.repostatus.org/#active" class="external-link"><img src="https://www.repostatus.org/badges/latest/active.svg" alt="status"></a></li>
 <li><a href="https://zenodo.org/badge/latestdoi/585986641" class="external-link"><img src="https://zenodo.org/badge/585986641.svg" alt="DOI"></a></li>
+<li><a href="https://lifecycle.r-lib.org/articles/stages.html#stable" class="external-link"><img src="https://img.shields.io/badge/lifecycle-stable-brightgreen.svg" alt="Lifecycle: stable"></a></li>
+<li><a href="https://app.codecov.io/gh/ErickNavarroD/RAMEN" class="external-link"><img src="https://codecov.io/gh/ErickNavarroD/RAMEN/graph/badge.svg" alt="Codecov test coverage"></a></li>
+<li><a href="https://github.com/ErickNavarroD/RAMEN/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/ErickNavarroD/RAMEN/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
 </ul>
 </div>
 

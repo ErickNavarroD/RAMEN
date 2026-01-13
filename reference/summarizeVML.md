@@ -39,3 +39,28 @@ This function supports parallel computing for increased speed. To do so,
 you have to set the parallel backend in your R session BEFORE running
 the function (e.g., *doParallel::registerDoParallel(4)*). After that,
 the function can be run as usual.
+
+## Examples
+
+``` r
+## Find VML in test data
+VML <- RAMEN::findVML(
+   methylation_data = RAMEN::test_methylation_data,
+   array_manifest = "IlluminaHumanMethylationEPICv1",
+   cor_threshold = 0,
+   var_method = "variance",
+   var_distribution = "ultrastable",
+   var_threshold_percentile = 0.99,
+   max_distance = 1000
+   )
+#> Identifying Highly Variable Probes...
+#> Identifying sparse Variable Methylated Probes
+#> Identifying Variable Methylated Regions...
+#> Applying correlation filter to Variable Methylated Regions...
+
+## Summarize methylation states of the found VML
+summarized_VML <- RAMEN::summarizeVML(
+  VML_df = VML$VML,
+  methylation_data = RAMEN::test_methylation_data
+  )
+```

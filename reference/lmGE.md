@@ -1,20 +1,23 @@
 # Fit linear G, E, G+E and GxE models and select the winning model
 
-For a set of Variable Methylated Region (VMR), this function fits a set
-of genotype (G), environment (E), pairwise additive (G + E) or pairwise
+For a set of Variable Methylated Loci (VML), this function fits a set of
+genotype (G), environment (E), pairwise additive (G + E) or pairwise
 interaction (G x E) models, one variable at a time, and selects the best
 fitting one. Additional information for each winning model is provided,
 such as its R2, its R2 increase comparing it to a basal model (i.e., a
 model only fitted with the concomitant variables), the delta AIC/BIC to
 the next best model from a different category, and the explained
 variance decomposed for the G, E and GxE components (when applicable).
+If a VML has no variables selected in the selected_variables object, it
+will be returned with "B" (basal) as the best model (interpreted as no G
+or E associated effect).
 
 ## Usage
 
 ``` r
 lmGE(
   selected_variables,
-  summarized_methyl_VMR,
+  summarized_methyl_VML,
   genotype_matrix,
   environmental_matrix,
   covariates = NULL,
@@ -27,24 +30,23 @@ lmGE(
 - selected_variables:
 
   A data frame obtained with *RAMEN::selectVariables()*. This data frame
-  must contain three columns: 'VMR_index' with characters of an unique
-  ID of each VMR; ´selected_genot' and 'selected_env' with the SNPs and
+  must contain three columns: 'VML_index' with characters of an unique
+  ID of each VML; ´selected_genot' and 'selected_env' with the SNPs and
   environmental variables, respectively, that will be used for fitting
   the genotype (G), environment (E), additive (G + E) or interaction (G
   x E) models. The columns 'selected_env' and 'selected_genot' must
-  contain lists as elements; VMRs with no environmental or genotype
+  contain lists as elements; VML with no environmental or genotype
   selected variables must contain an empty list with NULL, NA ,
   character(0) or "" inside.
 
-- summarized_methyl_VMR:
+- summarized_methyl_VML:
 
-  A data frame containing each individual's VMR summarized region
-  methylation. It is suggested to use the output of
-  RAMEN::summarizeVMRs().Rows must reflects individuals, and columns
-  VMRs The names of the columns must correspond to the index of said
-  VMR, and it must match the index of VMRs_df\$VMR_index. The names of
-  the rows must correspond to the sample IDs, and must match with the
-  IDs of the other matrices.
+  A data frame containing each individual's VML summarized methylation.
+  It is suggested to use the output of RAMEN::summarizeVML().Rows must
+  reflects individuals, and columns VML The names of the columns must
+  correspond to the index of said VML, and it must match the index of
+  VML_df\$VML_index. The names of the rows must correspond to the sample
+  IDs, and must match with the IDs of the other matrices.
 
 - genotype_matrix:
 
@@ -72,7 +74,7 @@ lmGE(
 
 - model_selection:
 
-  Which metric to use to select the best model for each VMR. Supported
+  Which metric to use to select the best model for each VML. Supported
   options are "AIC" or BIC". More information about which one to use can
   be found in the Details section.
 
@@ -80,7 +82,7 @@ lmGE(
 
 A data frame with the following columns:
 
-- VMR_index: The unique ID of the VMR
+- VML_index: The unique ID of the VML
 
 - model_group: The group to which the winning model belongs to (i.e., G,
   E, G+E or GxE)
@@ -99,7 +101,7 @@ A data frame with the following columns:
 - gxe_r_squared: Estimated R2 allocated to the interaction in the
   winning model (GxE), if applicable.
 
-- AIC/BIC: AIC or BIC metric from the best model in each VMR (depending
+- AIC/BIC: AIC or BIC metric from the best model in each VML (depending
   on the option specified in the argument model_selection).
 
 - second_winner: The second group that possesses the next best model
@@ -130,12 +132,11 @@ A data frame with the following columns:
 
 This function supports parallel computing for increased speed. To do so,
 you have to set the parallel backend in your R session before running
-the function (e.g., doFuture::registerDoFuture()) and then the
-evaluation strategy (e.g., future::plan(multisession)). After that, the
-function can be run as usual. It is recommended to also set
+the function (e.g., *doParallel::registerDoParallel(4)*)). After that,
+the function can be run as usual. It is recommended to also set
 options(future.globals.maxSize= +Inf).
 
-For each VMR, this function computes a set of models using the variables
+For each VML, this function computes a set of models using the variables
 indicated in the selected_variables object. From the indicated G and E
 variables, lmGE() fits four groups of models:
 
@@ -149,10 +150,10 @@ variables, lmGE() fits four groups of models:
 - GxE: Interaction model - fitted for each pairwise combination of G and
   E variables indicated in selected_variables.
 
-These models are fit only if the VMR has G or E variables in the
-selected_variables object. If a VMR does not have neither G nor E
-variables, that VMR will be ignored and will not be returned in the
-output object.
+These models are fit only if the VML has G or E variables in the
+selected_variables object. If a VML does not have neither G nor E
+variables, that VML will be ignored and will be returned in the output
+object with "B" (baseline) as the best explanatory model.
 
 **Model selection**
 
@@ -167,13 +168,14 @@ variables, and we assume that DNAme variability is more likely to be
 influenced by more than one single SNP/environmental exposure at a time,
 we hypothesize that in most cases, the true model will not be in the set
 of compared models. Also, AIC excels in situations where all models in
-the model space are "incorrect", and AIC is preferentially used in cases
-where the true underlying function is unknown and our selected model
-could belong to a very large class of functions where the relationship
-could be pretty complex. It is worth mentioning however that, both
-metrics tend to pick the same model in a large number of scenarios. We
-suggest the users to read Arijit Chakrabarti & Jayanta K. Ghosh, 2011
-for further information about the difference between these metrics.
+the model space are "incomplete", and AIC is preferentially used in
+cases where the true underlying function is unknown and our selected
+model could belong to a very large class of functions where the
+relationship could be pretty complex. It is worth mentioning however
+that, both metrics tend to pick the same model in a large number of
+scenarios. We suggest the users to read Arijit Chakrabarti & Jayanta K.
+Ghosh, 2011 for further information about the difference between these
+metrics.
 
 After selecting the best model per group (G,E,G+E pr GxE), the model
 with the lowest AIC or BIC is declared as the winning model. The delta
@@ -194,3 +196,57 @@ model as first entry (i.e., the variables specified in covariates did
 not change order). For further information, we suggest the users to read
 the documentation and publication of the relaimpo R package (Grömping,
 2006).
+
+## Examples
+
+``` r
+## Find VML in test data
+VML <- RAMEN::findVML(
+   methylation_data = RAMEN::test_methylation_data,
+   array_manifest = "IlluminaHumanMethylationEPICv1",
+   cor_threshold = 0,
+   var_method = "variance",
+   var_distribution = "ultrastable",
+   var_threshold_percentile = 0.99,
+   max_distance = 1000
+   )
+#> Identifying Highly Variable Probes...
+#> Identifying sparse Variable Methylated Probes
+#> Identifying Variable Methylated Regions...
+#> Applying correlation filter to Variable Methylated Regions...
+## Find cis SNPs around VML
+VML_with_cis_snps <- RAMEN::findCisSNPs(
+  VML_df = VML$VML,
+  genotype_information = RAMEN::test_genotype_information,
+  distance = 1e6
+  )
+#> Reminder: please make sure that the positions of the VML data frame and the ones in the genotype information are from the same genome build.
+
+## Summarize methylation levels in VML
+summarized_methyl_VML <- RAMEN::summarizeVML(
+   methylation_data = RAMEN::test_methylation_data,
+   VML_df = VML_with_cis_snps
+ )
+
+ ## Select relevant genotype and environmental variables
+ selected_vars <- RAMEN::selectVariables(
+   VML_df = VML_with_cis_snps,
+   genotype_matrix = RAMEN::test_genotype_matrix,
+   environmental_matrix = RAMEN::test_environmental_matrix,
+   covariates = RAMEN::test_covariates,
+   summarized_methyl_VML = summarized_methyl_VML,
+   seed = 1
+ )
+#> Loading required package: foreach
+#> Loading required package: rngtools
+
+## Fit G, E, G+E and GxE models and select the winning one
+lmge_res <- RAMEN::lmGE(
+   selected_variables = selected_vars,
+   summarized_methyl_VML = summarized_methyl_VML,
+   genotype_matrix = RAMEN::test_genotype_matrix,
+   environmental_matrix = RAMEN::test_environmental_matrix,
+   covariates = RAMEN::test_covariates,
+   model_selection = "AIC"
+ )
+```

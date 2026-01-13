@@ -10,6 +10,8 @@ Useful links:
 
 - <https://ericknavarrod.github.io/RAMEN/>
 
+- Report bugs at <https://github.com/ErickNavarroD/RAMEN/issues>
+
 ## Author
 
 **Maintainer**: Erick I. Navarro-Delgado <ericknadel98@hotmail.com>
