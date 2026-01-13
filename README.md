@@ -5,16 +5,24 @@
 
 <!-- badges: start -->
 
+[![status](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![DOI](https://zenodo.org/badge/585986641.svg)](https://zenodo.org/badge/latestdoi/585986641)
+[![Lifecycle:
+stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+[![Codecov test
+coverage](https://codecov.io/gh/ErickNavarroD/RAMEN/graph/badge.svg)](https://app.codecov.io/gh/ErickNavarroD/RAMEN)
+[![R-CMD-check](https://github.com/ErickNavarroD/RAMEN/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ErickNavarroD/RAMEN/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 ## Overview
 
 Regional Association of Methylome variability with the Exposome and
-geNome (RAMEN) is an R package whose goal is to identify Variable
-Methylated Regions (VMRs) in microarray DNA methylation data.
-Additionally, using Genotype (G) and Environmental (E) data, it can
-identify which G, E, G+E or GxE model better explains this variability.
+geNome (RAMEN) is an R package whose goal is to identify genome-wide
+Variable Methylated Loci (VML) from microarray DNA methylation data.
+Then, using genomic and exposomic data, it can identify which model out
+of the following explains best the DNA methylation variability at each
+VML: genetic (G), environmental (E), additive (G+E) or interactive
+(GxE).
 
 ## Installation
 
@@ -30,24 +38,24 @@ devtools::install_github("ErickNavarroD/RAMEN")
 
 RAMEN consists of six main functions:
 
-- `findVMRs()` identifies Variable Methylated Regions (VMRs) in
-  microarrays
-- `summarizeVMRs()`summarizes the regional methylation state of each VMR
-- `findCisSNPs()` identifies the SNPs in *cis* of each VMR
-- `selectVariables()` conducts a LASSO-based variable selection strategy
+- `findVML()` identifies Variable Methylated Loci (VML) from microarray
+  data
+- `summarizeVML()`summarizes the regional methylation state of each VML
+- `findCisSNPs()` identifies the SNPs in *cis* of each VML
+- `selectVariables()` conducts a LASSO-based feature selection strategy
   to identify potentially relevant *cis* SNPs and environmental
   variables
-- `lmGE()` fits linear single-variable genetic (G) and environmental
-  (E), and pairwise additive (G+E) and interaction (GxE) linear models
-  and select the best explanatory model per VMR.
-- `nullDistGE()` simulates a delta R squared null distribution of G and
-  E effects on DNAme variability. Useful for filtering out
-  poor-performing best explanatory models selected by *lmGE()*.
+- `lmGE()` fits linear single-variable genetic (G), environmental (E),
+  pairwise additive (G+E) and pairwise interaction (GxE) linear models,
+  and select the best explanatory model for each VML.
+- `nullDistGE()` simulates a null distribution of G and E effects on
+  DNAme variability. Useful for filtering out poor-performing best
+  explanatory models selected by *lmGE()*.
 
 Altogether, these functions create a pipeline that takes a set of
-individuals with genotype, environmental exposure and DNA methylation
-information, and generates an estimation of the contribution of the
-genotype and environment to its DNA methylation variability. Functions
+individuals with genome, exposome and DNA methylome information, and
+generates an estimation of the contribution of genetic variants and
+environmental exposures to its DNA methylation variability. Functions
 that conduct computationally intensive tasks are compatible with
 parallel computing.
 
@@ -61,27 +69,25 @@ vignette or
 
 ## Variations to the standard workflow
 
-Besides using RAMEN for completing the analysis mentioned above, the
+Besides using RAMEN for a gene-environment contribution analysis, the
 package provides individual functions that could help users in other
 tasks, such as:
 
-- Reduction of tests prior to an EWAS or differential methylation
-  analysis (i.e., conducting the analyses on identified VMRs to reduce
-  redundant tests by grouping nearby correlated CpGs and to avoid tests
-  in non-variant regions)
+- Reduction of multiple hypothesis test burden in EWAS or differential
+  methylation analysis by using VML instead of individual probes.
 - Fit additive and interaction models given a set of variables of
-  interest and select the best explanatory model for DNAme data.
-- Quickly identify SNPs in *cis* of CpG probes for variable reduction
-  during mQTL analyses.
-- Get the median correlation of probes in regions of interest (with
-  `medCorVMR()`).
+  interest and select the best explanatory model for DNAme data
+  (e.g. epistasis or ExE studies).
+- Quickly identify SNPs in *cis* of CpG probes.
+- Get the median correlation of probes in custom regions of interest
+  with `medCorVMR()`.
 
 ## How to get help for RAMEN
 
 If you have any question about RAMEN usage, please post an issue in this
 github repository so that future users also benefit from the discussion
 As an alternative option, you can contact Erick Navarro-Delgado at
-<erick.navarrodelgado@bcchr.ca>.
+<erick.delgado@ubc.ca>.
 
 ## Acknowledgments
 
@@ -91,8 +97,8 @@ package. Also, I want to thank the members of the Kobor and Korthauer
 lab for their comments and discussion.
 
 The RAMEN package logo was created by Carlos Cortés-Quiñones and Dorothy
-Lin. Carlos created the drawing, and Dorothy refined the logo and did
-the lettering.
+Lin. Carlos created the draw, and Dorothy refined the logo and did the
+lettering.
 
 ## Funding
 
@@ -101,9 +107,19 @@ Children’s Hospital Research Institute and the Social Exposome Cluster.
 
 ## Citing RAMEN
 
-The manuscript detailing RAMEN and its use is currently under
-preparation. For more information about this please contact Erick I.
-Navarro-Delgado at <erick.navarrodelgado@bcchr.ca>.
+If you use RAMEN for any of your analyses, please cite the following
+publication:
+
+- Navarro-Delgado, E.I., Czamara, D., Edwards, K. et al. RAMEN:
+  Dissecting individual, additive and interactive gene-environment
+  contributions to DNA methylome variability in cord blood. *Genome
+  Biol* 26, 421 (2025). <https://doi.org/10.1186/s13059-025-03864-4>
+
+## Code of conduct
+
+Please note that this package is released with a [Contributor Code of
+Conduct](https://ropensci.org/code-of-conduct/). By contributing to this
+project, you agree to abide by its terms.
 
 ## Licence
 

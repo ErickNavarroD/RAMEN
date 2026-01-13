@@ -1,14 +1,14 @@
 Package: RAMEN
 Title: RAMEN: Regional Association of Methylome variability with the Exposome and geNome
-Version: 1.0.0
+Version: 2.0.0
 Authors@R: 
     person("Erick I.", "Navarro-Delgado", , "ericknadel98@hotmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-1040-3519"))
-Description: R package that identifies which genetic (G), environmental (E), additive (G+E) or interaction (GxE) model better explains DNA methylation levels in Variable Methylated Regions using microarray data.
+Description: R package that identifies which genetic (G), environmental (E), additive (G+E) or interaction (GxE) effect better explains DNA methylation levels in Variable Methylated Loci using microarray data.
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.3
 Suggests: 
     BiocStyle,
     knitr,
@@ -23,6 +23,9 @@ Imports:
     foreach,
     GenomicRanges,
     glmnet,
+    IlluminaHumanMethylation450kanno.ilmn12.hg19,
+    IlluminaHumanMethylationEPICanno.ilm10b4.hg19,
+    IlluminaHumanMethylationEPICv2anno.20a1.hg38,
     IRanges,
     iterators,
     lifecycle,
@@ -34,6 +37,7 @@ Imports:
     tibble
 VignetteBuilder: knitr
 Depends: 
-    R (>= 2.10)
+    R (>= 4.2.0)
 LazyData: true
 URL: https://ericknavarrod.github.io/RAMEN/
+BugReports: https://github.com/ErickNavarroD/RAMEN/issues
