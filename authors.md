@@ -8,7 +8,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/ErickNavarroD/RAMEN/blob/main/inst/CITATION)
+[`inst/CITATION`](https://github.com/ErickNavarroD/RAMEN/blob/v2.0.0/inst/CITATION)
 
 Navarro-Delgado, E.I., Czamara, D., Edwards, al. Ke (2025). “RAMEN:
 Dissecting individual, additive and interactive gene-environment
