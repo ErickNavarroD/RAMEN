@@ -1,4 +1,4 @@
-# RAMEN (development version)
+# RAMEN 2.0.0
 
 # RAMEN 2.0.0
 
