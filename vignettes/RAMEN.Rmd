@@ -362,11 +362,11 @@ For clarification, please note that in this vignette when we refer to SNPxEE, we
 Under the assumption that after adjusting for the concomitant variables all VML across the genome share a minimum increment of explained variance, we can pool the delta R squared values from all VML to create a null distribution taking advantage of the high number of VML in the dataset. This assumption decreases significantly the number of permutations required to create a null distribution and reduces the computational time. For further information on how this is done please read the RAMEN paper (Navarro-Delgado EI *et al.*, 2025). `RAMEN::nullDistGE()` shuffles the G and E variables in the dataset and runs findVML, selectVariables() and lmGE(). This is repeated as many times as indicated in the *permutations* parameter. The number of permutations that we recommend depends on the size of your VML data set. We recommend running as many permutations as needed to obtain ~300k informative observations in total (i.e., excluding VML which best model was Baseline (B)). Since many VML will be labelled as B during the the selectVariables() stage, we recommend using the following formula:
 
 ```{r}
-vml_size = nrow(VML_cis_snps) # Number of VML in your data set
-desired_obs = 400000 # We want ~300k informative observations, and we are adding
+vml_size <- nrow(VML_cis_snps) # Number of VML in your data set
+desired_obs <- 400000 # We want ~300k informative observations, and we are adding
 # 100k extra to account for the VML that will be labelled as Basal (B) during 
 # selectVariables()
-(permutations = ceiling(desired_obs / vml_size))
+(permutations <- ceiling(desired_obs / vml_size))
 ```
 
 Since this is a toy example, for demonstration purposes we will run only 2 permutations (this is the most time consuming part of the analysis!). But please make sure to run the recommended number of permutations in your real data analysis.

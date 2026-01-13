@@ -193,7 +193,7 @@ test_that("summarizeVML adds VML_index when not present", {
   )
   expect_true(is.data.frame(summarized_no_index))
   expect_true(all(
-    colnames(summarized_no_index) %in% paste0("VML", 1:nrow(VML_no_index)))
+    colnames(summarized_no_index) %in% paste0("VML", seqlen(nrow(VML_no_index))))
   )
   expect_equal(nrow(summarized_no_index), ncol(test_methylation_data))
 }
