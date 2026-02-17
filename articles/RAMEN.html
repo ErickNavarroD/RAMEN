@@ -64,7 +64,7 @@ Columbia<br><a class="author_email" href="mailto:#"></a><a href="mailto:erick.na
       </address>
                   
       
-      <small class="dont-index">Source: <a href="https://github.com/ErickNavarroD/RAMEN/blob/v2.0.0/vignettes/RAMEN.Rmd" class="external-link"><code>vignettes/RAMEN.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ErickNavarroD/RAMEN/blob/main/vignettes/RAMEN.Rmd" class="external-link"><code>vignettes/RAMEN.Rmd</code></a></small>
       <div class="d-none name"><code>RAMEN.Rmd</code></div>
     </div>
 
@@ -530,7 +530,7 @@ the recommended way to save and load these objects, please check the <a href="#f
 following:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">VML_cis_snps</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>surrounding_SNPs <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>surrounding_SNPs <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
 <span>    <span class="va">surrounding_SNPs</span> <span class="op">&gt;</span> <span class="fl">3000</span> <span class="op">~</span> <span class="fl">3000</span>,</span>
 <span>    <span class="cn">TRUE</span> <span class="op">~</span> <span class="va">surrounding_SNPs</span></span>
 <span>  <span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
@@ -936,12 +936,12 @@ data.</p>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
 <span>    r2_difference_basal <span class="op">=</span> <span class="va">tot_r_squared</span> <span class="op">-</span> <span class="va">basal_rsquared</span>,</span>
 <span>    <span class="co"># Label if the best explanatory model passes its corresponding threshold</span></span>
-<span>    pass_cutoff_threshold <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
+<span>    pass_cutoff_threshold <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
 <span>      <span class="va">model_group</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"G"</span>, <span class="st">"E"</span><span class="op">)</span> <span class="op">~</span> <span class="va">r2_difference_basal</span> <span class="op">&gt;</span> <span class="va">cutoff_single</span>,</span>
 <span>      <span class="va">model_group</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"G+E"</span>, <span class="st">"GxE"</span><span class="op">)</span> <span class="op">~</span> <span class="va">r2_difference_basal</span> <span class="op">&gt;</span> <span class="va">cutoff_joint</span></span>
 <span>    <span class="op">)</span>,</span>
 <span>    <span class="co"># Label the final model group, replacing bad performing winning models with "B" (basal)</span></span>
-<span>    model_group <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
+<span>    model_group <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
 <span>      <span class="va">pass_cutoff_threshold</span> <span class="op">~</span> <span class="va">model_group</span>,</span>
 <span>      <span class="cn">TRUE</span> <span class="op">~</span> <span class="st">"B"</span></span>
 <span>    <span class="op">)</span></span>
@@ -1083,10 +1083,10 @@ package (recommended because of time and storage space).</li>
 </ol>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Example for saving and reading selected_variables object</span></span>
-<span><span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fwrite.html" class="external-link">fwrite</a></span><span class="op">(</span><span class="va">selected_variables</span>, file <span class="op">=</span> <span class="st">"path/selected_variables.csv"</span><span class="op">)</span></span>
+<span><span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/fwrite.html" class="external-link">fwrite</a></span><span class="op">(</span><span class="va">selected_variables</span>, file <span class="op">=</span> <span class="st">"path/selected_variables.csv"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Read the csv file and make lists the elements in the required columns</span></span>
-<span><span class="va">selected_variables</span> <span class="op">&lt;-</span> <span class="fu">fread</span><span class="op">(</span><span class="st">"path/selected_variables.csv"</span>, data.table <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span><span class="va">selected_variables</span> <span class="op">&lt;-</span> <span class="fu">fread</span><span class="op">(</span><span class="st">"path/selected_variables.csv"</span>, data.table <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
 <span>    selected_genot <span class="op">=</span> <span class="fu">str_split</span><span class="op">(</span><span class="va">selected_genot</span>, pattern <span class="op">=</span> <span class="st">"\\|"</span><span class="op">)</span>, <span class="co"># fwrite saves lists as strings separated by |, so we need to splut them</span></span>
 <span>    selected_env <span class="op">=</span> <span class="fu">str_split</span><span class="op">(</span><span class="va">selected_env</span>, pattern <span class="op">=</span> <span class="st">"\\|"</span><span class="op">)</span>,</span>
@@ -1128,8 +1128,8 @@ package (recommended because of time and storage space).</li>
 <span><span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; other attached packages:</span></span>
-<span><span class="co">#&gt; [1] doRNG_1.8.6.2    rngtools_1.5.2   foreach_1.5.2    tidyr_1.3.2     </span></span>
-<span><span class="co">#&gt; [5] ggplot2_4.0.1    dplyr_1.1.4      RAMEN_2.0.0      knitr_1.51      </span></span>
+<span><span class="co">#&gt; [1] doRNG_1.8.6.3    rngtools_1.5.2   foreach_1.5.2    tidyr_1.3.2     </span></span>
+<span><span class="co">#&gt; [5] ggplot2_4.0.2    dplyr_1.2.0      RAMEN_2.0.0      knitr_1.51      </span></span>
 <span><span class="co">#&gt; [9] BiocStyle_2.38.0</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
@@ -1143,7 +1143,7 @@ package (recommended because of time and storage space).</li>
 <span><span class="co">#&gt;   [8] fs_1.6.6                                           </span></span>
 <span><span class="co">#&gt;   [9] BiocIO_1.20.0                                      </span></span>
 <span><span class="co">#&gt;  [10] ragg_1.5.0                                         </span></span>
-<span><span class="co">#&gt;  [11] vctrs_0.6.5                                        </span></span>
+<span><span class="co">#&gt;  [11] vctrs_0.7.1                                        </span></span>
 <span><span class="co">#&gt;  [12] multtest_2.66.0                                    </span></span>
 <span><span class="co">#&gt;  [13] memoise_2.0.1                                      </span></span>
 <span><span class="co">#&gt;  [14] Rsamtools_2.26.0                                   </span></span>
@@ -1159,7 +1159,7 @@ package (recommended because of time and storage space).</li>
 <span><span class="co">#&gt;  [24] rhdf5_2.54.1                                       </span></span>
 <span><span class="co">#&gt;  [25] sass_0.4.10                                        </span></span>
 <span><span class="co">#&gt;  [26] nor1mix_1.3-3                                      </span></span>
-<span><span class="co">#&gt;  [27] bslib_0.9.0                                        </span></span>
+<span><span class="co">#&gt;  [27] bslib_0.10.0                                       </span></span>
 <span><span class="co">#&gt;  [28] desc_1.4.3                                         </span></span>
 <span><span class="co">#&gt;  [29] plyr_1.8.9                                         </span></span>
 <span><span class="co">#&gt;  [30] cachem_1.1.0                                       </span></span>
@@ -1179,10 +1179,10 @@ package (recommended because of time and storage space).</li>
 <span><span class="co">#&gt;  [44] S4Vectors_0.48.0                                   </span></span>
 <span><span class="co">#&gt;  [45] textshaping_1.0.4                                  </span></span>
 <span><span class="co">#&gt;  [46] GenomicRanges_1.62.1                               </span></span>
-<span><span class="co">#&gt;  [47] RSQLite_2.4.5                                      </span></span>
+<span><span class="co">#&gt;  [47] RSQLite_2.4.6                                      </span></span>
 <span><span class="co">#&gt;  [48] base64_2.0.2                                       </span></span>
 <span><span class="co">#&gt;  [49] labeling_0.4.3                                     </span></span>
-<span><span class="co">#&gt;  [50] httr_1.4.7                                         </span></span>
+<span><span class="co">#&gt;  [50] httr_1.4.8                                         </span></span>
 <span><span class="co">#&gt;  [51] abind_1.4-8                                        </span></span>
 <span><span class="co">#&gt;  [52] compiler_4.5.2                                     </span></span>
 <span><span class="co">#&gt;  [53] beanplot_1.3.1                                     </span></span>
@@ -1210,9 +1210,9 @@ package (recommended because of time and storage space).</li>
 <span><span class="co">#&gt;  [75] gtable_0.3.6                                       </span></span>
 <span><span class="co">#&gt;  [76] tzdb_0.5.0                                         </span></span>
 <span><span class="co">#&gt;  [77] preprocessCore_1.72.0                              </span></span>
-<span><span class="co">#&gt;  [78] data.table_1.18.0                                  </span></span>
+<span><span class="co">#&gt;  [78] data.table_1.18.2.1                                </span></span>
 <span><span class="co">#&gt;  [79] hms_1.1.4                                          </span></span>
-<span><span class="co">#&gt;  [80] xml2_1.5.1                                         </span></span>
+<span><span class="co">#&gt;  [80] xml2_1.5.2                                         </span></span>
 <span><span class="co">#&gt;  [81] XVector_0.50.0                                     </span></span>
 <span><span class="co">#&gt;  [82] BiocGenerics_0.56.0                                </span></span>
 <span><span class="co">#&gt;  [83] stringr_1.6.0                                      </span></span>
@@ -1235,9 +1235,9 @@ package (recommended because of time and storage space).</li>
 <span><span class="co">#&gt; [100] Seqinfo_1.0.0                                      </span></span>
 <span><span class="co">#&gt; [101] SummarizedExperiment_1.40.0                        </span></span>
 <span><span class="co">#&gt; [102] stats4_4.5.2                                       </span></span>
-<span><span class="co">#&gt; [103] xfun_0.55                                          </span></span>
+<span><span class="co">#&gt; [103] xfun_0.56                                          </span></span>
 <span><span class="co">#&gt; [104] Biobase_2.70.0                                     </span></span>
-<span><span class="co">#&gt; [105] scrime_1.3.5                                       </span></span>
+<span><span class="co">#&gt; [105] scrime_1.3.7                                       </span></span>
 <span><span class="co">#&gt; [106] statmod_1.5.1                                      </span></span>
 <span><span class="co">#&gt; [107] matrixStats_1.5.0                                  </span></span>
 <span><span class="co">#&gt; [108] relaimpo_2.2-7                                     </span></span>
@@ -1257,11 +1257,11 @@ package (recommended because of time and storage space).</li>
 <span><span class="co">#&gt; [122] jquerylib_0.1.4                                    </span></span>
 <span><span class="co">#&gt; [123] Rcpp_1.1.1                                         </span></span>
 <span><span class="co">#&gt; [124] png_0.1-8                                          </span></span>
-<span><span class="co">#&gt; [125] XML_3.99-0.20                                      </span></span>
+<span><span class="co">#&gt; [125] XML_3.99-0.22                                      </span></span>
 <span><span class="co">#&gt; [126] parallel_4.5.2                                     </span></span>
 <span><span class="co">#&gt; [127] pkgdown_2.2.0                                      </span></span>
 <span><span class="co">#&gt; [128] readr_2.1.6                                        </span></span>
-<span><span class="co">#&gt; [129] blob_1.2.4                                         </span></span>
+<span><span class="co">#&gt; [129] blob_1.3.0                                         </span></span>
 <span><span class="co">#&gt; [130] mclust_6.1.2                                       </span></span>
 <span><span class="co">#&gt; [131] sparseMatrixStats_1.22.0                           </span></span>
 <span><span class="co">#&gt; [132] bitops_1.0-9                                       </span></span>

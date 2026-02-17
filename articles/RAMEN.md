@@ -1040,7 +1040,7 @@ some read/write functions. We suggest two options:
 data.table::fwrite(selected_variables, file = "path/selected_variables.csv")
 
 # Read the csv file and make lists the elements in the required columns
-selected_variables <- fread("path/selected_variables.csv", data.table = FALSE) %>%
+selected_variables <- fread("path/selected_variables.csv", data.table = FALSE) %>% 
   mutate(
     selected_genot = str_split(selected_genot, pattern = "\\|"), # fwrite saves lists as strings separated by |, so we need to splut them
     selected_env = str_split(selected_env, pattern = "\\|"),
@@ -1083,8 +1083,8 @@ sessionInfo()
 #> [1] stats     graphics  grDevices utils     datasets  methods   base     
 #> 
 #> other attached packages:
-#> [1] doRNG_1.8.6.2    rngtools_1.5.2   foreach_1.5.2    tidyr_1.3.2     
-#> [5] ggplot2_4.0.1    dplyr_1.1.4      RAMEN_2.0.0      knitr_1.51      
+#> [1] doRNG_1.8.6.3    rngtools_1.5.2   foreach_1.5.2    tidyr_1.3.2     
+#> [5] ggplot2_4.0.2    dplyr_1.2.0      RAMEN_2.0.0      knitr_1.51      
 #> [9] BiocStyle_2.38.0
 #> 
 #> loaded via a namespace (and not attached):
@@ -1098,7 +1098,7 @@ sessionInfo()
 #>   [8] fs_1.6.6                                           
 #>   [9] BiocIO_1.20.0                                      
 #>  [10] ragg_1.5.0                                         
-#>  [11] vctrs_0.6.5                                        
+#>  [11] vctrs_0.7.1                                        
 #>  [12] multtest_2.66.0                                    
 #>  [13] memoise_2.0.1                                      
 #>  [14] Rsamtools_2.26.0                                   
@@ -1114,7 +1114,7 @@ sessionInfo()
 #>  [24] rhdf5_2.54.1                                       
 #>  [25] sass_0.4.10                                        
 #>  [26] nor1mix_1.3-3                                      
-#>  [27] bslib_0.9.0                                        
+#>  [27] bslib_0.10.0                                       
 #>  [28] desc_1.4.3                                         
 #>  [29] plyr_1.8.9                                         
 #>  [30] cachem_1.1.0                                       
@@ -1134,10 +1134,10 @@ sessionInfo()
 #>  [44] S4Vectors_0.48.0                                   
 #>  [45] textshaping_1.0.4                                  
 #>  [46] GenomicRanges_1.62.1                               
-#>  [47] RSQLite_2.4.5                                      
+#>  [47] RSQLite_2.4.6                                      
 #>  [48] base64_2.0.2                                       
 #>  [49] labeling_0.4.3                                     
-#>  [50] httr_1.4.7                                         
+#>  [50] httr_1.4.8                                         
 #>  [51] abind_1.4-8                                        
 #>  [52] compiler_4.5.2                                     
 #>  [53] beanplot_1.3.1                                     
@@ -1165,9 +1165,9 @@ sessionInfo()
 #>  [75] gtable_0.3.6                                       
 #>  [76] tzdb_0.5.0                                         
 #>  [77] preprocessCore_1.72.0                              
-#>  [78] data.table_1.18.0                                  
+#>  [78] data.table_1.18.2.1                                
 #>  [79] hms_1.1.4                                          
-#>  [80] xml2_1.5.1                                         
+#>  [80] xml2_1.5.2                                         
 #>  [81] XVector_0.50.0                                     
 #>  [82] BiocGenerics_0.56.0                                
 #>  [83] stringr_1.6.0                                      
@@ -1190,9 +1190,9 @@ sessionInfo()
 #> [100] Seqinfo_1.0.0                                      
 #> [101] SummarizedExperiment_1.40.0                        
 #> [102] stats4_4.5.2                                       
-#> [103] xfun_0.55                                          
+#> [103] xfun_0.56                                          
 #> [104] Biobase_2.70.0                                     
-#> [105] scrime_1.3.5                                       
+#> [105] scrime_1.3.7                                       
 #> [106] statmod_1.5.1                                      
 #> [107] matrixStats_1.5.0                                  
 #> [108] relaimpo_2.2-7                                     
@@ -1212,11 +1212,11 @@ sessionInfo()
 #> [122] jquerylib_0.1.4                                    
 #> [123] Rcpp_1.1.1                                         
 #> [124] png_0.1-8                                          
-#> [125] XML_3.99-0.20                                      
+#> [125] XML_3.99-0.22                                      
 #> [126] parallel_4.5.2                                     
 #> [127] pkgdown_2.2.0                                      
 #> [128] readr_2.1.6                                        
-#> [129] blob_1.2.4                                         
+#> [129] blob_1.3.0                                         
 #> [130] mclust_6.1.2                                       
 #> [131] sparseMatrixStats_1.22.0                           
 #> [132] bitops_1.0-9                                       
