@@ -504,7 +504,7 @@ Saving the data frames produced by RAMEN might seem difficult because it has lis
 data.table::fwrite(selected_variables, file = "path/selected_variables.csv")
 
 # Read the csv file and make lists the elements in the required columns
-selected_variables <- fread("path/selected_variables.csv", data.table = FALSE) %>%
+selected_variables <- fread("path/selected_variables.csv", data.table = FALSE) %>% 
   mutate(
     selected_genot = str_split(selected_genot, pattern = "\\|"), # fwrite saves lists as strings separated by |, so we need to splut them
     selected_env = str_split(selected_env, pattern = "\\|"),
