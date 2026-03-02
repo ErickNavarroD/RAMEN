@@ -2,11 +2,12 @@
 
 Hi there! This outlines how to propose a change to RAMEN. First of all, thanks 
 for considering contributing to our package!  It's people like you that make it 
-rewarding for us - the project maintainers - to work on RAMEN. 😊
+rewarding for me, the project maintainer, to work on RAMEN. 😊
 
-For a detailed discussion on contributing to this and other tidyverse packages, 
-please see the [development contributing guide](https://rstd.io/tidy-contrib) 
-and our [code review principles](https://code-review.tidyverse.org/).
+For a detailed discussion on contributing to packages, please check the 
+resources provided by the Tidyverse team, such as their 
+[development contributing guide](https://rstd.io/tidy-contrib) and their 
+[code review principles](https://code-review.tidyverse.org/).
 
 There are many ways you can contribute to this project (see  the 
 [Open Source Guide](https://opensource.guide/how-to-contribute/)). Here are some
@@ -35,9 +36,11 @@ Want to ask a question in private? Contact the package maintainer by
 
 ### Propose an idea 💡
 
-Have an idea for a new our_package feature? Take a look at the 
-[documentation][website] and [issue list][issues] to see if it isn't included 
-or suggested yet. If not, suggest your idea as an [issue on GitHub][new_issue]. 
+Have an idea for a new RAMEN feature? Take a look at the 
+[documentation](https://ericknavarrod.github.io/RAMEN/articles/RAMEN.html) and 
+[issue list](https://github.com/ErickNavarroD/RAMEN/issues) to see if it isn't 
+included or suggested yet. If not, suggest your idea as a 
+[new issue on GitHub][https://github.com/ErickNavarroD/RAMEN/issues/new/choose]. 
 While we can't promise to implement your idea, it helps to:
 
 * Explain in detail how it would work.
@@ -48,7 +51,8 @@ See below if you want to contribute code for your idea as well.
 ## Improve the documentation 
 
 Noticed a typo on the website? Think a function could use a better example? 
-Good documentation makes all the difference, so your help to improve it is very welcome!
+Good documentation makes all the difference, so your help to improve it is very 
+welcome!
 
 You can fix typos, spelling mistakes, or grammatical errors in the 
 documentation directly using the GitHub web interface, as long as the changes 
@@ -64,37 +68,53 @@ make sure someone from the team agrees that it’s needed.
 
 ### Report a bug
 
-Using our_package and discovered a bug? That's annoying! Don't let others have 
-the same experience and report it as well in an [issue on GitHub][new_issue] so 
+Using RAMEN and discovered a bug? That's annoying! Don't let others have 
+the same experience and report it as well in an 
+[issue on GitHub](https://github.com/ErickNavarroD/RAMEN/issues/new/choose) so 
 we can fix it. If you’ve found a bug, please file an issue that illustrates the 
 bug with a minimal [reprex](https://www.tidyverse.org/help/#reprex) (this will 
-also help you write a unit test, if needed).
-See our guide on [how to create a great issue](https://code-review.tidyverse.org/issues/) 
-for more advice. Please provide as well your operating system name and version (e.g. Mac OS 10.13.6), 
-and any details about your local setup that might be helpful in troubleshooting.
+also help you write a unit test, if needed). See our guide on 
+[how to create a great issue](https://code-review.tidyverse.org/issues/) 
+for more advice. Please provide as well your operating system name and version 
+(e.g. Mac OS 10.13.6), and any details about your local setup that might be 
+helpful in troubleshooting.
 
 ### Pull request process
 
-We try to follow the [GitHub flow](https://guides.github.com/introduction/flow/) for development.
+We try to follow the [GitHub flow](https://guides.github.com/introduction/flow/)
+for development.
 
-*   Fork the package and clone onto your computer. If you haven't done this before, we recommend using `usethis::create_from_github("ErickNavarroD/RAMEN", fork = TRUE)`.
+*   Fork the package and clone onto your computer. If you haven't done this 
+    before, we recommend using 
+    `usethis::create_from_github("ErickNavarroD/RAMEN", fork = TRUE)`.
 
-*   Install all development dependencies with `devtools::install_dev_deps()`, and then make sure the package passes R CMD check by running `devtools::check()`. 
-    If R CMD check doesn't pass cleanly, it's a good idea to ask for help before continuing. 
-*   Create a Git branch for your pull request (PR). We recommend using `usethis::pr_init("brief-description-of-change")`.
+*   Install all development dependencies with `devtools::install_dev_deps()`, 
+    and then make sure the package passes R CMD check by running 
+    `devtools::check()`. If R CMD check doesn't pass cleanly, it's a good idea 
+    to ask for help before continuing. 
 
-*   Make your changes, commit to git, and then create a PR by running `usethis::pr_push()`, and following the prompts in your browser.
-    The title of your PR should briefly describe the change.
-    The body of your PR should contain `Fixes #issue-number`.
+*   Create a Git branch for your pull request (PR). We recommend using 
+    `usethis::pr_init("brief-description-of-change")`.
 
-*  For user-facing changes, add a bullet to the top of `NEWS.md` (i.e. just below the first header). Follow the style described in <https://style.tidyverse.org/news.html>.
+*   Make your changes, commit to git, and then create a PR by running 
+    `usethis::pr_push()`, and following the prompts in your browser. The title 
+    of your PR should briefly describe the change. The body of your PR should 
+    contain `Fixes #issue-number`.
+
+*   For user-facing changes, add a bullet to the top of `NEWS.md` (i.e. just 
+    below the first header). Follow the style described in 
+    <https://style.tidyverse.org/news.html>.
 
 ### Code style
 
-*   New code should follow the tidyverse [style guide](https://style.tidyverse.org). 
-    You can use the [styler](https://CRAN.R-project.org/package=styler) package to apply these styles, but please don't restyle code that has nothing to do with your PR.  
+*   New code should follow the tidyverse 
+    [style guide](https://style.tidyverse.org). You can use the 
+    [styler](https://CRAN.R-project.org/package=styler) package to apply these 
+    styles, but please don't restyle code that has nothing to do with your PR.  
 
-*  We use [roxygen2](https://cran.r-project.org/package=roxygen2), with [Markdown syntax](https://cran.r-project.org/web/packages/roxygen2/vignettes/rd-formatting.html), for documentation.  
+*   We use [roxygen2](https://cran.r-project.org/package=roxygen2), with 
+    [Markdown syntax](https://cran.r-project.org/web/packages/roxygen2/vignettes/rd-formatting.html),
+    for documentation.  
 
 *  We use [testthat](https://cran.r-project.org/package=testthat) for unit tests. 
    Contributions with test cases included are easier to accept.  
