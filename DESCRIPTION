@@ -3,7 +3,7 @@ Title: RAMEN: Regional Association of Methylome variability with the Exposome an
 Version: 2.0.0
 Authors@R: c(
     person("Erick I.", "Navarro-Delgado", 
-            email = "ericknadel98@hotmail.com", 
+            email = "erick.delgado@ubc.ca", 
             role = c("aut", "cre"),
             comment = c(ORCID = "0000-0003-1040-3519")),
     person("Keegan", "Korthauer", 
