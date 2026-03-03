@@ -11,13 +11,12 @@
 #'
 #' @examples
 #' \dontrun{
-#'   target = data.frame(row.names = c("a", "b", "c", "d"), values = c(1,1,1,1))
-#'   query = c(2,1)
+#' target <- data.frame(row.names = c("a", "b", "c", "d"), values = c(1, 1, 1, 1))
+#' query <- c(2, 1)
 #'
-#'   map_revmap_names(positions = query, manifest_hvp = target)
-#'   ## Expected output: c("b", "a")
+#' map_revmap_names(positions = query, manifest_hvp = target)
+#' ## Expected output: c("b", "a")
 #' }
-
 map_revmap_names <- function(positions, manifest_hvp) {
   # We start with 1 5 6
   # We want to end with cg00000029,  cg00000158 cg00000165
@@ -98,21 +97,21 @@ findVML <- function(methylation_data,
   } else {
     stop("The array_manifest object is not a data.frame nor a string. Please provide a manifest with the required columns or provide a string with one of the supported human microarrays ('IlluminaHumanMethylation450k', 'IlluminaHumanMethylationEPICv1','IlluminaHumanMethylationEPICv2')")
   }
-  #Check that cor_threshold is numeric and between 0 and 1
+  # Check that cor_threshold is numeric and between 0 and 1
   if (!(is.numeric(cor_threshold) && cor_threshold >= 0 && cor_threshold <= 1)) {
     stop("'cor_threshold' must be of type 'numeric' and from 0 to 1")
   }
   if (!is.data.frame(methylation_data)) stop("The methylation_data object must be a data frame with samples as columns and probes as rows.")
-  if (!var_distribution %in% c("all","ultrastable")) stop("'var_distribution' must be one of 'all' or 'ultrastable'")
+  if (!var_distribution %in% c("all", "ultrastable")) stop("'var_distribution' must be one of 'all' or 'ultrastable'")
   # Check that the method choice is correct
   if (var_method == "mad") {
-    var_scores <- apply(methylation_data, 1, stats::mad) %>%
-      as.data.frame() %>%
-      dplyr::rename("var_score" = ".")
+    var_scores <- apply(methylation_data, 1, stats::mad) |>
+      as.data.frame() |>
+      dplyr::rename("var_score" = 1)
   } else if (var_method == "variance") {
-    var_scores <- apply(methylation_data, 1, stats::var) %>%
-      as.data.frame() %>%
-      dplyr::rename("var_score" = ".")
+    var_scores <- apply(methylation_data, 1, stats::var) |>
+      as.data.frame() |>
+      dplyr::rename("var_score" = 1)
   } else {
     stop("The method must be either 'mad' or 'variance'. Please select one of those options")
   }
@@ -160,18 +159,18 @@ findVML <- function(methylation_data,
   if (is.character(array_manifest)) {
     if (array_manifest == "IlluminaHumanMethylation450k") {
       if (!requireNamespace("IlluminaHumanMethylation450kanno.ilmn12.hg19",
-                            quietly = TRUE)) {
-        stop(
-          "Package \"IlluminaHumanMethylation450kanno.ilmn12.hg19\" must be installed to use this function.",
+        quietly = TRUE
+      )) {
+        stop("Package \"IlluminaHumanMethylation450kanno.ilmn12.hg19\" must be installed to use this function.",
           call. = FALSE
         )
       }
       manifest <- data.frame(IlluminaHumanMethylation450kanno.ilmn12.hg19::Locations)
     } else if (array_manifest == "IlluminaHumanMethylationEPICv1") {
       if (!requireNamespace("IlluminaHumanMethylationEPICanno.ilm10b4.hg19",
-                            quietly = TRUE)) {
-        stop(
-          "Package \"IlluminaHumanMethylationEPICanno.ilm10b4.hg19\" must be installed to use this function.",
+        quietly = TRUE
+      )) {
+        stop("Package \"IlluminaHumanMethylationEPICanno.ilm10b4.hg19\" must be installed to use this function.",
           call. = FALSE
         )
       }
@@ -183,37 +182,37 @@ findVML <- function(methylation_data,
     manifest <- array_manifest
   }
   # Filter the manifest to remove the probes that have no variability score information because they were not measured/did not pass the QC and are not highly variable
-  manifest_hvp <- manifest %>%
-    tibble::rownames_to_column(var = "TargetID") %>%
-    dplyr::select(c(TargetID, chr, pos, strand)) %>%
+  manifest_hvp <- manifest |>
+    tibble::rownames_to_column(var = "TargetID") |>
+    dplyr::select(c(TargetID, chr, pos, strand)) |>
     dplyr::filter(
       !is.na(pos), # Remove probes with no map info
-      TargetID %in% row.names(var_scores %>%
-                                dplyr::filter(var_score >= var_threshold))
-      ) %>% # Remove probes that have no methylation information in the processed data and are not highly variable
+      TargetID %in% row.names(var_scores |>
+        dplyr::filter(var_score >= var_threshold))
+    ) |> # Remove probes that have no methylation information in the processed data and are not highly variable
     dplyr::left_join(
-      var_scores %>% # Add variability information
+      var_scores |> # Add variability information
         tibble::rownames_to_column(var = "TargetID"),
       by = "TargetID"
-    ) %>%
-    dplyr::arrange(chr) %>% # important step for using Rle later when constructing the GenomicRanges object!
+    ) |>
+    dplyr::arrange(chr) |> # important step for using Rle later when constructing the GenomicRanges object!
     as.data.frame()
   rownames(manifest_hvp) <- manifest_hvp$TargetID
-  if (is.factor(manifest_hvp$chr)) manifest_hvp <- manifest_hvp %>% dplyr::mutate(chr = droplevels(chr))
+  if (is.factor(manifest_hvp$chr)) manifest_hvp <- manifest_hvp |> dplyr::mutate(chr = droplevels(chr))
 
   #### Identify sparse Variable Methylated Probes####
   message("Identifying sparse Variable Methylated Probes")
-  full_manifest <- manifest %>%
-    tibble::rownames_to_column(var = "TargetID") %>%
-    dplyr::select(c(TargetID, chr, pos, strand)) %>%
+  full_manifest <- manifest |>
+    tibble::rownames_to_column(var = "TargetID") |>
+    dplyr::select(c(TargetID, chr, pos, strand)) |>
     dplyr::filter(
       !is.na(pos), # Remove probes with no map info
       TargetID %in% row.names(var_scores)
-    ) %>% # keep only the probes where we have methylation information
-    dplyr::arrange(chr) %>% # important step for using Rle later when constructing the GenomicRanges object!
+    ) |> # keep only the probes where we have methylation information
+    dplyr::arrange(chr) |> # important step for using Rle later when constructing the GenomicRanges object!
     as.data.frame()
   rownames(full_manifest) <- full_manifest$TargetID
-  if (is.factor(full_manifest$chr)) full_manifest <- full_manifest %>% dplyr::mutate(chr = droplevels(chr))
+  if (is.factor(full_manifest$chr)) full_manifest <- full_manifest |> dplyr::mutate(chr = droplevels(chr))
 
   # Convert the full manifest to a GenomicRanges object
   seqnames_full_manifest_gr <- table(full_manifest$chr)
@@ -233,16 +232,17 @@ findVML <- function(methylation_data,
   regions_full_manifest <- GenomicRanges::reduce(full_manifest_gr, with.revmap = TRUE, min.gapwidth = max_distance)
   # Add the number of probes in each region
   S4Vectors::mcols(regions_full_manifest)$n_probes <- vapply(S4Vectors::mcols(regions_full_manifest)$revmap,
-                                                             length,
-                                                             FUN.VALUE = numeric(1))
+    length,
+    FUN.VALUE = numeric(1)
+  )
   # Substitute revmap with the name of the probes in each region
   S4Vectors::mcols(regions_full_manifest)$probes <- lapply(S4Vectors::mcols(regions_full_manifest)$revmap, map_revmap_names, full_manifest)
   # Remove revmap mcol
   S4Vectors::mcols(regions_full_manifest)$revmap <- NULL
   # Keep elements with only one probe
-  lonely_probes <- regions_full_manifest[(GenomicRanges::elementMetadata(regions_full_manifest)[, "n_probes"] <= 1)] %>%
-    as.data.frame() %>%
-    dplyr::pull(probes) %>%
+  lonely_probes <- regions_full_manifest[(GenomicRanges::elementMetadata(regions_full_manifest)[, "n_probes"] <= 1)] |>
+    as.data.frame() |>
+    dplyr::pull(probes) |>
     unlist()
 
   #### Identify VMRs####
@@ -266,8 +266,9 @@ findVML <- function(methylation_data,
   candidate_VMRs <- GenomicRanges::reduce(gr, with.revmap = TRUE, min.gapwidth = max_distance)
   # Add the number of probes in each region
   S4Vectors::mcols(candidate_VMRs)$n_VMPs <- vapply(S4Vectors::mcols(candidate_VMRs)$revmap,
-                                                    length,
-                                                    FUN.VALUE = numeric(1))
+    length,
+    FUN.VALUE = numeric(1)
+  )
   # Substitute revmap with the name of the probes in each VMR
   S4Vectors::mcols(candidate_VMRs)$probes <- lapply(S4Vectors::mcols(candidate_VMRs)$revmap, map_revmap_names, manifest_hvp)
   # Remove revmap mcol
@@ -275,13 +276,13 @@ findVML <- function(methylation_data,
 
   ### Capture canonical VMRs ###
   message("Applying correlation filter to Variable Methylated Regions...")
-  VMRs <- candidate_VMRs[(GenomicRanges::elementMetadata(candidate_VMRs)[, "n_VMPs"] > 1)] %>%
+  VMRs <- candidate_VMRs[(GenomicRanges::elementMetadata(candidate_VMRs)[, "n_VMPs"] > 1)] |>
     data.frame() # Convert the GR to a data frame so that I can use medCorVMR()
   ### Check for correlation between probes only if we have VMRs
   if (nrow(VMRs) > 0) {
-    VMRs <- VMRs %>%
-      medCorVMR(VMR_df = ., methylation_data = methylation_data) %>% # Compute the median correlation of each region
-      dplyr::filter(median_correlation > cor_threshold) %>% # Remove VMRs whose CpGs are not correlated
+    VMRs <- VMRs |>
+      medCorVMR(methylation_data = methylation_data) |> # Compute the median correlation of each region
+      dplyr::filter(median_correlation > cor_threshold) |> # Remove VMRs whose CpGs are not correlated
       GenomicRanges::makeGRangesFromDataFrame(keep.extra.columns = TRUE) # Create a GR object again
   } else {
     warning("No VMRs were found in this data set")
@@ -293,15 +294,15 @@ findVML <- function(methylation_data,
 
   return(list(
     var_score_threshold = var_threshold,
-    highly_variable_probes = var_scores %>%
-      tibble::rownames_to_column(var = "TargetID") %>%
+    highly_variable_probes = var_scores |>
+      tibble::rownames_to_column(var = "TargetID") |>
       dplyr::filter(TargetID %in% manifest_hvp$TargetID),
-    VML = data.frame(VMRs) %>%
-      rbind(data.frame(sVMPs)) %>%
+    VML = data.frame(VMRs) |>
+      rbind(data.frame(sVMPs)) |>
       dplyr::mutate(
         type = ifelse(n_VMPs > 1, "VMR", "sVMP"),
         VML_index = paste("VML", as.character(dplyr::row_number()), sep = "")
-      ) %>%
+      ) |>
       dplyr::select(VML_index, type, seqnames, start, end, width, strand, probes, n_VMPs, median_correlation)
   ))
 }

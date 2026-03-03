@@ -21,10 +21,10 @@ Given a revmap row (e.g. 1 5 6), we map those positions to their corresponding p
 }
 \examples{
 \dontrun{
-  target = data.frame(row.names = c("a", "b", "c", "d"), values = c(1,1,1,1))
-  query = c(2,1)
+target <- data.frame(row.names = c("a", "b", "c", "d"), values = c(1, 1, 1, 1))
+query <- c(2, 1)
 
-  map_revmap_names(positions = query, manifest_hvp = target)
-  ## Expected output: c("b", "a")
+map_revmap_names(positions = query, manifest_hvp = target)
+## Expected output: c("b", "a")
 }
 }

@@ -75,45 +75,45 @@ Finally, the variance is decomposed and the relative R2 contribution of each of 
 \examples{
 ## Find VML in test data
 VML <- RAMEN::findVML(
-   methylation_data = RAMEN::test_methylation_data,
-   array_manifest = "IlluminaHumanMethylationEPICv1",
-   cor_threshold = 0,
-   var_method = "variance",
-   var_distribution = "ultrastable",
-   var_threshold_percentile = 0.99,
-   max_distance = 1000
-   )
+  methylation_data = RAMEN::test_methylation_data,
+  array_manifest = "IlluminaHumanMethylationEPICv1",
+  cor_threshold = 0,
+  var_method = "variance",
+  var_distribution = "ultrastable",
+  var_threshold_percentile = 0.99,
+  max_distance = 1000
+)
 ## Find cis SNPs around VML
 VML_with_cis_snps <- RAMEN::findCisSNPs(
   VML_df = VML$VML,
   genotype_information = RAMEN::test_genotype_information,
   distance = 1e6
-  )
+)
 
 ## Summarize methylation levels in VML
 summarized_methyl_VML <- RAMEN::summarizeVML(
-   methylation_data = RAMEN::test_methylation_data,
-   VML_df = VML_with_cis_snps
- )
+  methylation_data = RAMEN::test_methylation_data,
+  VML_df = VML_with_cis_snps
+)
 
- ## Select relevant genotype and environmental variables
- selected_vars <- RAMEN::selectVariables(
-   VML_df = VML_with_cis_snps,
-   genotype_matrix = RAMEN::test_genotype_matrix,
-   environmental_matrix = RAMEN::test_environmental_matrix,
-   covariates = RAMEN::test_covariates,
-   summarized_methyl_VML = summarized_methyl_VML,
-   seed = 1
- )
+## Select relevant genotype and environmental variables
+selected_vars <- RAMEN::selectVariables(
+  VML_df = VML_with_cis_snps,
+  genotype_matrix = RAMEN::test_genotype_matrix,
+  environmental_matrix = RAMEN::test_environmental_matrix,
+  covariates = RAMEN::test_covariates,
+  summarized_methyl_VML = summarized_methyl_VML,
+  seed = 1
+)
 
 ## Fit G, E, G+E and GxE models and select the winning one
 lmge_res <- RAMEN::lmGE(
-   selected_variables = selected_vars,
-   summarized_methyl_VML = summarized_methyl_VML,
-   genotype_matrix = RAMEN::test_genotype_matrix,
-   environmental_matrix = RAMEN::test_environmental_matrix,
-   covariates = RAMEN::test_covariates,
-   model_selection = "AIC"
- )
+  selected_variables = selected_vars,
+  summarized_methyl_VML = summarized_methyl_VML,
+  genotype_matrix = RAMEN::test_genotype_matrix,
+  environmental_matrix = RAMEN::test_environmental_matrix,
+  covariates = RAMEN::test_covariates,
+  model_selection = "AIC"
+)
 
 }

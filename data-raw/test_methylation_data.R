@@ -2,11 +2,11 @@
 temp <- tempfile()
 download.file("https://webdata.illumina.com/downloads/productfiles/methylationEPIC/infinium-methylationepic-v-1-0-b4-manifest-file-csv.zip", temp, mode = "wb")
 unzip(temp)
-fData_epic <- read_csv("MethylationEPIC_v-1-0_B4.csv",
+fdata_epic <- read_csv("MethylationEPIC_v-1-0_B4.csv",
   skip = 7
 )
-array_manifest <- fData_epic |>
-  dplyr::mutate(STRAND = rep(BiocGenerics::strand("+"), nrow(fData_epic)))  |>
+array_manifest <- fdata_epic |>
+  dplyr::mutate(STRAND = rep(BiocGenerics::strand("+"), nrow(fdata_epic))) |>
   dplyr::select(MAPINFO, CHR, IlmnID, STRAND)
 
 # Get the first 3k probes of the 21 chromosome
@@ -15,7 +15,7 @@ test_array_manifest <- array_manifest |>
   arrange(as.numeric(MAPINFO)) |>
   slice_head(n = 3000) |>
   select(-IlmnID) # Remove this column because it takes a lot of space when
-                  #saving the object, and it is already present in the rownames
+# saving the object, and it is already present in the rownames
 
 ## Create DNAme dataset
 sample_size <- 30
@@ -40,7 +40,7 @@ colnames(test_methylation_data) <- paste(
   "ID",
   as.character(1:sample_size),
   sep = ""
-  )
+)
 rownames(test_methylation_data) <- rownames(test_array_manifest)
 
 usethis::use_data(test_methylation_data, overwrite = TRUE)

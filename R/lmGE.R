@@ -47,46 +47,46 @@
 #' @examples
 #' ## Find VML in test data
 #' VML <- RAMEN::findVML(
-#'    methylation_data = RAMEN::test_methylation_data,
-#'    array_manifest = "IlluminaHumanMethylationEPICv1",
-#'    cor_threshold = 0,
-#'    var_method = "variance",
-#'    var_distribution = "ultrastable",
-#'    var_threshold_percentile = 0.99,
-#'    max_distance = 1000
-#'    )
+#'   methylation_data = RAMEN::test_methylation_data,
+#'   array_manifest = "IlluminaHumanMethylationEPICv1",
+#'   cor_threshold = 0,
+#'   var_method = "variance",
+#'   var_distribution = "ultrastable",
+#'   var_threshold_percentile = 0.99,
+#'   max_distance = 1000
+#' )
 #' ## Find cis SNPs around VML
 #' VML_with_cis_snps <- RAMEN::findCisSNPs(
 #'   VML_df = VML$VML,
 #'   genotype_information = RAMEN::test_genotype_information,
 #'   distance = 1e6
-#'   )
+#' )
 #'
 #' ## Summarize methylation levels in VML
 #' summarized_methyl_VML <- RAMEN::summarizeVML(
-#'    methylation_data = RAMEN::test_methylation_data,
-#'    VML_df = VML_with_cis_snps
-#'  )
+#'   methylation_data = RAMEN::test_methylation_data,
+#'   VML_df = VML_with_cis_snps
+#' )
 #'
-#'  ## Select relevant genotype and environmental variables
-#'  selected_vars <- RAMEN::selectVariables(
-#'    VML_df = VML_with_cis_snps,
-#'    genotype_matrix = RAMEN::test_genotype_matrix,
-#'    environmental_matrix = RAMEN::test_environmental_matrix,
-#'    covariates = RAMEN::test_covariates,
-#'    summarized_methyl_VML = summarized_methyl_VML,
-#'    seed = 1
-#'  )
+#' ## Select relevant genotype and environmental variables
+#' selected_vars <- RAMEN::selectVariables(
+#'   VML_df = VML_with_cis_snps,
+#'   genotype_matrix = RAMEN::test_genotype_matrix,
+#'   environmental_matrix = RAMEN::test_environmental_matrix,
+#'   covariates = RAMEN::test_covariates,
+#'   summarized_methyl_VML = summarized_methyl_VML,
+#'   seed = 1
+#' )
 #'
 #' ## Fit G, E, G+E and GxE models and select the winning one
 #' lmge_res <- RAMEN::lmGE(
-#'    selected_variables = selected_vars,
-#'    summarized_methyl_VML = summarized_methyl_VML,
-#'    genotype_matrix = RAMEN::test_genotype_matrix,
-#'    environmental_matrix = RAMEN::test_environmental_matrix,
-#'    covariates = RAMEN::test_covariates,
-#'    model_selection = "AIC"
-#'  )
+#'   selected_variables = selected_vars,
+#'   summarized_methyl_VML = summarized_methyl_VML,
+#'   genotype_matrix = RAMEN::test_genotype_matrix,
+#'   environmental_matrix = RAMEN::test_environmental_matrix,
+#'   covariates = RAMEN::test_covariates,
+#'   model_selection = "AIC"
+#' )
 #'
 lmGE <- function(selected_variables,
                  summarized_methyl_VML,
@@ -122,64 +122,68 @@ lmGE <- function(selected_variables,
   ## it is provided) have only numeric values and no NA, NaN, Inf values
   if (
     sum(vapply(genotype_matrix, is.na, FUN.VALUE = logical(1))) > 0 ||
-    sum(vapply(genotype_matrix, is.nan, FUN.VALUE = logical(1))) > 0 ||
-    sum(!vapply(genotype_matrix, is.numeric, FUN.VALUE = logical(1))) > 0 ||
-    sum(vapply(genotype_matrix, is.infinite, FUN.VALUE = logical(1))) > 0
-  ) stop (
-    "Please make sure the genotype matrix contains only finite numeric values."
-  )
+      sum(vapply(genotype_matrix, is.nan, FUN.VALUE = logical(1))) > 0 ||
+      sum(!vapply(genotype_matrix, is.numeric, FUN.VALUE = logical(1))) > 0 ||
+      sum(vapply(genotype_matrix, is.infinite, FUN.VALUE = logical(1))) > 0
+  ) {
+    stop(
+      "Please make sure the genotype matrix contains only finite numeric values."
+    )
+  }
   if (
     sum(vapply(environmental_matrix, is.na, FUN.VALUE = logical(1))) > 0 ||
-    sum(vapply(environmental_matrix, is.nan, FUN.VALUE = logical(1))) > 0 ||
-    sum(!vapply(environmental_matrix, is.numeric, FUN.VALUE = logical(1))) > 0 ||
-    sum(vapply(environmental_matrix, is.infinite, FUN.VALUE = logical(1))) > 0
-  ) stop (
-    "Please make sure the environmental matrix contains only finite numeric values."
-  )
+      sum(vapply(environmental_matrix, is.nan, FUN.VALUE = logical(1))) > 0 ||
+      sum(!vapply(environmental_matrix, is.numeric, FUN.VALUE = logical(1))) > 0 ||
+      sum(vapply(environmental_matrix, is.infinite, FUN.VALUE = logical(1))) > 0
+  ) {
+    stop(
+      "Please make sure the environmental matrix contains only finite numeric values."
+    )
+  }
   if (!is.null(covariates)) {
     if (
       sum(vapply(covariates, is.na, FUN.VALUE = logical(1))) > 0 ||
-      sum(vapply(covariates, is.nan, FUN.VALUE = logical(1))) > 0 ||
-      sum(!vapply(covariates, is.numeric, FUN.VALUE = logical(1))) > 0 ||
-      sum(vapply(covariates, is.infinite, FUN.VALUE = logical(1))) > 0
-    ) stop (
-      "Please make sure the covariates matrix contains only finite numeric values."
-    )
+        sum(vapply(covariates, is.nan, FUN.VALUE = logical(1))) > 0 ||
+        sum(!vapply(covariates, is.numeric, FUN.VALUE = logical(1))) > 0 ||
+        sum(vapply(covariates, is.infinite, FUN.VALUE = logical(1))) > 0
+    ) {
+      stop(
+        "Please make sure the covariates matrix contains only finite numeric values."
+      )
+    }
   }
 
   if (
     sum(vapply(summarized_methyl_VML,
-               is.na,
-               FUN.VALUE = logical(nrow(summarized_methyl_VML))
-               )
-    ) > 0 ||
-    sum(vapply(summarized_methyl_VML,
-               is.nan,
-               FUN.VALUE = logical(nrow(summarized_methyl_VML))
-               )
-    ) > 0 ||
-    sum(!vapply(summarized_methyl_VML,
-                is.numeric,
-                FUN.VALUE = logical(1)
-                )
-    ) > 0 ||
-    sum(vapply(summarized_methyl_VML,
-               is.infinite,
-               FUN.VALUE = logical(nrow(summarized_methyl_VML))
-               )
-    ) > 0
-  ) stop (
-    "Please make sure the summarized_methyl_VML data frame contains only finite numeric values."
-  )
+      is.na,
+      FUN.VALUE = logical(nrow(summarized_methyl_VML))
+    )) > 0 ||
+      sum(vapply(summarized_methyl_VML,
+        is.nan,
+        FUN.VALUE = logical(nrow(summarized_methyl_VML))
+      )) > 0 ||
+      sum(!vapply(summarized_methyl_VML,
+        is.numeric,
+        FUN.VALUE = logical(1)
+      )) > 0 ||
+      sum(vapply(summarized_methyl_VML,
+        is.infinite,
+        FUN.VALUE = logical(nrow(summarized_methyl_VML))
+      )) > 0
+  ) {
+    stop(
+      "Please make sure the summarized_methyl_VML data frame contains only finite numeric values."
+    )
+  }
 
 
   # Filter VML that have no selected G and no selected E
-  no_vars_VML <- selected_variables %>%
+  no_vars_VML <- selected_variables |>
     dplyr::filter((selected_env %in% c(list(NULL), list(""), list(NA), list(character(0))) &
-                     selected_genot %in% c(list(NULL), list(""), list(NA), list(character(0)))))
-  selected_variables <- selected_variables %>%
+      selected_genot %in% c(list(NULL), list(""), list(NA), list(character(0)))))
+  selected_variables <- selected_variables |>
     dplyr::filter(!(selected_env %in% c(list(NULL), list(""), list(NA), list(character(0))) &
-                      selected_genot %in% c(list(NULL), list(""), list(NA), list(character(0)))))
+      selected_genot %in% c(list(NULL), list(""), list(NA), list(character(0)))))
 
   # Select the winning model
   winning_models <- foreach::foreach(
@@ -191,7 +195,7 @@ lmGE <- function(selected_variables,
     colnames(summ_vml_i) <- "DNAme"
     if (!VML_i$selected_env %in% c(list(NULL), list(""), list(NA), list(character(0)))) {
       if (length(VML_i$selected_env[[1]]) == 1) {
-        env_i <- environmental_matrix[rownames(summarized_methyl_VML), unlist(VML_i$selected_env)] %>%
+        env_i <- environmental_matrix[rownames(summarized_methyl_VML), unlist(VML_i$selected_env)] |>
           as.matrix()
         colnames(env_i) <- unlist(VML_i$selected_env)
       } else {
@@ -202,11 +206,11 @@ lmGE <- function(selected_variables,
     }
     if (!VML_i$selected_genot %in% c(list(NULL), list(""), list(NA), list(character(0)))) {
       if (length(VML_i$selected_genot[[1]]) == 1) {
-        genot_i <- genotype_matrix[unlist(VML_i$selected_genot), rownames(summarized_methyl_VML)] %>%
+        genot_i <- genotype_matrix[unlist(VML_i$selected_genot), rownames(summarized_methyl_VML)] |>
           as.matrix()
         colnames(genot_i) <- unlist(VML_i$selected_genot)
       } else {
-        genot_i <- genotype_matrix[unlist(VML_i$selected_genot), rownames(summarized_methyl_VML)] %>%
+        genot_i <- genotype_matrix[unlist(VML_i$selected_genot), rownames(summarized_methyl_VML)] |>
           t()
       }
     } else {
@@ -214,7 +218,7 @@ lmGE <- function(selected_variables,
     }
     if (!is.null(covariates)) {
       if (ncol(covariates) == 1) {
-        covariates_i <- covariates[rownames(summarized_methyl_VML), ] %>% # Match the covariates dataset with the VML information
+        covariates_i <- covariates[rownames(summarized_methyl_VML), ] |> # Match the covariates dataset with the VML information
           as.matrix()
         colnames(covariates_i) <- colnames(covariates)
       } else {
@@ -224,8 +228,8 @@ lmGE <- function(selected_variables,
     full_data_vml_i <- cbind(summ_vml_i, env_i, genot_i, covariates_i)
     colnames(full_data_vml_i) <- make.names(colnames(full_data_vml_i))
     # Set the basal model (only covariates)
-    basal_model_formula <- colnames(covariates) %>%
-      make.names() %>%
+    basal_model_formula <- colnames(covariates) |>
+      make.names() |>
       paste(collapse = " + ")
 
     ## Fit models involving G if G has selected variables
@@ -312,39 +316,39 @@ lmGE <- function(selected_variables,
 
     # Select the best model per category (G,E,GxE,G+E) and compute its delta AIC/BIC
     if (model_selection == "AIC") {
-      best_models_VML_i <- all_models_VML_i %>%
-        dplyr::group_by(model_group) %>%
-        dplyr::filter(AIC == min(AIC)) %>%
-        dplyr::slice(1) %>% # In case there are more than one model per group with the exact same AIC, pick the first one
-        dplyr::arrange(AIC, dplyr::desc(tot_r_squared)) %>%
-        dplyr::ungroup() %>%
+      best_models_VML_i <- all_models_VML_i |>
+        dplyr::group_by(model_group) |>
+        dplyr::filter(AIC == min(AIC)) |>
+        dplyr::slice(1) |> # In case there are more than one model per group with the exact same AIC, pick the first one
+        dplyr::arrange(AIC, dplyr::desc(tot_r_squared)) |>
+        dplyr::ungroup() |>
         dplyr::mutate(delta_aic = abs(AIC - dplyr::lead(AIC)))
     } else if (model_selection == "BIC") {
-      best_models_VML_i <- all_models_VML_i %>%
-        dplyr::group_by(model_group) %>%
-        dplyr::filter(BIC == min(BIC)) %>%
-        dplyr::slice(1) %>% # In case there are more than one model per group with the exact same AIC, pick the first one
-        dplyr::arrange(BIC, dplyr::desc(tot_r_squared)) %>%
-        dplyr::ungroup() %>%
+      best_models_VML_i <- all_models_VML_i |>
+        dplyr::group_by(model_group) |>
+        dplyr::filter(BIC == min(BIC)) |>
+        dplyr::slice(1) |> # In case there are more than one model per group with the exact same AIC, pick the first one
+        dplyr::arrange(BIC, dplyr::desc(tot_r_squared)) |>
+        dplyr::ungroup() |>
         dplyr::mutate(delta_bic = abs(BIC - dplyr::lead(BIC)))
     }
 
 
     # Create the final object that will be returned
     if (model_selection == "AIC") {
-      winning_model_VML_i <- best_models_VML_i %>%
-        dplyr::filter(AIC == min(AIC)) %>%
+      winning_model_VML_i <- best_models_VML_i |>
+        dplyr::filter(AIC == min(AIC)) |>
         # In case there is more than one model with the exact same AIC from different groups, pick the one with the highest tot_r_squared
-        dplyr::slice(1) %>%
+        dplyr::slice(1) |>
         dplyr::mutate(
           second_winner = best_models_VML_i$model_group[2],
           delta_r_squared = best_models_VML_i$tot_r_squared[1] - best_models_VML_i$tot_r_squared[2]
         )
     } else if (model_selection == "BIC") {
-      winning_model_VML_i <- best_models_VML_i %>%
-        dplyr::filter(BIC == min(BIC)) %>%
+      winning_model_VML_i <- best_models_VML_i |>
+        dplyr::filter(BIC == min(BIC)) |>
         # In case there is more than one model with the exact same AIC from different groups, pick the one with the highest tot_r_squared
-        dplyr::slice(1) %>%
+        dplyr::slice(1) |>
         dplyr::mutate(
           second_winner = best_models_VML_i$model_group[2],
           delta_r_squared = best_models_VML_i$tot_r_squared[1] - best_models_VML_i$tot_r_squared[2]
@@ -410,52 +414,51 @@ lmGE <- function(selected_variables,
 
   # Rearrange columns
   if (model_selection == "AIC") {
-    winning_models <- winning_models %>%
-      dplyr::select(VML_index, model_group, variables, tot_r_squared, g_r_squared, e_r_squared, gxe_r_squared, AIC, second_winner, delta_aic, delta_r_squared, basal_AIC, basal_rsquared) %>%
+    winning_models <- winning_models |>
+      dplyr::select(VML_index, model_group, variables, tot_r_squared, g_r_squared, e_r_squared, gxe_r_squared, AIC, second_winner, delta_aic, delta_r_squared, basal_AIC, basal_rsquared) |>
       as.data.frame()
   } else if (model_selection == "BIC") {
-    winning_models <- winning_models %>%
-      dplyr::select(VML_index, model_group, variables, tot_r_squared, g_r_squared, e_r_squared, gxe_r_squared, BIC, second_winner, delta_bic, delta_r_squared, basal_BIC, basal_rsquared) %>%
+    winning_models <- winning_models |>
+      dplyr::select(VML_index, model_group, variables, tot_r_squared, g_r_squared, e_r_squared, gxe_r_squared, BIC, second_winner, delta_bic, delta_r_squared, basal_BIC, basal_rsquared) |>
       as.data.frame()
   }
 
   if (model_selection == "AIC") {
-    return(winning_models %>%
-             rbind(no_vars_VML %>% # Attach VML with no variables selected in selectVariables()
-                     dplyr::select(-selected_genot, -selected_env) %>% # remove empty columns
-                     dplyr::mutate(
-                       model_group = "B",
-                       variables = list(NA_character_),
-                       tot_r_squared = NA_real_,
-                       g_r_squared = NA_real_,
-                       e_r_squared = NA_real_,
-                       gxe_r_squared = NA_real_,
-                       AIC = NA_real_,
-                       second_winner = NA_character_,
-                       delta_aic = NA_real_,
-                       delta_r_squared = NA_real_,
-                       basal_AIC = NA_real_,
-                       basal_rsquared = NA_real_
-                     )))
+    return(winning_models |>
+      rbind(no_vars_VML |> # Attach VML with no variables selected in selectVariables()
+        dplyr::select(-selected_genot, -selected_env) |> # remove empty columns
+        dplyr::mutate(
+          model_group = "B",
+          variables = list(NA_character_),
+          tot_r_squared = NA_real_,
+          g_r_squared = NA_real_,
+          e_r_squared = NA_real_,
+          gxe_r_squared = NA_real_,
+          AIC = NA_real_,
+          second_winner = NA_character_,
+          delta_aic = NA_real_,
+          delta_r_squared = NA_real_,
+          basal_AIC = NA_real_,
+          basal_rsquared = NA_real_
+        )))
   }
   if (model_selection == "BIC") {
-    return(winning_models %>%
-             rbind(no_vars_VML %>% # Attach VML with no variables selected in selectVariables()
-                     dplyr::select(-selected_genot, -selected_env) %>% # remove empty columns
-                     dplyr::mutate(
-                       model_group = "B",
-                       variables = list(NA_character_),
-                       tot_r_squared = NA_real_,
-                       g_r_squared = NA_real_,
-                       e_r_squared = NA_real_,
-                       gxe_r_squared = NA_real_,
-                       BIC = NA_real_,
-                       second_winner = NA_character_,
-                       delta_bic = NA_real_,
-                       delta_r_squared = NA_real_,
-                       basal_BIC = NA_real_,
-                       basal_rsquared = NA_real_
-                     )))
+    return(winning_models |>
+      rbind(no_vars_VML |> # Attach VML with no variables selected in selectVariables()
+        dplyr::select(-selected_genot, -selected_env) |> # remove empty columns
+        dplyr::mutate(
+          model_group = "B",
+          variables = list(NA_character_),
+          tot_r_squared = NA_real_,
+          g_r_squared = NA_real_,
+          e_r_squared = NA_real_,
+          gxe_r_squared = NA_real_,
+          BIC = NA_real_,
+          second_winner = NA_character_,
+          delta_bic = NA_real_,
+          delta_r_squared = NA_real_,
+          basal_BIC = NA_real_,
+          basal_rsquared = NA_real_
+        )))
   }
-
 }
