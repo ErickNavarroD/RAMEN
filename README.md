@@ -43,11 +43,16 @@ analysis.
 
 ## Installation
 
-You can install the development version of RAMEN from
+You can install the latest version of RAMEN from
 [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
+# install.packages("BiocManager")
+# BiocManager::install("S4Vectors")
+# BiocManager::install("IRanges")
+# BiocManager::install("GenomicRanges")
+
 devtools::install_github("ErickNavarroD/RAMEN")
 ```
 
