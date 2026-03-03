@@ -1,11 +1,21 @@
 bibentry(
   bibtype  = "Article",
   title    = "RAMEN: Dissecting individual, additive and interactive gene-environment contributions to DNA methylome variability in cord blood",
-  author   = "Navarro-Delgado, E.I., Czamara, D., Edwards, K. et al.",
+  author   = c(person("Erick I.", "Navarro-Delgado"), person("Karlie", "Edwards"), person("Maggie P.", "Fu"), person("Sarah M.", "Merrill"), person("Chaini", "Konwar"), person("Julie L.", "MacIsaac"), person("David T.S.", "Lin"), person("Piush", "Mandhane"), person("Elinor", "Simons"), person("Padmaja", "Subbarao"), person("Theo J.", "Moraes"), person("Jari", "Lahti"), person("Gregory E.", "Miller"), person("Elisabeth B.", "Binder"), person("Katri", "Raikkonen"), person("Stuart E.", "Turvey"), person("Keegan", "Korthauer"), person("Michael S.", "Kobor")),
   journal  = "Genome Biology",
   year     = "2025",
   volume   = "26",
   number   = "1",
   pages    = "29",
   doi      = "10.1186/s13059-025-03864-4"
+)
+
+bibentry(
+  key = "RAMEN",
+  bibtype  = "Manual",
+  title    = "RAMEN: RAMEN: Regional Association of DNA Methylome variability with the Exposome and geNome",
+  author = c(person("Erick I.", "Navarro-Delgado"), person("Keegan", "Korthauer"), person("Michael S.", "Kobor")),
+  note  = "R package version 2.0.0",
+  year     = "2025",
+  url      = "https://github.com/ErickNavarroD/RAMEN"
 )
