@@ -94,7 +94,6 @@ VML <- RAMEN::findVML(
 )
 
 head(VML$VML) # Take a look at the identified VML data frame
-
 ```
 
 2.  Summarize the regional methylation state of each VML with `summarizeVML()`.
@@ -172,7 +171,7 @@ null_dist <- RAMEN::nullDistGE(
   model_selection = "AIC"
 )
 
-#Set threshold
+# Set threshold
 cutoff_single <- quantile(
   null_dist %>%
     filter(model_group %in% c("G", "E")) %>%
@@ -216,8 +215,6 @@ final_res %>%
   ggplot2::xlab("Best explanatory model") +
   ggplot2::ylab("VML") +
   ggplot2::theme_classic()
-
-
 ```
 
 ## Variations to the standard workflow

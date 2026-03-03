@@ -271,7 +271,7 @@ null_dist <- RAMEN::nullDistGE(
 #> Starting lmGE in permutation 1 of 1
 #> Wrapping up permutation 1 of 1
 
-#Set threshold
+# Set threshold
 cutoff_single <- quantile(
   null_dist %>%
     filter(model_group %in% c("G", "E")) %>%
