@@ -266,6 +266,7 @@ null_dist <- RAMEN::nullDistGE(
 #> Starting lmGE in permutation 1 of 1
 #> Wrapping up permutation 1 of 1
 
+#Set threshold
 cutoff_single <- quantile(
   null_dist %>%
     filter(model_group %in% c("G", "E")) %>%
@@ -279,7 +280,7 @@ cutoff_joint <- quantile(
   0.95
 )
 
-# Get a data frame with the final results results
+# Get a data frame with the final results
 final_res <- lmge_res %>%
   dplyr::mutate(
     r2_difference_basal = tot_r_squared - basal_rsquared,
@@ -288,7 +289,8 @@ final_res <- lmge_res %>%
       model_group %in% c("G", "E") ~ r2_difference_basal > cutoff_single,
       model_group %in% c("G+E", "GxE") ~ r2_difference_basal > cutoff_joint
     ),
-    # Label the final model group, replacing bad performing winning models with "B" (basal)
+    # Label the final model group, replacing bad performing winning models with
+    #  "B" (basal)
     model_group = case_when(
       pass_cutoff_threshold ~ model_group,
       TRUE ~ "B"

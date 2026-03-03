@@ -167,6 +167,7 @@ null_dist <- RAMEN::nullDistGE(
   model_selection = "AIC"
 )
 
+#Set threshold
 cutoff_single <- quantile(
   null_dist %>%
     filter(model_group %in% c("G", "E")) %>%
@@ -180,7 +181,7 @@ cutoff_joint <- quantile(
   0.95
 )
 
-# Get a data frame with the final results results
+# Get a data frame with the final results
 final_res <- lmge_res %>%
   dplyr::mutate(
     r2_difference_basal = tot_r_squared - basal_rsquared,
@@ -189,7 +190,8 @@ final_res <- lmge_res %>%
       model_group %in% c("G", "E") ~ r2_difference_basal > cutoff_single,
       model_group %in% c("G+E", "GxE") ~ r2_difference_basal > cutoff_joint
     ),
-    # Label the final model group, replacing bad performing winning models with "B" (basal)
+    # Label the final model group, replacing bad performing winning models with
+    #  "B" (basal)
     model_group = case_when(
       pass_cutoff_threshold ~ model_group,
       TRUE ~ "B"
@@ -215,32 +217,46 @@ final_res %>%
 
 ## Variations to the standard workflow
 
-Besides using RAMEN for a gene-environment contribution analysis, the package provides individual functions that could help users in other tasks, such as: 
+Besides using RAMEN for a gene-environment contribution analysis, the package 
+provides individual functions that could help users in other tasks, such as: 
 
-  -   Reduction of multiple hypothesis test burden in EWAS or differential methylation analysis by using VML instead of individual probes.
-  -   Fit additive and interaction models given a set of variables of interest and select the best explanatory model for DNAme data (e.g. epistasis or ExE studies). 
+  -   Reduction of multiple hypothesis test burden in EWAS or differential 
+  methylation analysis by using VML instead of individual probes.
+  -   Fit additive and interaction models given a set of variables of interest 
+  and select the best explanatory model for DNAme data (e.g. epistasis or 
+  ExE studies). 
   -   Quickly identify SNPs in *cis* of CpG probes.
-  -   Get the median correlation of probes in custom regions of interest with `medCorVMR()`.
+  -   Get the median correlation of probes in custom regions of interest with 
+  `medCorVMR()`.
 
 ## How to get help for RAMEN
 
-If you have any question about RAMEN usage, please [post a new issue](https://github.com/ErickNavarroD/RAMEN/issues/new/choose) in this github repository so that future users also benefit from the discussion.
+If you have any question about RAMEN usage, please [post a new issue](https://github.com/ErickNavarroD/RAMEN/issues/new/choose) in this github 
+repository so that future users also benefit from the discussion.
 
 ## Acknowledgments
 
-I want to thank Dr. Keegan Korthauer and Dr. Michael S. Kobor for their supervision, feedback and support throughout the development of this package. Also, I want to thank the members of the Kobor and Korthauer lab for their comments and discussion.
+I want to thank Dr. Keegan Korthauer and Dr. Michael S. Kobor for their 
+supervision, feedback and support throughout the development of this package. 
+Also, I want to thank the members of the Kobor and Korthauer lab for their 
+comments and discussion.
 
-The RAMEN package logo was created by Carlos Cortés-Quiñones and Dorothy Lin. Carlos created the draw, and Dorothy refined the logo and did the lettering.
+The RAMEN package logo was created by Carlos Cortés-Quiñones and Dorothy Lin. 
+Carlos created the draw, and Dorothy refined the logo and did the lettering.
 
 ## Funding
 
-This work was supported by the University of British Columbia, the BC Children's Hospital Research Institute and the Social Exposome Cluster.
+This work was supported by the University of British Columbia, the BC Children's
+Hospital Research Institute and the Social Exposome Cluster.
 
 ## Citing RAMEN
 
 If you use RAMEN for any of your analyses, please cite the following publication:
 
-  -   Navarro-Delgado, E.I., Czamara, D., Edwards, K. et al. RAMEN: Dissecting individual, additive and interactive gene-environment contributions to DNA methylome variability in cord blood. *Genome Biol* 26, 421 (2025). https://doi.org/10.1186/s13059-025-03864-4 
+  -   Navarro-Delgado, E.I., Czamara, D., Edwards, K. et al. RAMEN: Dissecting 
+  individual, additive and interactive gene-environment contributions to DNA 
+  methylome variability in cord blood. *Genome Biol* 26, 421 (2025). 
+  https://doi.org/10.1186/s13059-025-03864-4 
 
 ## Code of conduct
 Please note that this package is released with a [Contributor
