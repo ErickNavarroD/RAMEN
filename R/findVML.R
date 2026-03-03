@@ -133,6 +133,12 @@ findVML <- function(methylation_data,
       )
     } else if (array_manifest == "IlluminaHumanMethylationEPICv2") {
       # Get the name of the ultrastable probes in the EPICv2 format
+      if (!requireNamespace("IlluminaHumanMethylationEPICv2anno.20a1.hg38", quietly = TRUE)) {
+        stop(
+          "Package \"IlluminaHumanMethylationEPICv2anno.20a1.hg38\" must be installed to use this function.",
+          call. = FALSE
+        )
+      }
       epicv2_ultrastable_cpgs <- IlluminaHumanMethylationEPICv2anno.20a1.hg38::Other |>
         data.frame() |>
         dplyr::filter(Methyl450_Loci %in% RAMEN::ultrastable_cpgs) |>
@@ -153,8 +159,22 @@ findVML <- function(methylation_data,
   # Replace the array manifest if the user provided a string with the name of the array
   if (is.character(array_manifest)) {
     if (array_manifest == "IlluminaHumanMethylation450k") {
+      if (!requireNamespace("IlluminaHumanMethylation450kanno.ilmn12.hg19",
+                            quietly = TRUE)) {
+        stop(
+          "Package \"IlluminaHumanMethylation450kanno.ilmn12.hg19\" must be installed to use this function.",
+          call. = FALSE
+        )
+      }
       manifest <- data.frame(IlluminaHumanMethylation450kanno.ilmn12.hg19::Locations)
     } else if (array_manifest == "IlluminaHumanMethylationEPICv1") {
+      if (!requireNamespace("IlluminaHumanMethylationEPICanno.ilm10b4.hg19",
+                            quietly = TRUE)) {
+        stop(
+          "Package \"IlluminaHumanMethylationEPICanno.ilm10b4.hg19\" must be installed to use this function.",
+          call. = FALSE
+        )
+      }
       manifest <- data.frame(IlluminaHumanMethylationEPICanno.ilm10b4.hg19::Locations)
     } else if (array_manifest == "IlluminaHumanMethylationEPICv2") {
       manifest <- data.frame(IlluminaHumanMethylationEPICv2anno.20a1.hg38::Locations)
