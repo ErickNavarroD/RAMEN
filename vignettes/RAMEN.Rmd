@@ -2,7 +2,7 @@
 title: "RAMEN"
 author: 
 - name: Erick I. Navarro-Delgado
-  email: erick.navarrodelgado@bcchr.ca
+  email: erick.delgado@ubc.ca
   affiliation: The University of British Columbia
 output:
   BiocStyle::html_document:
