@@ -337,14 +337,13 @@ github repository so that future users also benefit from the discussion.
 
 ## Acknowledgments
 
-I want to thank Dr. Keegan Korthauer and Dr. Michael S. Kobor for their
-supervision, feedback and support throughout the development of this
-package. Also, I want to thank the members of the Kobor and Korthauer
-lab for their comments and discussion.
-
-The RAMEN package logo was created by Carlos Cortés-Quiñones and Dorothy
-Lin. Carlos created the draw, and Dorothy refined the logo and did the
-lettering.
+This package was developed by Erick I. Navarro-Delgado under the
+supervision of Dr. Keegan Korthauer and Dr. Michael S. Kobor. We want to
+thank the members of the Kobor and Korthauer lab for their feeback
+during the development of RAMEN. Additionally, we want to thank Carlos
+Cortés-Quiñones and Dorothy Lin for helping create the package logo.
+Erick conceptualized the logo, Carlos drew it, and Dorothy refined it
+and finished the lettering.
 
 ## Funding
 
