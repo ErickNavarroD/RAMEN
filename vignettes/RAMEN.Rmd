@@ -153,6 +153,9 @@ We recommend using the "ultrastable" option, as it provides a more objective and
 So, after covering all the basics and understanding how the function works, we can start our analysis! Let's give it a try. 
 
 ```{r}
+#See the structure of the input DNA methylation data set
+RAMEN::test_methylation_data[1:5,1:5]
+
 VML <- RAMEN::findVML(
   methylation_data = RAMEN::test_methylation_data,
   array_manifest = "IlluminaHumanMethylationEPICv1",
@@ -181,7 +184,6 @@ Finally, we will extract the VML data frame, which we can use to produce plots a
 
 ```{r}
 VML_df <- VML$VML
-
 
 # Example of an epxloration plot
 VML_df %>%
@@ -213,6 +215,10 @@ After identifying the VML, we recommend to use only SNPs in *cis* of each loci, 
 There is not a clear consensus on how close a SNP has to be from a DNAme site to be considered *cis* - the distance threshold tend to go from few kb to 1 megabase. We recommend to use a 1 Mb window to cast a wide net and catch most potentially relevant SNPs.
 
 ```{r}
+#Take a look at the structure of the genotype information data set, which 
+#contains the genomic location of the SNPs in our genotype data set
+head(RAMEN::test_genotype_information)
+
 VML_cis_snps <- RAMEN::findCisSNPs(
   VML_df = VML_df,
   genotype_information = RAMEN::test_genotype_information,
@@ -261,6 +267,13 @@ Overall, conducting our variable selection strategy reduces the downstream compu
 Please make sure that your data has no NAs, since the LASSO implementation we use in RAMEN does not support missing values, and that all values are numeric. If your data has missing values, consider [handling](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3668100/) them. 
 
 ```{r}
+#Take a look at the structure of the genotype, environment and covariate data 
+#sets, which will be used as input for the variable selection stage
+RAMEN::test_genotype_matrix[1:5,1:5]
+RAMEN::test_environmental_matrix[1:5,1:5]
+head(test_covariates)
+
+#Now let's run the function
 selected_variables <- RAMEN::selectVariables(
   VML_df = VML_cis_snps,
   genotype_matrix = RAMEN::test_genotype_matrix,
