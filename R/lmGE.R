@@ -178,12 +178,13 @@ lmGE <- function(selected_variables,
 
 
   # Filter VML that have no selected G and no selected E
+  empty_lists <- c(list(NULL), list(""), list(NA), list(character(0)))
   no_vars_VML <- selected_variables |>
-    dplyr::filter((selected_env %in% c(list(NULL), list(""), list(NA), list(character(0))) &
-      selected_genot %in% c(list(NULL), list(""), list(NA), list(character(0)))))
+    dplyr::filter((selected_env %in% empty_lists &
+      selected_genot %in% empty_lists))
   selected_variables <- selected_variables |>
-    dplyr::filter(!(selected_env %in% c(list(NULL), list(""), list(NA), list(character(0))) &
-      selected_genot %in% c(list(NULL), list(""), list(NA), list(character(0)))))
+    dplyr::filter(!(selected_env %in% empty_lists &
+      selected_genot %in% empty_lists))
 
   # Select the winning model
   winning_models <- foreach::foreach(
@@ -193,7 +194,7 @@ lmGE <- function(selected_variables,
     # Create the data frame with all the information for each VML
     summ_vml_i <- as.matrix(summarized_methyl_VML[, VML_i$VML_index])
     colnames(summ_vml_i) <- "DNAme"
-    if (!VML_i$selected_env %in% c(list(NULL), list(""), list(NA), list(character(0)))) {
+    if (!VML_i$selected_env %in% empty_lists) {
       if (length(VML_i$selected_env[[1]]) == 1) {
         env_i <- environmental_matrix[rownames(summarized_methyl_VML), unlist(VML_i$selected_env)] |>
           as.matrix()
@@ -204,7 +205,7 @@ lmGE <- function(selected_variables,
     } else {
       env_i <- NULL
     }
-    if (!VML_i$selected_genot %in% c(list(NULL), list(""), list(NA), list(character(0)))) {
+    if (!VML_i$selected_genot %in% empty_lists) {
       if (length(VML_i$selected_genot[[1]]) == 1) {
         genot_i <- genotype_matrix[unlist(VML_i$selected_genot), rownames(summarized_methyl_VML)] |>
           as.matrix()
@@ -233,7 +234,7 @@ lmGE <- function(selected_variables,
       paste(collapse = " + ")
 
     ## Fit models involving G if G has selected variables
-    if (!VML_i$selected_genot %in% c(list(NULL), list(""), list(NA), list(character(0)))) {
+    if (!VML_i$selected_genot %in% empty_lists) {
       models_g_involving_df <- foreach::foreach(
         SNP = unlist(VML_i$selected_genot),
         .combine = "rbind"
@@ -248,7 +249,7 @@ lmGE <- function(selected_variables,
         if (model_selection == "BIC") model_g_df$BIC <- stats::BIC(model_g)
         model_g_df$tot_r_squared <- summary(model_g)$r.squared
 
-        if (!VML_i$selected_env %in% c(list(NULL), list(""), list(NA), list(character(0)))) {
+        if (!VML_i$selected_env %in% empty_lists) {
           ### Fit GxE and G+E models if E is not empty
           models_joint_df <- foreach::foreach(
             env = unlist(VML_i$selected_env), # For every env var
@@ -290,7 +291,7 @@ lmGE <- function(selected_variables,
     }
 
     ### Compute E models if E is not empty
-    if (!VML_i$selected_env %in% c(list(NULL), list(""), list(NA), list(character(0)))) { # For each env var
+    if (!VML_i$selected_env %in% empty_lists) { # For each env var
       models_e_df <- foreach::foreach(
         env = unlist(VML_i$selected_env), # For every env var
         .combine = "rbind"
