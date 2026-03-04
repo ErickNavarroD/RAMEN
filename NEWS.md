@@ -1,4 +1,20 @@
-# RAMEN 2.0.0
+# Unreleased 
+
+This minor version presents no changes from the user perspective. Code 
+improvements have been made to the package to address comments and 
+suggestions from the editor and reviewers of the rOpenSci peer review 
+process. These include: 
+
+  - Improving the README, adding quick usage examples, more details on the 
+  functionality of RAMEN, and better installation instructions.
+  - Fixing inconsistencies across the package documentation, such as email 
+  addresses, author information, and citation details.
+  - Adding a continuous integration check for R 4.2.0
+  - Minor code style improvements.
+  - Separating the tests into self-contained independent files (one per 
+  function) to improve organization and readability.
+
+# RAMEN 2.0.0 - January 13, 2026
 
 In this version, we have made an important change in RAMEN terminology across all the code and documentation to more accurately reflect the biological concepts represented by the data. The term "Variably Methylated Regions (VMR)" used in RAMEN v1 has been replaced by "Variably Methylated Loci (VML)" in RAMEN v2, as not all VML are composed of 2 or more highly variable probes. VML are further composed of Variably Methylated Regions (previously named "canonical VMR" in RAMEN v1) and sparse Variably Methylated Probes (sVMPs; previously named "non-canonical VMR" in RAMENv1). To be clear, there are no changes in how these VML are identified, we only changed how we label these categories.
 
