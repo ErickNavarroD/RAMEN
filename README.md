@@ -53,7 +53,7 @@ You can install the latest version of RAMEN from
 # BiocManager::install("IRanges")
 # BiocManager::install("GenomicRanges")
 
-devtools::install_github("ErickNavarroD/RAMEN")
+pak::pak("ErickNavarroD/RAMEN")
 ```
 
 ## Usage
@@ -89,11 +89,10 @@ library(RAMEN)
 #>                 '.           .'
 #>                   '--.....--'
 #> 
-#> If you use RAMEN for your analysis, please cite: Navarro-Delgado, E.I.,
-#> Czamara, D., Edwards, K. et al. RAMEN: Dissecting individual, additive
-#> and interactive gene-environment contributions to DNA methylome variability
-#> in cord blood. Genome Biol 26, 421 (2025).
-#> https://doi.org/10.1186/s13059-025-03864-4
+#> If you use RAMEN for your analysis, please cite: Navarro-Delgado,
+#> E.I., et al. RAMEN: Dissecting individual, additive and interactive
+#> gene-environment contributions to DNA methylome variability in cord
+#> blood. Genome Biol 26, 421 (2025).
 library(dplyr)
 #> 
 #> Attaching package: 'dplyr'
