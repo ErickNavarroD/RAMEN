@@ -21,9 +21,9 @@ Authors@R: c(
     person("Ulduz", "Vafadarshamasbi", 
             email = "vafadar.u@uq.edu.au",
             role = "rev",
-            comment = c(ORCID = "0000-0002-8370-8084")),
+            comment = c(ORCID = "0000-0002-8370-8084"))
             )
-Description: R package that identifies which genetic (G), environmental (E), additive (G+E) or interaction (GxE) effect better explains DNA methylation levels in Variable Methylated Loci using microarray data.
+Description: Using population data, RAMEN identifies which genetic (G), environmental (E), additive (G+E) or interaction (GxE) model better explains DNA methylation levels in genome-wide locations with high DNA methylation variability.
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
