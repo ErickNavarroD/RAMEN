@@ -18,16 +18,14 @@ Review](https://badges.ropensci.org/743_status.svg)](https://github.com/ropensci
 
 ## Overview
 
-Regional Association of Methylome variability with the Exposome and
-geNome (RAMEN) is an R package which goal is to estimate the
-contribution of genetic variants and environmental exposures to DNA
-methylation variability at a genome-wide scale. RAMEN takes advantage of
-the fact that DNA methylation levels at nearby CpG sites are often
-correlated, and uses this information to identify Variable Methylated
-Loci (VML) from microarray DNA methylation data. Then, using genomic and
-exposomic data, it can identify which model out of the following
-explains best the DNA methylation variability at each VML: genetic (G),
-environmental (E), additive (G+E) or interactive (GxE).
+**Regional Association of Methylome variability with the Exposome and
+geNome** **(RAMEN)** is an R package which goal is to estimate the
+contribution of genetic variants and environmental exposures to loci
+with high DNA methylation (DNAme) variability at a genome-wide scale
+using population data. Characterizing the factors that contribute to
+DNAme variability is important because DNAme is a key epigenetic
+mechanism that regulates gene expression and plays an important role in
+development, disease, and environmental adaptation.
 
 RAMEN provides a Findable, Accesible, Interoperable and Reusable (FAIR)
 workflow to conduct gene-environment contribution analyses to
@@ -37,9 +35,18 @@ of traditional statistical methods and machine learning approaches,
 RAMEN is designed to be computationally efficient and user-friendly,
 allowing researchers to gain insights into the complex interplay between
 genetics, environment and DNA methylation variability. The package
-includes a detailed tutorial, and individual functions that could be
-useful for other applications beyond the gene-environment contribution
-analysis.
+includes a detailed
+[tutorial](https://ericknavarrod.github.io/RAMEN/articles/RAMEN.html),
+and individual functions that could be useful for other applications
+beyond the gene-environment contribution analysis.
+
+RAMEN takes advantage of the fact that DNA methylation levels at nearby
+CpG sites are often correlated, and uses this information to identify
+Variable Methylated Loci (VML) from microarray DNA methylation data.
+Then, integrating genomic and exposomic data, it can identify which
+model out of the following explains best the DNA methylation variability
+at each VML: genetic (G), environmental (E), additive (G+E) or
+interactive (GxE).
 
 ## Installation
 
@@ -198,6 +205,7 @@ selected_variables <- RAMEN::selectVariables(
   summarized_methyl_VML = summarized_methyl_VML,
   seed = 1
 )
+#> Warning: package 'doRNG' was built under R version 4.4.3
 #> Loading required package: foreach
 #> Loading required package: rngtools
 
@@ -316,7 +324,7 @@ final_res %>%
   ggplot2::theme_classic()
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-7-1.png" alt="" width="100%" />
 
 ## Variations to the standard workflow
 
