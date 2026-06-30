@@ -13,7 +13,16 @@ Authors@R: c(
     person("Michael S.", "Kobor", 
             email = "michael.kobor@ubc.ca",
             role = "aut",
-            comment = c(ORCID = "0000-0003-4140-1743")))
+            comment = c(ORCID = "0000-0003-4140-1743")),
+    person("Lluís", "Revilla Sancho", 
+            email = "lluis.revilla@gmail.com",
+            role = "rev",
+            comment = c(ORCID = "0000-0001-9747-2570")),
+    person("Ulduz", "Vafadarshamasbi", 
+            email = "vafadar.u@uq.edu.au",
+            role = "rev",
+            comment = c(ORCID = "0000-0002-8370-8084")),
+            )
 Description: R package that identifies which genetic (G), environmental (E), additive (G+E) or interaction (GxE) effect better explains DNA methylation levels in Variable Methylated Loci using microarray data.
 License: GPL (>= 3)
 Encoding: UTF-8
