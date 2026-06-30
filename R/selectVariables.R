@@ -30,36 +30,36 @@
 #' @examples
 #' ## Find VML in test data
 #' VML <- RAMEN::findVML(
-#'    methylation_data = RAMEN::test_methylation_data,
-#'    array_manifest = "IlluminaHumanMethylationEPICv1",
-#'    cor_threshold = 0,
-#'    var_method = "variance",
-#'    var_distribution = "ultrastable",
-#'    var_threshold_percentile = 0.99,
-#'    max_distance = 1000
-#'    )
+#'   methylation_data = RAMEN::test_methylation_data,
+#'   array_manifest = "IlluminaHumanMethylationEPICv1",
+#'   cor_threshold = 0,
+#'   var_method = "variance",
+#'   var_distribution = "ultrastable",
+#'   var_threshold_percentile = 0.99,
+#'   max_distance = 1000
+#' )
 #' ## Find cis SNPs around VML
 #' VML_with_cis_snps <- RAMEN::findCisSNPs(
 #'   VML_df = VML$VML,
 #'   genotype_information = RAMEN::test_genotype_information,
 #'   distance = 1e6
-#'   )
+#' )
 #'
 #' ## Summarize methylation levels in VML
 #' summarized_methyl_VML <- RAMEN::summarizeVML(
-#'  methylation_data = RAMEN::test_methylation_data,
-#'  VML_df = VML_with_cis_snps
-#'  )
+#'   methylation_data = RAMEN::test_methylation_data,
+#'   VML_df = VML_with_cis_snps
+#' )
 #'
-#'  ## Select relevant genotype and environmental variables
-#'  selected_vars <- RAMEN::selectVariables(
-#'    VML_df = VML_with_cis_snps,
-#'    genotype_matrix = RAMEN::test_genotype_matrix,
-#'    environmental_matrix = RAMEN::test_environmental_matrix,
-#'    covariates = RAMEN::test_covariates,
-#'    summarized_methyl_VML = summarized_methyl_VML,
-#'    seed = 1
-#'  )
+#' ## Select relevant genotype and environmental variables
+#' selected_vars <- RAMEN::selectVariables(
+#'   VML_df = VML_with_cis_snps,
+#'   genotype_matrix = RAMEN::test_genotype_matrix,
+#'   environmental_matrix = RAMEN::test_environmental_matrix,
+#'   covariates = RAMEN::test_covariates,
+#'   summarized_methyl_VML = summarized_methyl_VML,
+#'   seed = 1
+#' )
 #'
 selectVariables <- function(VML_df,
                             genotype_matrix,
@@ -92,83 +92,87 @@ selectVariables <- function(VML_df,
   ## it is provided) have only numeric values and no NA, NaN, Inf values
   if (
     sum(vapply(genotype_matrix, is.na, FUN.VALUE = logical(1))) > 0 ||
-    sum(vapply(genotype_matrix, is.nan, FUN.VALUE = logical(1))) > 0 ||
-    sum(!vapply(genotype_matrix, is.numeric, FUN.VALUE = logical(1))) > 0 ||
-    sum(vapply(genotype_matrix, is.infinite, FUN.VALUE = logical(1))) > 0
-    ) stop (
+      sum(vapply(genotype_matrix, is.nan, FUN.VALUE = logical(1))) > 0 ||
+      sum(!vapply(genotype_matrix, is.numeric, FUN.VALUE = logical(1))) > 0 ||
+      sum(vapply(genotype_matrix, is.infinite, FUN.VALUE = logical(1))) > 0
+  ) {
+    stop(
       "Please make sure the genotype matrix contains only finite numeric values."
-      )
+    )
+  }
   if (
     sum(vapply(environmental_matrix, is.na, FUN.VALUE = logical(1))) > 0 ||
-    sum(vapply(environmental_matrix, is.nan, FUN.VALUE = logical(1))) > 0 ||
-    sum(!vapply(environmental_matrix, is.numeric, FUN.VALUE = logical(1))) > 0 ||
-    sum(vapply(environmental_matrix, is.infinite, FUN.VALUE = logical(1))) > 0
-  ) stop (
-    "Please make sure the environmental matrix contains only finite numeric values."
-  )
+      sum(vapply(environmental_matrix, is.nan, FUN.VALUE = logical(1))) > 0 ||
+      sum(!vapply(environmental_matrix, is.numeric, FUN.VALUE = logical(1))) > 0 ||
+      sum(vapply(environmental_matrix, is.infinite, FUN.VALUE = logical(1))) > 0
+  ) {
+    stop(
+      "Please make sure the environmental matrix contains only finite numeric values."
+    )
+  }
   if (!is.null(covariates)) {
     if (
       sum(vapply(covariates, is.na, FUN.VALUE = logical(1))) > 0 ||
-      sum(vapply(covariates, is.nan, FUN.VALUE = logical(1))) > 0 ||
-      sum(!vapply(covariates, is.numeric, FUN.VALUE = logical(1))) > 0 ||
-      sum(vapply(covariates, is.infinite, FUN.VALUE = logical(1))) > 0
-    ) stop (
-      "Please make sure the covariates matrix contains only finite numeric values."
-    )
+        sum(vapply(covariates, is.nan, FUN.VALUE = logical(1))) > 0 ||
+        sum(!vapply(covariates, is.numeric, FUN.VALUE = logical(1))) > 0 ||
+        sum(vapply(covariates, is.infinite, FUN.VALUE = logical(1))) > 0
+    ) {
+      stop(
+        "Please make sure the covariates matrix contains only finite numeric values."
+      )
+    }
   }
 
   if (
     sum(vapply(summarized_methyl_VML,
-               is.na,
-               FUN.VALUE = logical(nrow(summarized_methyl_VML))
-               )
-        ) > 0 ||
-    sum(vapply(summarized_methyl_VML,
-               is.nan,
-               FUN.VALUE = logical(nrow(summarized_methyl_VML))
-               )
-        ) > 0 ||
-    sum(!vapply(summarized_methyl_VML,
-                is.numeric,
-                FUN.VALUE = logical(1)
-                )
-        ) > 0 ||
-    sum(vapply(summarized_methyl_VML,
-               is.infinite,
-               FUN.VALUE = logical(nrow(summarized_methyl_VML))
-               )
-        ) > 0
-  ) stop (
-    "Please make sure the summarized_methyl_VML data frame contains only finite numeric values."
+      is.na,
+      FUN.VALUE = logical(nrow(summarized_methyl_VML))
+    )) > 0 ||
+      sum(vapply(summarized_methyl_VML,
+        is.nan,
+        FUN.VALUE = logical(nrow(summarized_methyl_VML))
+      )) > 0 ||
+      sum(!vapply(summarized_methyl_VML,
+        is.numeric,
+        FUN.VALUE = logical(1)
+      )) > 0 ||
+      sum(vapply(summarized_methyl_VML,
+        is.infinite,
+        FUN.VALUE = logical(nrow(summarized_methyl_VML))
+      )) > 0
+  ) {
+    stop(
+      "Please make sure the summarized_methyl_VML data frame contains only finite numeric values."
     )
+  }
 
   ## Set the seed
   if (!is.null(seed)) set.seed(seed)
   VML_i <- NULL # To avoid R CMD check note about undefined global variable
   lasso_results <- foreach::foreach(VML_i = iterators::iter(VML_df, by = "row"), .combine = "rbind") %dorng% {
     # Select summarized VML information
-    summVMLi <- summarized_methyl_VML %>%
+    summVMLi <- summarized_methyl_VML |>
       dplyr::select(VML_i$VML_index)
     ## Prepare data
     # subset the genotyping data and match genotype, environment and DNAme IDs
-    if (VML_i$SNP %in% list(NULL) | # Catch VML with no surrounding SNPs
-        VML_i$SNP %in% list("") |
-        VML_i$SNP %in% list(NA) |
-        VML_i$SNP %in% list(character(0))) {
+    if (VML_i$SNP %in% list(NULL) || # Catch VML with no surrounding SNPs
+      VML_i$SNP %in% list("") ||
+      VML_i$SNP %in% list(NA) ||
+      VML_i$SNP %in% list(character(0))) {
       genot_VMLi <- c()
       any_snp <- FALSE
     } else if (length(VML_i$SNP[[1]]) == 1) { # Special case of sub-setting if SNP is only one because the result is a vector and not a matrix
-      genot_VMLi <- genotype_matrix[unlist(VML_i$SNP), rownames(summVMLi)] %>%
+      genot_VMLi <- genotype_matrix[unlist(VML_i$SNP), rownames(summVMLi)] |>
         as.matrix()
       colnames(genot_VMLi) <- VML_i$SNP[[1]]
       any_snp <- TRUE
     } else {
-      genot_VMLi <- genotype_matrix[unlist(VML_i$SNP), rownames(summVMLi)] %>%
+      genot_VMLi <- genotype_matrix[unlist(VML_i$SNP), rownames(summVMLi)] |>
         t()
       any_snp <- TRUE
     }
     if (ncol(environmental_matrix) == 1) {
-      environ_VMLi <- environmental_matrix[rownames(summVMLi), ] %>%
+      environ_VMLi <- environmental_matrix[rownames(summVMLi), ] |>
         as.matrix()
       colnames(environ_VMLi) <- colnames(environmental_matrix)
     } else {
@@ -178,7 +182,7 @@ selectVariables <- function(VML_df,
     # Bind covariates data
     if (!is.null(covariates)) {
       if (ncol(covariates) == 1) {
-        covariates_VMLi <- covariates[rownames(summVMLi), ] %>% # Match the covariates dataset with the VML information
+        covariates_VMLi <- covariates[rownames(summVMLi), ] |> # Match the covariates dataset with the VML information
           as.matrix()
         colnames(covariates_VMLi) <- colnames(covariates)
       } else {
@@ -267,11 +271,11 @@ selectVariables <- function(VML_df,
     }
 
     # Merge results
-    selected_union_genot <- c(selected_vars_genot, selected_vars_joint) %>%
-      unique() %>%
+    selected_union_genot <- c(selected_vars_genot, selected_vars_joint) |>
+      unique() |>
       dplyr::setdiff(colnames(environ_VMLi)) # Remove environmental variables and covariates from the joint selection
-    selected_union_env <- c(selected_vars_env, selected_vars_joint) %>%
-      unique() %>%
+    selected_union_env <- c(selected_vars_env, selected_vars_joint) |>
+      unique() |>
       dplyr::setdiff(colnames(genot_VMLi)) # Remove genotype variables and covariates from the joint selection
 
     ### Create final data frame

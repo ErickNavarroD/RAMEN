@@ -4,7 +4,7 @@
 #'
 #' The core pipeline from the RAMEN package identifies the best explanatory model per VML. However, despite these models being winners in comparison to models including any other G/E variable(s) in the dataset, some winning models might perform no better than what we would expect by chance. Therefore, the goal of this function is to create a distribution of increase in R2 under the null hypothesis of G and E having no associations with DNAme. The null distribution is obtained through shuffling the G and E variables in a given dataset and conducting the variable selection and G/E model selection. That way, we can simulate how much additional variance would be explained by the models defined as winners by the RAMEN methodology in a scenario where the G and E associations with DNAme are randomized. This distribution can be then used to filter out winning models in the non-shuffled dataset that do not add more to the explained variance of the basal model than what randomized data do.
 #'
-#' Under the assumption that after adjusting for the concomitant variables all VML across the genome follow the same behavior regarding an increment of explained variance with randomized G and E data, we can pool the delta R squared values from all VML to create a null distribution taking advantage of the high number of VML in the dataset. This assumption decreases significantly the number of permutations required to create a null distribution and reduces the computational time. For further information please read the RAMEN paper (in preparation).
+#' Under the assumption that after adjusting for the concomitant variables all VML across the genome follow the same behavior regarding an increment of explained variance with randomized G and E data, we can pool the delta R squared values from all VML to create a null distribution taking advantage of the high number of VML in the dataset. This assumption decreases significantly the number of permutations required to create a null distribution and reduces the computational time. For further information please read the RAMEN paper (https://doi.org/10.1186/s13059-025-03864-4).
 #'
 #' @param permutations description
 #' @inheritParams selectVariables
@@ -22,40 +22,38 @@
 #' @examples
 #' ## Find VML in test data
 #' VML <- RAMEN::findVML(
-#'    methylation_data = RAMEN::test_methylation_data,
-#'    array_manifest = "IlluminaHumanMethylationEPICv1",
-#'    cor_threshold = 0,
-#'    var_method = "variance",
-#'    var_distribution = "ultrastable",
-#'    var_threshold_percentile = 0.99,
-#'    max_distance = 1000
-#'    )
+#'   methylation_data = RAMEN::test_methylation_data,
+#'   array_manifest = "IlluminaHumanMethylationEPICv1",
+#'   cor_threshold = 0,
+#'   var_method = "variance",
+#'   var_distribution = "ultrastable",
+#'   var_threshold_percentile = 0.99,
+#'   max_distance = 1000
+#' )
 #' ## Find cis SNPs around VML
 #' VML_with_cis_snps <- RAMEN::findCisSNPs(
 #'   VML_df = VML$VML,
 #'   genotype_information = RAMEN::test_genotype_information,
 #'   distance = 1e6
-#'   )
+#' )
 #'
 #' ## Summarize methylation levels in VML
 #' summarized_methyl_VML <- RAMEN::summarizeVML(
-#'  methylation_data = RAMEN::test_methylation_data,
-#'  VML_df = VML_with_cis_snps
-#'  )
+#'   methylation_data = RAMEN::test_methylation_data,
+#'   VML_df = VML_with_cis_snps
+#' )
 #'
 #' ## Simulate null distribution of G and E contributions on DNAme variability
 #' null_dist <- RAMEN::nullDistGE(
-#'    VML_df = VML_with_cis_snps,
-#'    genotype_matrix = RAMEN::test_genotype_matrix,
-#'    environmental_matrix = RAMEN::test_environmental_matrix,
-#'    summarized_methyl_VML = summarized_methyl_VML,
-#'    permutations = 5,
-#'    covariates = RAMEN::test_covariates,
-#'    seed = 1,
-#'    model_selection = "AIC"
-#'  )
-
-
+#'   VML_df = VML_with_cis_snps,
+#'   genotype_matrix = RAMEN::test_genotype_matrix,
+#'   environmental_matrix = RAMEN::test_environmental_matrix,
+#'   summarized_methyl_VML = summarized_methyl_VML,
+#'   permutations = 5,
+#'   covariates = RAMEN::test_covariates,
+#'   seed = 1,
+#'   model_selection = "AIC"
+#' )
 nullDistGE <- function(VML_df,
                        genotype_matrix,
                        environmental_matrix,
@@ -69,54 +67,58 @@ nullDistGE <- function(VML_df,
   if (!is.data.frame(summarized_methyl_VML)) stop("Please make sure summarized_methyl_VML is a data frame.")
   if (
     sum(vapply(genotype_matrix, is.na, FUN.VALUE = logical(1))) > 0 ||
-    sum(vapply(genotype_matrix, is.nan, FUN.VALUE = logical(1))) > 0 ||
-    sum(!vapply(genotype_matrix, is.numeric, FUN.VALUE = logical(1))) > 0 ||
-    sum(vapply(genotype_matrix, is.infinite, FUN.VALUE = logical(1))) > 0
-  ) stop (
-    "Please make sure the genotype matrix contains only finite numeric values."
-  )
-  if (
-    sum(vapply(environmental_matrix, is.na, FUN.VALUE = logical(1))) > 0 ||
-    sum(vapply(environmental_matrix, is.nan, FUN.VALUE = logical(1))) > 0 ||
-    sum(!vapply(environmental_matrix, is.numeric, FUN.VALUE = logical(1))) > 0 ||
-    sum(vapply(environmental_matrix, is.infinite, FUN.VALUE = logical(1))) > 0
-  ) stop (
-    "Please make sure the environmental matrix contains only finite numeric values."
-  )
-  if (!is.null(covariates)) {
-    if (
-      sum(vapply(covariates, is.na, FUN.VALUE = logical(1))) > 0 ||
-      sum(vapply(covariates, is.nan, FUN.VALUE = logical(1))) > 0 ||
-      sum(!vapply(covariates, is.numeric, FUN.VALUE = logical(1))) > 0 ||
-      sum(vapply(covariates, is.infinite, FUN.VALUE = logical(1))) > 0
-    ) stop (
-      "Please make sure the covariates matrix contains only finite numeric values."
+      sum(vapply(genotype_matrix, is.nan, FUN.VALUE = logical(1))) > 0 ||
+      sum(!vapply(genotype_matrix, is.numeric, FUN.VALUE = logical(1))) > 0 ||
+      sum(vapply(genotype_matrix, is.infinite, FUN.VALUE = logical(1))) > 0
+  ) {
+    stop(
+      "Please make sure the genotype matrix contains only finite numeric values."
     )
   }
   if (
+    sum(vapply(environmental_matrix, is.na, FUN.VALUE = logical(1))) > 0 ||
+      sum(vapply(environmental_matrix, is.nan, FUN.VALUE = logical(1))) > 0 ||
+      sum(!vapply(environmental_matrix, is.numeric, FUN.VALUE = logical(1))) > 0 ||
+      sum(vapply(environmental_matrix, is.infinite, FUN.VALUE = logical(1))) > 0
+  ) {
+    stop(
+      "Please make sure the environmental matrix contains only finite numeric values."
+    )
+  }
+  if (!is.null(covariates)) {
+    if (
+      sum(vapply(covariates, is.na, FUN.VALUE = logical(1))) > 0 ||
+        sum(vapply(covariates, is.nan, FUN.VALUE = logical(1))) > 0 ||
+        sum(!vapply(covariates, is.numeric, FUN.VALUE = logical(1))) > 0 ||
+        sum(vapply(covariates, is.infinite, FUN.VALUE = logical(1))) > 0
+    ) {
+      stop(
+        "Please make sure the covariates matrix contains only finite numeric values."
+      )
+    }
+  }
+  if (
     sum(vapply(summarized_methyl_VML,
-               is.na,
-               FUN.VALUE = logical(nrow(summarized_methyl_VML))
+      is.na,
+      FUN.VALUE = logical(nrow(summarized_methyl_VML))
+    )) > 0 ||
+      sum(vapply(summarized_methyl_VML,
+        is.nan,
+        FUN.VALUE = logical(nrow(summarized_methyl_VML))
+      )) > 0 ||
+      sum(!vapply(summarized_methyl_VML,
+        is.numeric,
+        FUN.VALUE = logical(1)
+      )) > 0 ||
+      sum(vapply(summarized_methyl_VML,
+        is.infinite,
+        FUN.VALUE = logical(nrow(summarized_methyl_VML))
+      )) > 0
+  ) {
+    stop(
+      "Please make sure the summarized_methyl_VML data frame contains only finite numeric values."
     )
-    ) > 0 ||
-    sum(vapply(summarized_methyl_VML,
-               is.nan,
-               FUN.VALUE = logical(nrow(summarized_methyl_VML))
-    )
-    ) > 0 ||
-    sum(!vapply(summarized_methyl_VML,
-                is.numeric,
-                FUN.VALUE = logical(1)
-    )
-    ) > 0 ||
-    sum(vapply(summarized_methyl_VML,
-               is.infinite,
-               FUN.VALUE = logical(nrow(summarized_methyl_VML))
-    )
-    ) > 0
-  ) stop (
-    "Please make sure the summarized_methyl_VML data frame contains only finite numeric values."
-  )
+  }
 
 
   # Get the shuffle order
@@ -142,11 +144,11 @@ nullDistGE <- function(VML_df,
   null_dist <- foreach::foreach(i = 1:permutations, .combine = rbind) %do% {
     message("Starting permutation ", i, " of ", permutations)
     # Shuffle the datasets
-    permutated_genotype <- genotype_matrix[, permutation_order[, i]] %>%
+    permutated_genotype <- genotype_matrix[, permutation_order[, i]] |>
       as.matrix()
     rownames(permutated_genotype) <- rownames(genotype_matrix)
     colnames(permutated_genotype) <- colnames(genotype_matrix)
-    permutated_environment <- environmental_matrix[permutation_order[, i], ] %>%
+    permutated_environment <- environmental_matrix[permutation_order[, i], ] |>
       as.matrix()
     colnames(permutated_environment) <- colnames(environmental_matrix)
     rownames(permutated_environment) <- rownames(environmental_matrix)

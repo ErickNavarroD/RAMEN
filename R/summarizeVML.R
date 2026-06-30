@@ -18,28 +18,27 @@
 #' @examples
 #' ## Find VML in test data
 #' VML <- RAMEN::findVML(
-#'    methylation_data = RAMEN::test_methylation_data,
-#'    array_manifest = "IlluminaHumanMethylationEPICv1",
-#'    cor_threshold = 0,
-#'    var_method = "variance",
-#'    var_distribution = "ultrastable",
-#'    var_threshold_percentile = 0.99,
-#'    max_distance = 1000
-#'    )
+#'   methylation_data = RAMEN::test_methylation_data,
+#'   array_manifest = "IlluminaHumanMethylationEPICv1",
+#'   cor_threshold = 0,
+#'   var_method = "variance",
+#'   var_distribution = "ultrastable",
+#'   var_threshold_percentile = 0.99,
+#'   max_distance = 1000
+#' )
 #'
 #' ## Summarize methylation states of the found VML
 #' summarized_VML <- RAMEN::summarizeVML(
 #'   VML_df = VML$VML,
 #'   methylation_data = RAMEN::test_methylation_data
-#'   )
+#' )
 #'
-
 summarizeVML <- function(VML_df,
                          methylation_data) {
-  #Input checks
-  if (!is.data.frame(VML_df)) stop("Please provide a data frame in VML_df" )
+  # Input checks
+  if (!is.data.frame(VML_df)) stop("Please provide a data frame in VML_df")
   if (!"VML_index" %in% colnames(VML_df)) { # Add a VML index to each region if not already existing
-    VML_df <- VML_df %>%
+    VML_df <- VML_df |>
       dplyr::mutate(VML_index = paste("VML", as.character(dplyr::row_number()), sep = ""))
   }
   if (!is.data.frame(methylation_data)) {
@@ -58,14 +57,14 @@ summarizeVML <- function(VML_df,
     stop("Please make sure the 'probes' column in the VML data frame is a column of lists")
   }
 
-  VML_index <- i <- NULL  # To avoid R CMD check notes
+  VML_index <- i <- NULL # To avoid R CMD check notes
   summarized_VML <- foreach::foreach(i = VML_df$VML_index, .combine = "cbind") %dopar% {
-    probes <- VML_df %>%
-      dplyr::filter(VML_index == i) %>%
-      dplyr::pull(probes) %>%
+    probes <- VML_df |>
+      dplyr::filter(VML_index == i) |>
+      dplyr::pull(probes) |>
       unlist()
-    subset_meth <- methylation_data[probes, ] %>%
-      t() %>%
+    subset_meth <- methylation_data[probes, ] |>
+      t() |>
       as.data.frame()
     median <- data.frame(apply(subset_meth, 1, median))
     colnames(median) <- i

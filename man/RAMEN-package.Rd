@@ -19,7 +19,13 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Erick I. Navarro-Delgado \email{ericknadel98@hotmail.com} (\href{https://orcid.org/0000-0003-1040-3519}{ORCID})
+\strong{Maintainer}: Erick I. Navarro-Delgado \email{erick.delgado@ubc.ca} (\href{https://orcid.org/0000-0003-1040-3519}{ORCID})
+
+Authors:
+\itemize{
+  \item Keegan Korthauer \email{keegan@stat.ubc.ca} (\href{https://orcid.org/0000-0002-4565-1654}{ORCID})
+  \item Michael S. Kobor \email{michael.kobor@ubc.ca} (\href{https://orcid.org/0000-0003-4140-1743}{ORCID})
+}
 
 }
 \keyword{internal}
