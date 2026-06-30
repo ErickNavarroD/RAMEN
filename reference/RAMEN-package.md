@@ -14,5 +14,13 @@ Useful links:
 
 ## Author
 
-**Maintainer**: Erick I. Navarro-Delgado <ericknadel98@hotmail.com>
+**Maintainer**: Erick I. Navarro-Delgado <erick.delgado@ubc.ca>
 ([ORCID](https://orcid.org/0000-0003-1040-3519))
+
+Authors:
+
+- Keegan Korthauer <keegan@stat.ubc.ca>
+  ([ORCID](https://orcid.org/0000-0002-4565-1654))
+
+- Michael S. Kobor <michael.kobor@ubc.ca>
+  ([ORCID](https://orcid.org/0000-0003-4140-1743))

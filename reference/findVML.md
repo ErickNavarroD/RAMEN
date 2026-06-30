@@ -159,6 +159,7 @@ running the function.
 ## Examples
 
 ``` r
+
 VML <- RAMEN::findVML(
   methylation_data = RAMEN::test_methylation_data,
   array_manifest = "IlluminaHumanMethylationEPICv1",

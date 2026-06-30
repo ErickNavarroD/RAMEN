@@ -52,14 +52,14 @@ and the ones in the genotype information are from the same genome build.
 ``` r
 ## Find VML in test data
 VML <- RAMEN::findVML(
-   methylation_data = RAMEN::test_methylation_data,
-   array_manifest = "IlluminaHumanMethylationEPICv1",
-   cor_threshold = 0,
-   var_method = "variance",
-   var_distribution = "ultrastable",
-   var_threshold_percentile = 0.99,
-   max_distance = 1000
-   )
+  methylation_data = RAMEN::test_methylation_data,
+  array_manifest = "IlluminaHumanMethylationEPICv1",
+  cor_threshold = 0,
+  var_method = "variance",
+  var_distribution = "ultrastable",
+  var_threshold_percentile = 0.99,
+  max_distance = 1000
+)
 #> Identifying Highly Variable Probes...
 #> Setting options('download.file.method.GEOquery'='auto')
 #> Setting options('GEOquery.inmemory.gpl'=FALSE)
@@ -72,6 +72,6 @@ VML_with_cis_snps <- RAMEN::findCisSNPs(
   VML_df = VML$VML,
   genotype_information = RAMEN::test_genotype_information,
   distance = 1e6
-  )
+)
 #> Reminder: please make sure that the positions of the VML data frame and the ones in the genotype information are from the same genome build.
 ```

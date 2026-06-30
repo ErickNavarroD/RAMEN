@@ -2,12 +2,12 @@
 
 Hi there! This outlines how to propose a change to RAMEN. First of all,
 thanks for considering contributing to our package! It’s people like you
-that make it rewarding for us - the project maintainers - to work on
-RAMEN. 😊
+that make it rewarding for me, the project maintainer, to work on RAMEN.
+😊
 
-For a detailed discussion on contributing to this and other tidyverse
-packages, please see the [development contributing
-guide](https://rstd.io/tidy-contrib) and our [code review
+For a detailed discussion on contributing to packages, please check the
+resources provided by the Tidyverse team, such as their [development
+contributing guide](https://rstd.io/tidy-contrib) and their [code review
 principles](https://code-review.tidyverse.org/).
 
 There are many ways you can contribute to this project (see the [Open
@@ -37,11 +37,13 @@ Want to ask a question in private? Contact the package maintainer by
 
 ### Propose an idea 💡
 
-Have an idea for a new our_package feature? Take a look at the
-\[documentation\]\[website\] and \[issue list\]\[issues\] to see if it
-isn’t included or suggested yet. If not, suggest your idea as an \[issue
-on GitHub\]\[new_issue\]. While we can’t promise to implement your idea,
-it helps to:
+Have an idea for a new RAMEN feature? Take a look at the
+[documentation](https://ericknavarrod.github.io/RAMEN/articles/RAMEN.html)
+and [issue list](https://github.com/ErickNavarroD/RAMEN/issues) to see
+if it isn’t included or suggested yet. If not, suggest your idea as a
+\[new issue on
+GitHub\]\[<https://github.com/ErickNavarroD/RAMEN/issues/new/choose>\].
+While we can’t promise to implement your idea, it helps to:
 
 - Explain in detail how it would work.
 - Keep the scope as narrow as possible.
@@ -69,16 +71,16 @@ issue and make sure someone from the team agrees that it’s needed.
 
 ### Report a bug
 
-Using our_package and discovered a bug? That’s annoying! Don’t let
-others have the same experience and report it as well in an \[issue on
-GitHub\]\[new_issue\] so we can fix it. If you’ve found a bug, please
-file an issue that illustrates the bug with a minimal
-[reprex](https://www.tidyverse.org/help/#reprex) (this will also help
-you write a unit test, if needed). See our guide on [how to create a
-great issue](https://code-review.tidyverse.org/issues/) for more advice.
-Please provide as well your operating system name and version (e.g. Mac
-OS 10.13.6), and any details about your local setup that might be
-helpful in troubleshooting.
+Using RAMEN and discovered a bug? That’s annoying! Don’t let others have
+the same experience and report it as well in an [issue on
+GitHub](https://github.com/ErickNavarroD/RAMEN/issues/new/choose) so we
+can fix it. If you’ve found a bug, please file an issue that illustrates
+the bug with a minimal [reprex](https://www.tidyverse.org/help/#reprex)
+(this will also help you write a unit test, if needed). See our guide on
+[how to create a great issue](https://code-review.tidyverse.org/issues/)
+for more advice. Please provide as well your operating system name and
+version (e.g. Mac OS 10.13.6), and any details about your local setup
+that might be helpful in troubleshooting.
 
 ### Pull request process
 

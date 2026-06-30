@@ -29,10 +29,10 @@ a vector with the names of the probes that conform one reduced region
 
 ``` r
 if (FALSE) { # \dontrun{
-  target = data.frame(row.names = c("a", "b", "c", "d"), values = c(1,1,1,1))
-  query = c(2,1)
+target <- data.frame(row.names = c("a", "b", "c", "d"), values = c(1, 1, 1, 1))
+query <- c(2, 1)
 
-  map_revmap_names(positions = query, manifest_hvp = target)
-  ## Expected output: c("b", "a")
+map_revmap_names(positions = query, manifest_hvp = target)
+## Expected output: c("b", "a")
 } # }
 ```

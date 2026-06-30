@@ -1,6 +1,22 @@
 # Changelog
 
-## RAMEN 2.0.0
+## RAMEN 2.0.1 - June 30, 2026
+
+This minor version presents no changes from the user perspective. Code
+improvements have been made to the package to address comments and
+suggestions from the editor of the rOpenSci peer review process. These
+include:
+
+- Improving the README, adding quick usage examples, more details on the
+  functionality of RAMEN, and better installation instructions.
+- Fixing inconsistencies across the package documentation, such as email
+  addresses, author information, and citation details.
+- Adding a continuous integration check for R 4.2.0
+- Minor code style improvements.
+- Separating the tests into self-contained independent files (one per
+  function) to improve organization and readability.
+
+## RAMEN 2.0.0 - January 13, 2026
 
 In this version, we have made an important change in RAMEN terminology
 across all the code and documentation to more accurately reflect the
@@ -20,7 +36,7 @@ categories.
 | Variably Methylated Region (VMR)        | canonical VMR (cVMR)             |
 | sparse Variably Methylated Probe (sVMP) | non-canonical VMR (ncVMR)        |
 
-Terminology update
+Terminology update {.table}
 
 - To reflect the terminology change, the following functions had a name
   change:

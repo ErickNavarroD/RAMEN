@@ -6,14 +6,9 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>RAMEN: Regional Association of Methylome variability with the Exposome and geNome • RAMEN</title>
-<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
-<link rel="icon" type="”image/svg+xml”" href="favicon.svg">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link rel="icon" sizes="any" href="favicon.ico">
-<link rel="manifest" href="site.webmanifest">
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="RAMEN: Regional Association of Methylome variability with the Exposome and geNome">
 <meta name="description" content="R package that identifies which genetic (G), environmental (E), additive (G+E) or interaction (GxE) effect better explains DNA methylation levels in Variable Methylated Loci using microarray data.">
@@ -28,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="index.html">RAMEN</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,41 +59,261 @@
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>Regional Association of Methylome variability with the Exposome and geNome (RAMEN) is an R package whose goal is to identify genome-wide Variable Methylated Loci (VML) from microarray DNA methylation data. Then, using genomic and exposomic data, it can identify which model out of the following explains best the DNA methylation variability at each VML: genetic (G), environmental (E), additive (G+E) or interactive (GxE).</p>
+<p>Regional Association of Methylome variability with the Exposome and geNome (RAMEN) is an R package which goal is to estimate the contribution of genetic variants and environmental exposures to DNA methylation variability at a genome-wide scale. RAMEN takes advantage of the fact that DNA methylation levels at nearby CpG sites are often correlated, and uses this information to identify Variable Methylated Loci (VML) from microarray DNA methylation data. Then, using genomic and exposomic data, it can identify which model out of the following explains best the DNA methylation variability at each VML: genetic (G), environmental (E), additive (G+E) or interactive (GxE).</p>
+<p>RAMEN provides a Findable, Accesible, Interoperable and Reusable (FAIR) workflow to conduct gene-environment contribution analyses to high-dimensional DNA methylome data (described in <a href="https://doi.org/10.1186/s13059-025-03864-4" class="external-link">Navarro-Delgado et al. (2025)</a>. Using a blend of traditional statistical methods and machine learning approaches, RAMEN is designed to be computationally efficient and user-friendly, allowing researchers to gain insights into the complex interplay between genetics, environment and DNA methylation variability. The package includes a detailed tutorial, and individual functions that could be useful for other applications beyond the gene-environment contribution analysis.</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version of RAMEN from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
+<p>You can install the latest version of RAMEN from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"ErickNavarroD/RAMEN"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="core-functions">Core functions<a class="anchor" aria-label="anchor" href="#core-functions"></a>
-</h2>
-<p>RAMEN consists of six main functions:</p>
-<ul>
-<li>
-<code><a href="reference/findVML.html">findVML()</a></code> identifies Variable Methylated Loci (VML) from microarray data</li>
-<li>
-<code><a href="reference/summarizeVML.html">summarizeVML()</a></code>summarizes the regional methylation state of each VML</li>
-<li>
-<code><a href="reference/findCisSNPs.html">findCisSNPs()</a></code> identifies the SNPs in <em>cis</em> of each VML</li>
-<li>
-<code><a href="reference/selectVariables.html">selectVariables()</a></code> conducts a LASSO-based feature selection strategy to identify potentially relevant <em>cis</em> SNPs and environmental variables</li>
-<li>
-<code><a href="reference/lmGE.html">lmGE()</a></code> fits linear single-variable genetic (G), environmental (E), pairwise additive (G+E) and pairwise interaction (GxE) linear models, and select the best explanatory model for each VML.</li>
-<li>
-<code><a href="reference/nullDistGE.html">nullDistGE()</a></code> simulates a null distribution of G and E effects on DNAme variability. Useful for filtering out poor-performing best explanatory models selected by <em>lmGE()</em>.</li>
-</ul>
-<p>Altogether, these functions create a pipeline that takes a set of individuals with genome, exposome and DNA methylome information, and generates an estimation of the contribution of genetic variants and environmental exposures to its DNA methylation variability. Functions that conduct computationally intensive tasks are compatible with parallel computing.</p>
-<p><img src="reference/figures/RAMEN_pipeline.png" width="600"></p>
+<span><span class="co"># install.packages("BiocManager")</span></span>
+<span><span class="co"># BiocManager::install("S4Vectors")</span></span>
+<span><span class="co"># BiocManager::install("IRanges")</span></span>
+<span><span class="co"># BiocManager::install("GenomicRanges")</span></span>
+<span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"ErickNavarroD/RAMEN"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
-<p>For a detailed tutorial on how to use RAMEN, please check the package’s vignette or <a href="https://ericknavarrod.github.io/RAMEN/articles/RAMEN.html">website</a>.</p>
+<p>For a detailed tutorial on how to use RAMEN, please check the package’s vignette or <a href="https://ericknavarrod.github.io/RAMEN/articles/RAMEN.html">website</a>. Altogether, RAMEN provides a workflow that takes a set of individuals with genome, exposome and DNA methylome information, and generates an estimation of the contribution of genetic variants and environmental exposures to its DNA methylation variability. Functions that conduct computationally intensive tasks are compatible with parallel computing.</p>
+<p><img src="reference/figures/RAMEN_pipeline.png" width="600"></p>
+<p>In brief, the standard workflow consists of the following steps:</p>
+<ol style="list-style-type: decimal">
+<li>Identify Variable Methylated Loci (VML) with <code><a href="reference/findVML.html">findVML()</a></code>.</li>
+</ol>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ericknavarrod.github.io/RAMEN/">RAMEN</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt;          __      _             ___</span></span>
+<span><span class="co">#&gt;          )_)    /_)    )\/)    )_     )\  )</span></span>
+<span><span class="co">#&gt;         / \    / /    (  (    (__    (  \(</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                   (   )  (  (</span></span>
+<span><span class="co">#&gt;                  (  ( )  (  )</span></span>
+<span><span class="co">#&gt;                    )    )  (</span></span>
+<span><span class="co">#&gt;                 _.(--'(''--.._</span></span>
+<span><span class="co">#&gt;                /, _..-----).._,\</span></span>
+<span><span class="co">#&gt;               |  `'''-----'''`  |</span></span>
+<span><span class="co">#&gt;                \               /</span></span>
+<span><span class="co">#&gt;                 '.           .'</span></span>
+<span><span class="co">#&gt;                   '--.....--'</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; If you use RAMEN for your analysis, please cite: Navarro-Delgado,</span></span>
+<span><span class="co">#&gt; E.I., et al. RAMEN: Dissecting individual, additive and interactive</span></span>
+<span><span class="co">#&gt; gene-environment contributions to DNA methylome variability in cord</span></span>
+<span><span class="co">#&gt; blood. Genome Biol 26, 421 (2025).</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'dplyr'</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     filter, lag</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     intersect, setdiff, setequal, union</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">VML</span> <span class="op">&lt;-</span> <span class="fu">RAMEN</span><span class="fu">::</span><span class="fu"><a href="reference/findVML.html">findVML</a></span><span class="op">(</span></span>
+<span>  methylation_data <span class="op">=</span> <span class="fu">RAMEN</span><span class="fu">::</span><span class="va"><a href="reference/test_methylation_data.html">test_methylation_data</a></span>,</span>
+<span>  array_manifest <span class="op">=</span> <span class="st">"IlluminaHumanMethylationEPICv1"</span>,</span>
+<span>  cor_threshold <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  var_method <span class="op">=</span> <span class="st">"variance"</span>,</span>
+<span>  var_distribution <span class="op">=</span> <span class="st">"ultrastable"</span>,</span>
+<span>  var_threshold_percentile <span class="op">=</span> <span class="fl">0.99</span>,</span>
+<span>  max_distance <span class="op">=</span> <span class="fl">1000</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Identifying Highly Variable Probes...</span></span>
+<span><span class="co">#&gt; Setting options('download.file.method.GEOquery'='auto')</span></span>
+<span><span class="co">#&gt; Setting options('GEOquery.inmemory.gpl'=FALSE)</span></span>
+<span><span class="co">#&gt; Identifying sparse Variable Methylated Probes</span></span>
+<span><span class="co">#&gt; Identifying Variable Methylated Regions...</span></span>
+<span><span class="co">#&gt; Applying correlation filter to Variable Methylated Regions...</span></span>
+<span><span class="co">#&gt; Warning: executing %dopar% sequentially: no parallel backend registered</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">VML</span><span class="op">$</span><span class="va">VML</span><span class="op">)</span> <span class="co"># Take a look at the identified VML data frame</span></span>
+<span><span class="co">#&gt;   VML_index type seqnames    start      end width strand       probes n_VMPs</span></span>
+<span><span class="co">#&gt; 1      VML1  VMR    chr21 10990119 10990903   785      + cg098720....      2</span></span>
+<span><span class="co">#&gt; 2      VML2  VMR    chr21 11109021 11109336   316      + cg007508....      2</span></span>
+<span><span class="co">#&gt; 3      VML3  VMR    chr21 31799091 31799248   158      + cg245007....      2</span></span>
+<span><span class="co">#&gt; 4      VML4  VMR    chr21 32715908 32716792   885      + cg164170....      2</span></span>
+<span><span class="co">#&gt; 5      VML5  VMR    chr21 15955548 15955699   152      - cg147721....      2</span></span>
+<span><span class="co">#&gt; 6      VML6  VMR    chr21 26573136 26573196    61      - cg111120....      2</span></span>
+<span><span class="co">#&gt;   median_correlation</span></span>
+<span><span class="co">#&gt; 1          0.6099180</span></span>
+<span><span class="co">#&gt; 2          0.6261681</span></span>
+<span><span class="co">#&gt; 3          0.7279154</span></span>
+<span><span class="co">#&gt; 4          0.6932442</span></span>
+<span><span class="co">#&gt; 5          0.8120654</span></span>
+<span><span class="co">#&gt; 6          0.6173683</span></span></code></pre></div>
+<ol start="2" style="list-style-type: decimal">
+<li>Summarize the regional methylation state of each VML with <code><a href="reference/summarizeVML.html">summarizeVML()</a></code>.</li>
+</ol>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">summarized_methyl_VML</span> <span class="op">&lt;-</span> <span class="fu">RAMEN</span><span class="fu">::</span><span class="fu"><a href="reference/summarizeVML.html">summarizeVML</a></span><span class="op">(</span></span>
+<span>  VML_df <span class="op">=</span> <span class="va">VML</span><span class="op">$</span><span class="va">VML</span>,</span>
+<span>  methylation_data <span class="op">=</span> <span class="va">test_methylation_data</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Look at the resulting object</span></span>
+<span><span class="va">summarized_methyl_VML</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span>
+<span><span class="co">#&gt;         VML1     VML2     VML3     VML4     VML5</span></span>
+<span><span class="co">#&gt; ID1 4.935942 2.853168 6.389600 9.017997 2.714379</span></span>
+<span><span class="co">#&gt; ID2 1.879166 2.699689 7.790474 3.134218 2.223942</span></span>
+<span><span class="co">#&gt; ID3 3.311818 1.078262 4.135771 2.864724 8.648046</span></span>
+<span><span class="co">#&gt; ID4 6.558106 4.683173 6.153156 3.828411 1.448140</span></span>
+<span><span class="co">#&gt; ID5 2.899969 4.930614 4.919235 3.664651 2.926548</span></span></code></pre></div>
+<ol start="3" style="list-style-type: decimal">
+<li>Identify the SNPs in <em>cis</em> of each VML with <code><a href="reference/findCisSNPs.html">findCisSNPs()</a></code>.</li>
+</ol>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">VML_cis_snps</span> <span class="op">&lt;-</span> <span class="fu">RAMEN</span><span class="fu">::</span><span class="fu"><a href="reference/findCisSNPs.html">findCisSNPs</a></span><span class="op">(</span></span>
+<span>  VML_df <span class="op">=</span> <span class="va">VML</span><span class="op">$</span><span class="va">VML</span>,</span>
+<span>  genotype_information <span class="op">=</span> <span class="fu">RAMEN</span><span class="fu">::</span><span class="va"><a href="reference/test_genotype_information.html">test_genotype_information</a></span>,</span>
+<span>  distance <span class="op">=</span> <span class="fl">1e+06</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Reminder: please make sure that the positions of the VML data frame and the ones in the genotype information are from the same genome build.</span></span>
+<span></span>
+<span><span class="co"># Take a look at the result</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">VML_cis_snps</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   VML_index type seqnames    start      end width strand       probes n_VMPs</span></span>
+<span><span class="co">#&gt; 1      VML1  VMR    chr21 10990119 10990903   785      + cg098720....      2</span></span>
+<span><span class="co">#&gt; 2      VML2  VMR    chr21 11109021 11109336   316      + cg007508....      2</span></span>
+<span><span class="co">#&gt; 3      VML3  VMR    chr21 31799091 31799248   158      + cg245007....      2</span></span>
+<span><span class="co">#&gt; 4      VML4  VMR    chr21 32715908 32716792   885      + cg164170....      2</span></span>
+<span><span class="co">#&gt; 5      VML5  VMR    chr21 15955548 15955699   152      - cg147721....      2</span></span>
+<span><span class="co">#&gt; 6      VML6  VMR    chr21 26573136 26573196    61      - cg111120....      2</span></span>
+<span><span class="co">#&gt;   median_correlation surrounding_SNPs          SNP</span></span>
+<span><span class="co">#&gt; 1          0.6099180                1 21:10873....</span></span>
+<span><span class="co">#&gt; 2          0.6261681                1 21:10873....</span></span>
+<span><span class="co">#&gt; 3          0.7279154              659 21:30813....</span></span>
+<span><span class="co">#&gt; 4          0.6932442              855 21:31718....</span></span>
+<span><span class="co">#&gt; 5          0.8120654              726 21:14957....</span></span>
+<span><span class="co">#&gt; 6          0.6173683              788 21:25582....</span></span></code></pre></div>
+<ol start="4" style="list-style-type: decimal">
+<li>Conduct a LASSO-based feature selection strategy to identify potentially relevant <em>cis</em> SNPs and environmental variables with <code><a href="reference/selectVariables.html">selectVariables()</a></code>.</li>
+</ol>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">selected_variables</span> <span class="op">&lt;-</span> <span class="fu">RAMEN</span><span class="fu">::</span><span class="fu"><a href="reference/selectVariables.html">selectVariables</a></span><span class="op">(</span></span>
+<span>  VML_df <span class="op">=</span> <span class="va">VML_cis_snps</span>,</span>
+<span>  genotype_matrix <span class="op">=</span> <span class="fu">RAMEN</span><span class="fu">::</span><span class="va"><a href="reference/test_genotype_matrix.html">test_genotype_matrix</a></span>,</span>
+<span>  environmental_matrix <span class="op">=</span> <span class="fu">RAMEN</span><span class="fu">::</span><span class="va"><a href="reference/test_environmental_matrix.html">test_environmental_matrix</a></span>,</span>
+<span>  covariates <span class="op">=</span> <span class="fu">RAMEN</span><span class="fu">::</span><span class="va"><a href="reference/test_covariates.html">test_covariates</a></span>,</span>
+<span>  summarized_methyl_VML <span class="op">=</span> <span class="va">summarized_methyl_VML</span>,</span>
+<span>  seed <span class="op">=</span> <span class="fl">1</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Loading required package: foreach</span></span>
+<span><span class="co">#&gt; Loading required package: rngtools</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">selected_variables</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   VML_index selected_genot selected_env</span></span>
+<span><span class="co">#&gt; 1      VML1   21:10873.... E43, E3,....</span></span>
+<span><span class="co">#&gt; 2      VML2   21:10873....          E43</span></span>
+<span><span class="co">#&gt; 3      VML3   21:32782.... E15, E25....</span></span>
+<span><span class="co">#&gt; 4      VML4                         E43</span></span>
+<span><span class="co">#&gt; 5      VML5   21:15248....     E40, E43</span></span>
+<span><span class="co">#&gt; 6      VML6   21:25648....          E43</span></span></code></pre></div>
+<ol start="5" style="list-style-type: decimal">
+<li>Fit linear single-variable genetic (G), environmental (E), pairwise additive (G+E) and pairwise interaction (GxE) linear models, and select the best explanatory model for each VML with <code><a href="reference/lmGE.html">lmGE()</a></code>.</li>
+</ol>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">lmge_res</span> <span class="op">&lt;-</span> <span class="fu">RAMEN</span><span class="fu">::</span><span class="fu"><a href="reference/lmGE.html">lmGE</a></span><span class="op">(</span></span>
+<span>  selected_variables <span class="op">=</span> <span class="va">selected_variables</span>,</span>
+<span>  summarized_methyl_VML <span class="op">=</span> <span class="va">summarized_methyl_VML</span>,</span>
+<span>  genotype_matrix <span class="op">=</span> <span class="fu">RAMEN</span><span class="fu">::</span><span class="va"><a href="reference/test_genotype_matrix.html">test_genotype_matrix</a></span>,</span>
+<span>  environmental_matrix <span class="op">=</span> <span class="fu">RAMEN</span><span class="fu">::</span><span class="va"><a href="reference/test_environmental_matrix.html">test_environmental_matrix</a></span>,</span>
+<span>  covariates <span class="op">=</span> <span class="fu">RAMEN</span><span class="fu">::</span><span class="va"><a href="reference/test_covariates.html">test_covariates</a></span>,</span>
+<span>  model_selection <span class="op">=</span> <span class="st">"AIC"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Check the output</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">lmge_res</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   VML_index model_group    variables tot_r_squared g_r_squared e_r_squared</span></span>
+<span><span class="co">#&gt; 1      VML1         G+E 21:10873....     0.5527507   0.1996156   0.3420620</span></span>
+<span><span class="co">#&gt; 2      VML2         G+E 21:10873....     0.5115764   0.2095645   0.2714356</span></span>
+<span><span class="co">#&gt; 3      VML3         GxE 21:32782....     0.5680092   0.2717880   0.2039656</span></span>
+<span><span class="co">#&gt; 4      VML4           E          E43     0.3008107          NA   0.2282407</span></span>
+<span><span class="co">#&gt; 5      VML5         G+E 21:15671....     0.7548714   0.4246781   0.2232954</span></span>
+<span><span class="co">#&gt; 6      VML6         G+E 21:27306....     0.5885708   0.2317301   0.1985512</span></span>
+<span><span class="co">#&gt;   gxe_r_squared      AIC second_winner delta_aic delta_r_squared basal_AIC</span></span>
+<span><span class="co">#&gt; 1            NA 144.6841           GxE 1.0497027    -0.013945293  164.4893</span></span>
+<span><span class="co">#&gt; 2            NA 148.7250           GxE 1.3455746    -0.010539189  165.2905</span></span>
+<span><span class="co">#&gt; 3    0.06543422 148.7964           G+E 0.9072693     0.043959423  167.1613</span></span>
+<span><span class="co">#&gt; 4            NA 156.8403          &lt;NA&gt;        NA              NA  163.3152</span></span>
+<span><span class="co">#&gt; 5            NA 131.9394           GxE 1.5262724    -0.003840405  166.7269</span></span>
+<span><span class="co">#&gt; 6            NA 141.4738           GxE 1.6975735    -0.004126734  158.9477</span></span>
+<span><span class="co">#&gt;   basal_rsquared</span></span>
+<span><span class="co">#&gt; 1     0.01107306</span></span>
+<span><span class="co">#&gt; 2     0.03057637</span></span>
+<span><span class="co">#&gt; 3     0.02682137</span></span>
+<span><span class="co">#&gt; 4     0.07256996</span></span>
+<span><span class="co">#&gt; 5     0.10689789</span></span>
+<span><span class="co">#&gt; 6     0.15828947</span></span></code></pre></div>
+<ol start="6" style="list-style-type: decimal">
+<li>Simulate a null distribution of G and E effects on DNAme variability with <code><a href="reference/nullDistGE.html">nullDistGE()</a></code>, and use it to filter out poor-performing best explanatory models selected by <em>lmGE()</em>.</li>
+</ol>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">null_dist</span> <span class="op">&lt;-</span> <span class="fu">RAMEN</span><span class="fu">::</span><span class="fu"><a href="reference/nullDistGE.html">nullDistGE</a></span><span class="op">(</span></span>
+<span>  VML_df <span class="op">=</span> <span class="va">VML_cis_snps</span>,</span>
+<span>  genotype_matrix <span class="op">=</span> <span class="fu">RAMEN</span><span class="fu">::</span><span class="va"><a href="reference/test_genotype_matrix.html">test_genotype_matrix</a></span>,</span>
+<span>  environmental_matrix <span class="op">=</span> <span class="fu">RAMEN</span><span class="fu">::</span><span class="va"><a href="reference/test_environmental_matrix.html">test_environmental_matrix</a></span>,</span>
+<span>  summarized_methyl_VML <span class="op">=</span> <span class="va">summarized_methyl_VML</span>,</span>
+<span>  permutations <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  covariates <span class="op">=</span> <span class="fu">RAMEN</span><span class="fu">::</span><span class="va"><a href="reference/test_covariates.html">test_covariates</a></span>,</span>
+<span>  seed <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  model_selection <span class="op">=</span> <span class="st">"AIC"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Starting permutation 1 of 1</span></span>
+<span><span class="co">#&gt; Starting variable selection of permutation 1 of 1</span></span>
+<span><span class="co">#&gt; Starting lmGE in permutation 1 of 1</span></span>
+<span><span class="co">#&gt; Wrapping up permutation 1 of 1</span></span>
+<span></span>
+<span><span class="co"># Set threshold</span></span>
+<span><span class="va">cutoff_single</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span></span>
+<span>  <span class="va">null_dist</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">model_group</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"G"</span>, <span class="st">"E"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">R2_difference</span><span class="op">)</span>,</span>
+<span>  <span class="fl">0.95</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">cutoff_joint</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span></span>
+<span>  <span class="va">null_dist</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">model_group</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"G+E"</span>, <span class="st">"GxE"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">R2_difference</span><span class="op">)</span>,</span>
+<span>  <span class="fl">0.95</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Get a data frame with the final results</span></span>
+<span><span class="va">final_res</span> <span class="op">&lt;-</span> <span class="va">lmge_res</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>    r2_difference_basal <span class="op">=</span> <span class="va">tot_r_squared</span> <span class="op">-</span> <span class="va">basal_rsquared</span>,</span>
+<span>    <span class="co"># Label if the best explanatory model passes its corresponding threshold</span></span>
+<span>    pass_cutoff_threshold <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
+<span>      <span class="va">model_group</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"G"</span>, <span class="st">"E"</span><span class="op">)</span> <span class="op">~</span> <span class="va">r2_difference_basal</span> <span class="op">&gt;</span> <span class="va">cutoff_single</span>,</span>
+<span>      <span class="va">model_group</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"G+E"</span>, <span class="st">"GxE"</span><span class="op">)</span> <span class="op">~</span> <span class="va">r2_difference_basal</span> <span class="op">&gt;</span> <span class="va">cutoff_joint</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    <span class="co"># Label the final model group, replacing bad performing winning models with</span></span>
+<span>    <span class="co">#  "B" (basal)</span></span>
+<span>    model_group <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
+<span>      <span class="va">pass_cutoff_threshold</span> <span class="op">~</span> <span class="va">model_group</span>,</span>
+<span>      <span class="cn">TRUE</span> <span class="op">~</span> <span class="st">"B"</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">pass_cutoff_threshold</span><span class="op">)</span> <span class="co"># Drop temporary column</span></span>
+<span></span>
+<span><span class="co"># Keep only VML that have informative models with out data</span></span>
+<span><span class="va">filtered_res</span> <span class="op">&lt;-</span> <span class="va">final_res</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="va">model_group</span> <span class="op">==</span> <span class="st">"B"</span><span class="op">)</span> <span class="co"># Filter based on the cutoff threshold</span></span>
+<span></span>
+<span><span class="va">final_res</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">model_group</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>count <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">model_group</span>, y <span class="op">=</span> <span class="va">count</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Best explanatory model"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"VML"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_classic</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-7-1.png" width="100%"></p>
 </div>
 <div class="section level2">
 <h2 id="variations-to-the-standard-workflow">Variations to the standard workflow<a class="anchor" aria-label="anchor" href="#variations-to-the-standard-workflow"></a>
@@ -114,13 +329,12 @@
 <div class="section level2">
 <h2 id="how-to-get-help-for-ramen">How to get help for RAMEN<a class="anchor" aria-label="anchor" href="#how-to-get-help-for-ramen"></a>
 </h2>
-<p>If you have any question about RAMEN usage, please post an issue in this github repository so that future users also benefit from the discussion As an alternative option, you can contact Erick Navarro-Delgado at <a href="mailto:erick.delgado@ubc.ca" class="email">erick.delgado@ubc.ca</a>.</p>
+<p>If you have any question about RAMEN usage, please <a href="https://github.com/ErickNavarroD/RAMEN/issues/new/choose" class="external-link">post a new issue</a> in this github repository so that future users also benefit from the discussion.</p>
 </div>
 <div class="section level2">
 <h2 id="acknowledgments">Acknowledgments<a class="anchor" aria-label="anchor" href="#acknowledgments"></a>
 </h2>
-<p>I want to thank Dr. Keegan Korthauer and Dr. Michael S. Kobor for their supervision, feedback and support throughout the development of this package. Also, I want to thank the members of the Kobor and Korthauer lab for their comments and discussion.</p>
-<p>The RAMEN package logo was created by Carlos Cortés-Quiñones and Dorothy Lin. Carlos created the draw, and Dorothy refined the logo and did the lettering.</p>
+<p>This package was developed by Erick I. Navarro-Delgado under the supervision of Dr. Keegan Korthauer and Dr. Michael S. Kobor. We want to thank the members of the Kobor and Korthauer lab for their feeback during the development of RAMEN. Additionally, we want to thank Carlos Cortés-Quiñones and Dorothy Lin for helping create the package logo. Erick conceptualized the logo, Carlos drew it, and Dorothy refined it and finished the lettering.</p>
 </div>
 <div class="section level2">
 <h2 id="funding">Funding<a class="anchor" aria-label="anchor" href="#funding"></a>
@@ -181,6 +395,8 @@
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
 <li>Erick I. Navarro-Delgado <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0003-1040-3519" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li>Keegan Korthauer <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-4565-1654" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li>Michael S. Kobor <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0003-4140-1743" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
 </ul>
 </div>
 
@@ -201,7 +417,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Erick I. Navarro-Delgado.</p>
+  <p>Developed by Erick I. Navarro-Delgado, Keegan Korthauer, Michael S. Kobor.</p>
 </div>
 
 <div class="pkgdown-footer-right">
