@@ -60,13 +60,15 @@ You can install the latest version of RAMEN from
 [GitHub](https://github.com/) with:
 
 ``` r
+## Install dependencies
 # install.packages("devtools")
 # install.packages("BiocManager")
 # BiocManager::install("S4Vectors")
 # BiocManager::install("IRanges")
 # BiocManager::install("GenomicRanges")
 
-pak::pak("ErickNavarroD/RAMEN")
+## Install the RAMEN package from GitHub
+BiocManager::install("ErickNavarroD/RAMEN@ropensci-software-review")
 ```
 
 ## Usage

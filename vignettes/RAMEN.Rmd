@@ -132,6 +132,18 @@ where:
 
 In the following sections we will go through each of these steps and guide the user regarding the recommended parameters to use in each function of the package. For illustration purposes, we provide small toy data sets that do not intend to simulate the real biological phenomenon. These data sets are already available in the RAMEN package. 
 
+```{r eval=FALSE}
+## Install dependencies
+# install.packages("devtools")
+# install.packages("BiocManager")
+# BiocManager::install("S4Vectors")
+# BiocManager::install("IRanges")
+# BiocManager::install("GenomicRanges")
+
+## Install the RAMEN package from GitHub
+BiocManager::install("ErickNavarroD/RAMEN@ropensci-software-review")
+```
+
 ```{r setup, warning=FALSE, message=FALSE}
 # Load the packages used throughout the vignette
 library(RAMEN)
