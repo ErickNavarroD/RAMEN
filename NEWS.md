@@ -1,8 +1,8 @@
-# Unreleased 
+# RAMEN 2.0.1 - June 30, 2026
 
 This minor version presents no changes from the user perspective. Code 
 improvements have been made to the package to address comments and 
-suggestions from the editor and reviewers of the rOpenSci peer review 
+suggestions from the editor of the rOpenSci peer review 
 process. These include: 
 
   - Improving the README, adding quick usage examples, more details on the 
