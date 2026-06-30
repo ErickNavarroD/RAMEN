@@ -1,6 +1,6 @@
 Package: RAMEN
 Title: RAMEN: Regional Association of Methylome variability with the Exposome and geNome
-Version: 2.0.1
+Version: 2.0.1.9000
 Authors@R: c(
     person("Erick I.", "Navarro-Delgado", 
             email = "erick.delgado@ubc.ca", 
