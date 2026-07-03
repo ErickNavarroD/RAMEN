@@ -1,3 +1,6 @@
+# Set the parallel backend to use 2 workers
+doParallel::registerDoParallel(2)
+
 suppressMessages(VML_test <- RAMEN::findVML(
   methylation_data = RAMEN::test_methylation_data,
   array_manifest = "IlluminaHumanMethylationEPICv1",

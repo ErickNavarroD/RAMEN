@@ -45,6 +45,8 @@
 #' @importFrom foreach %do%
 #' @export
 #' @examples
+#' # Set the parallel backend to use 2 workers
+#' doParallel::registerDoParallel(2)
 #' ## Find VML in test data
 #' VML <- RAMEN::findVML(
 #'   methylation_data = RAMEN::test_methylation_data,

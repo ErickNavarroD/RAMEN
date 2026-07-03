@@ -20,6 +20,8 @@
 #' @importFrom foreach %do%
 #' @export
 #' @examples
+#' # Set the parallel backend to use 2 workers
+#' doParallel::registerDoParallel(2)
 #' ## Find VML in test data
 #' VML <- RAMEN::findVML(
 #'   methylation_data = RAMEN::test_methylation_data,
@@ -44,6 +46,7 @@
 #' )
 #'
 #' ## Simulate null distribution of G and E contributions on DNAme variability
+#' ## We will only run one permutation for demonstration purposes
 #' null_dist <- RAMEN::nullDistGE(
 #'   VML_df = VML_with_cis_snps,
 #'   genotype_matrix = RAMEN::test_genotype_matrix,

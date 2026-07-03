@@ -62,7 +62,8 @@ map_revmap_names <- function(positions, manifest_hvp) {
 #'
 #' @export
 #' @examples
-#'
+#' # Set the parallel backend to use 2 workers
+#' doParallel::registerDoParallel(2)
 #' VML <- RAMEN::findVML(
 #'   methylation_data = RAMEN::test_methylation_data,
 #'   array_manifest = "IlluminaHumanMethylationEPICv1",

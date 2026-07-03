@@ -91,6 +91,10 @@ In brief, the standard workflow consists of the following steps:
 library(RAMEN)
 library(dplyr)
 library(ggplot2)
+library(doParallel)
+
+# Set the parallel backend to use 2 workers
+doParallel::registerDoParallel(2)
 
 VML <- RAMEN::findVML(
   methylation_data = RAMEN::test_methylation_data,

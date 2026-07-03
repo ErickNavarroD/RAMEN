@@ -1,4 +1,6 @@
 test_that("lmGE output structure is correct", {
+  # Set the parallel backend to use 2 workers
+  doParallel::registerDoParallel(2)
   lmge_res <- RAMEN::lmGE(
     selected_variables = selected_variables_test[1:10, ],
     summarized_methyl_VML = summarized_methyl_VML_test,

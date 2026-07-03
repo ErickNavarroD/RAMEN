@@ -26,7 +26,8 @@ This function supports parallel computing for increased speed. To do so, you hav
 in your R session before running the function (e.g., \emph{doParallel::registerDoParallel(4)})). After that, the function can be run as usual. It is recommended to also set options(future.globals.maxSize= +Inf).
 }
 \examples{
-
+# Set the parallel backend to use 2 workers
+doParallel::registerDoParallel(2)
 # Create a VML data.frame
 VMR_df <- data.frame(
   seqnames = c("chr21", "chr21"),

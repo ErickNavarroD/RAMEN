@@ -73,6 +73,8 @@ After selecting the best model per group (G,E,G+E pr GxE), the model with the lo
 Finally, the variance is decomposed and the relative R2 contribution of each of the variables of interest (G, E and GxE) is reported. This decomposition is done using the relaimpo R package, using the Lindeman, Merenda and Gold (lmg) method, which is based on the heuristic approach of averaging the relative R contribution of each variable over all input orders in the linear model. The estimation of the partitioned R2 of each factor in the models was conducted keeping the covariates always in the model as first entry (i.e., the variables specified in covariates did not change order). For further information, we suggest the users to read the documentation and publication of the relaimpo R package (Grömping, 2006).
 }
 \examples{
+# Set the parallel backend to use 2 workers
+doParallel::registerDoParallel(2)
 ## Find VML in test data
 VML <- RAMEN::findVML(
   methylation_data = RAMEN::test_methylation_data,

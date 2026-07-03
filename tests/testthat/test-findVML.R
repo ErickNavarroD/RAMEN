@@ -16,6 +16,8 @@ test_that("findVML output structure is correct", {
 })
 
 test_that("findVML handles a different var_method option", {
+  # Set the parallel backend to use 2 workers
+  doParallel::registerDoParallel(2)
   VML_result_mad <- RAMEN::findVML(
     methylation_data = RAMEN::test_methylation_data,
     array_manifest = "IlluminaHumanMethylationEPICv1",
@@ -103,6 +105,8 @@ test_that("findVML throws errors when expected", {
 })
 
 test_that("findVML works with EPICv2 probes", {
+  # Set the parallel backend to use 2 workers
+  doParallel::registerDoParallel(2)
   epic2_methylation_data <- RAMEN::test_methylation_data
   rownames(epic2_methylation_data) <- data.frame(IlluminaHumanMethylationEPICv2anno.20a1.hg38::Locations) |>
     dplyr::filter(chr == "chr21") |>
@@ -126,6 +130,8 @@ test_that("findVML works with EPICv2 probes", {
 })
 
 test_that("findVML works with var_distribution = 'all' and mad score", {
+  # Set the parallel backend to use 2 workers
+  doParallel::registerDoParallel(2)
   VML_allvar <- RAMEN::findVML(
     methylation_data = RAMEN::test_methylation_data,
     array_manifest = "IlluminaHumanMethylationEPICv1",

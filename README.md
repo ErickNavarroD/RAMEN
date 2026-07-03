@@ -112,6 +112,13 @@ library(dplyr)
 #> 
 #>     intersect, setdiff, setequal, union
 library(ggplot2)
+library(doParallel)
+#> Loading required package: foreach
+#> Loading required package: iterators
+#> Loading required package: parallel
+
+# Set the parallel backend to use 2 workers
+doParallel::registerDoParallel(2)
 
 VML <- RAMEN::findVML(
   methylation_data = RAMEN::test_methylation_data,
@@ -128,7 +135,6 @@ VML <- RAMEN::findVML(
 #> Identifying sparse Variable Methylated Probes
 #> Identifying Variable Methylated Regions...
 #> Applying correlation filter to Variable Methylated Regions...
-#> Warning: executing %dopar% sequentially: no parallel backend registered
 
 head(VML$VML) # Take a look at the identified VML data frame
 #>   VML_index type seqnames    start      end width strand       probes n_VMPs
@@ -208,7 +214,6 @@ selected_variables <- RAMEN::selectVariables(
   seed = 1
 )
 #> Warning: package 'doRNG' was built under R version 4.4.3
-#> Loading required package: foreach
 #> Loading required package: rngtools
 
 head(selected_variables)

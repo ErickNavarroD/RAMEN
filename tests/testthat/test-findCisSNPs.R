@@ -9,6 +9,8 @@ test_that("findCisSNPs output structure is correct", {
 })
 
 test_that("findCisSNPs adds a VML index when it is not present", {
+  # Set the parallel backend to use 2 workers
+  doParallel::registerDoParallel(2)
   VML_cis_snps_noID <- RAMEN::findCisSNPs(
     VML_df = VML_test$VML |>
       dplyr::select(-VML_index),
@@ -64,6 +66,8 @@ test_that("findCisSNPs throws errors when expected", {
 })
 
 test_that("findCisSNPs returns the right number of cis SNPs", {
+  # Set the parallel backend to use 2 workers
+  doParallel::registerDoParallel(2)
   VML_vanilla <- data.frame(
     VML_index = "1",
     seqnames = "chr1",

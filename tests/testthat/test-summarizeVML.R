@@ -5,6 +5,8 @@ test_that("summarizeVML output structure is correct", {
 })
 
 test_that("summarizeVML adds VML_index when not present", {
+  # Set the parallel backend to use 2 workers
+  doParallel::registerDoParallel(2)
   VML_no_index <- VML_test$VML |>
     dplyr::select(-VML_index)
   summarized_no_index <- RAMEN::summarizeVML(
@@ -19,6 +21,8 @@ test_that("summarizeVML adds VML_index when not present", {
 })
 
 test_that("summarizeVML values are correct", {
+  # Set the parallel backend to use 2 workers
+  doParallel::registerDoParallel(2)
   # First for sVMPs: the summarized value should be equal to the methylation
   VML_test_summ <- VML_test$VML |>
     dplyr::filter(type == "sVMP") |>
@@ -61,6 +65,8 @@ test_that("summarizeVML throws errors when expected", {
 })
 
 test_that("summarizeVML works when methylation_data is a matrix", {
+  # Set the parallel backend to use 2 workers
+  doParallel::registerDoParallel(2)
   summarized_methyl_VML_matrix <- RAMEN::summarizeVML(
     VML_df = VML_test$VML,
     methylation_data = as.matrix(test_methylation_data)

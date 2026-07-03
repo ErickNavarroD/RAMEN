@@ -292,6 +292,10 @@ library(RAMEN)
 library(dplyr)
 library(ggplot2)
 library(tidyr)
+library(doParallel)
+
+# Set the parallel backend to use 2 workers
+registerDoParallel(2)
 ```
 
 ## Identify VML and summarize their methylation state
@@ -469,7 +473,7 @@ head(VML$highly_variable_probes)
 head(VML$VML) 
 ```
 
-Furthermore, we can see the following warning message in the chunk above: 
+We can sometimes see the following warning message: 
 
 ```{r}
 #> Warning: executing %dopar% sequentially: no parallel backend registered

@@ -51,6 +51,8 @@ The core pipeline from the RAMEN package identifies the best explanatory model p
 Under the assumption that after adjusting for the concomitant variables all VML across the genome follow the same behavior regarding an increment of explained variance with randomized G and E data, we can pool the delta R squared values from all VML to create a null distribution taking advantage of the high number of VML in the dataset. This assumption decreases significantly the number of permutations required to create a null distribution and reduces the computational time. For further information please read the RAMEN paper (https://doi.org/10.1186/s13059-025-03864-4).
 }
 \examples{
+# Set the parallel backend to use 2 workers
+doParallel::registerDoParallel(2)
 ## Find VML in test data
 VML <- RAMEN::findVML(
   methylation_data = RAMEN::test_methylation_data,
@@ -75,6 +77,7 @@ summarized_methyl_VML <- RAMEN::summarizeVML(
 )
 
 ## Simulate null distribution of G and E contributions on DNAme variability
+## We will only run one permutation for demonstration purposes
 null_dist <- RAMEN::nullDistGE(
   VML_df = VML_with_cis_snps,
   genotype_matrix = RAMEN::test_genotype_matrix,

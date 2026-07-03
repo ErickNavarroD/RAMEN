@@ -17,7 +17,8 @@
 #' @export
 #'
 #' @examples
-#'
+#' # Set the parallel backend to use 2 workers
+#' doParallel::registerDoParallel(2)
 #' # Create a VML data.frame
 #' VMR_df <- data.frame(
 #'   seqnames = c("chr21", "chr21"),

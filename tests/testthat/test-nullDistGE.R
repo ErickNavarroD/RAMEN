@@ -1,4 +1,6 @@
 test_that("nullDistGE output structure is correct", {
+  # Set the parallel backend to use 2 workers
+  doParallel::registerDoParallel(2)
   null_dist <- RAMEN::nullDistGE(
     VML_df = VML_cis_snps_test[1:10, ],
     genotype_matrix = RAMEN::test_genotype_matrix,
@@ -16,6 +18,8 @@ test_that("nullDistGE output structure is correct", {
 })
 
 test_that("nullDistGE works with BIC", {
+  # Set the parallel backend to use 2 workers
+  doParallel::registerDoParallel(2)
   null_dist_bic <- RAMEN::nullDistGE(
     VML_df = VML_cis_snps_test[1:10, ],
     genotype_matrix = RAMEN::test_genotype_matrix,
