@@ -58,5 +58,7 @@ VignetteBuilder: knitr
 Depends: 
     R (>= 4.2.0)
 LazyData: true
-URL: https://ericknavarrod.github.io/RAMEN/
+URL: 
+    https://ericknavarrod.github.io/RAMEN/ ,
+    https://github.com/ErickNavarroD/RAMEN/
 BugReports: https://github.com/ErickNavarroD/RAMEN/issues
