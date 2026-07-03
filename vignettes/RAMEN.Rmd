@@ -105,9 +105,12 @@ If you use RAMEN for any of your analyses, please cite the following publication
 
 # Gene-environment interaction analysis
 
-The main purpose of the RAMEN package is to conduct a methylome-wide analysis to identify which model (G, E, G+E or GxE) better explains the variability across the genome. In this vignette, we will illustrate how to use the package. 
+The main purpose of the RAMEN package is to conduct a methylome-wide analysis to
+identify which model (G, E, G+E or GxE) better explains the variability across 
+the genome. In this vignette, we will illustrate how to use the package. 
 
-To conduct this analysis, the following cleaned data sets (i.e. after quality and exploratory data analysis checks) from a cohort are required: 
+To conduct this analysis, we will use the following data sets from a population 
+cohort:
 
   -   DNAme data
   -   DNAme array manifest
@@ -116,7 +119,134 @@ To conduct this analysis, the following cleaned data sets (i.e. after quality an
   -   Environmental exposure data
   -   Concomitant variables data
   
-Once that we have that data, the overview of the pipeline is the following:
+## Data expectations
+
+RAMEN expects all data sets (genome, exposome, methylome and covariates) to have
+undergone quality control, pre-processing and normalization when required. The 
+choice of methods to do so is beyond the scope of this vignette, but we provide 
+some broad recommendations and resources here. 
+
+### Genomic data 
+
+The QC of genotyping data is a crucial step in any genetic study, as it ensures 
+the accuracy and reliability of the results. We recommend the following steps 
+for QC of microarray genotyping data:
+
+  -   Remove unreliable samples: The specific criteria for removing samples will 
+  vary depending on the genotyping platform, but common criteria include 
+  removing samples with low call rate, chromosome aneuploidy, or indicators of 
+  sample mislabeling such as genotype mismatches when comparing to SNPs 
+  in the DNAme microarray, or reported-predicted sex mismatches in neonatal 
+  samples. If working with Illumina genotyping data, we recommend to see their
+  [technical note](https://www.illumina.com/Documents/products/technotes/technote_infinium_genotyping_data_analysis.pdf)
+  or the RAMEN paper 
+  [Supplementaty Methods](https://link.springer.com/article/10.1186/s13059-025-03864-4#Sec10)
+  for specific cutoffs. 
+  -   Remove unreliable/uninformative SNPs: The specific criteria for removing 
+  SNPs may also vary depending on the genotyping platform, but common criteria 
+  include removing SNPs with low call frequency, genotype clustering metrics, 
+  low minor allele frequencies, or deviations from the Hardy-Weinberg equilibrium.
+  If working with Illumina genotyping data, we recommend to see their
+  [technical note](https://www.illumina.com/Documents/products/technotes/technote_infinium_genotyping_data_analysis.pdf)
+  or the RAMEN paper 
+  [Supplementaty Methods](https://link.springer.com/article/10.1186/s13059-025-03864-4#Sec10)
+  for specific cutoffs and more detailed information.
+  -   Remove related samples: We recommend using PLINK's PI_HAT metric to 
+  identify and remove related samples if working with a genetically-homogeneous 
+  population. Otherwise, we recommend using the 
+  [KING-robust kinship estimator](https://doi.org/10.1093/bioinformatics/btq559)
+  also implemented in [PLINK](https://www.cog-genomics.org/plink/2.0/distance). 
+  -   Remove genetic variants in sex chromosomes.
+  -   (Optional) Impute missing genotypes: To increase the number of genetic 
+  variants available for analysis, we recommend using imputation methods to infer
+  missing genotypes based on the observed genotypes and a reference panel. We 
+  recommend checking out the
+  [Michigan Imputation Server](https://imputationserver.sph.umich.edu). 
+  Following imputation, another round of QC must be conducted to remove poorly
+  imputed SNPs and variants with a low Minor Allele Frequency. The code used in 
+  the RAMEN paper to do this can be found
+  [here](https://github.com/ErickNavarroD/NavarroDelgado_2025_VMRs/blob/main/source/pre_processing/genome_CHILD/Imputation_CHILD_genot.Rmd) 
+  -   Conduct LD pruning: It is recommended to remove SNPs in high linkage 
+  disequilibrium (LD) to reduce redundancy and improve computational efficiency.
+  We recommend using [PLINK](https://www.cog-genomics.org/plink/1.9/ld). 
+
+### DNA methylation data
+
+The steps needed to conduct QC on DNAme data might vary depending on the study
+design and the plataform, but the steps generally follow this structure: 
+
+  - Remove poor quality samples: criteria such as 
+  [EWAStools](https://hhhh5.github.io/ewastools/articles/exemplary_ewas.html))
+  or [lumi](https://bioc.r-universe.dev/lumi) QC metrics, 
+  sample contamination, detection p value, missing probes and outliers are 
+  commonly used. 
+  - Normalization: The choice of normalization method is an active area of 
+  discussion in the DNAme field, and will ultimately depend on the nature of your 
+  experiment. This step is critical to account for probe type bias and 
+  background correction. 
+  We suggest users to read studies comparing the methodologies, such 
+  as [Welsh H., et al.](https://doi.org/10.1186/s13148-023-01459-z), or 
+  [Wang T et al.](https://doi.org/10.1080/15592294.2015.1057384). *The choice of*
+  *normalization method will have a substantial impact on the detection of VML*. 
+  Based on our observations (manuscript in preparation), we suggest to avoid 
+  Quantile Normalization methods (e.g. SWAN or DASEN), as they can excessively 
+  remove variance from the data set. We suggest to use noob+bmiq or noob+funnorm.
+  *If comparing VML across different data sets, they must all be derived from data*
+  *using the same normalization method*. 
+  - Remove poor quality probes: common criteria are removing SNP probes in the array, 
+  probes with low detection value, probes reported to be cross-hybridizing or 
+  polymorphic (i.e., overlapping with common genetic variants) based on previous
+  reports such as [Pidsley R., et al.](https://doi.org/10.1186/s13059-016-1066-1). 
+  - Remove batch effects associated with technical variation (chip and row). This 
+  can be done using the ComBat function from the 
+  [sva package](https://bioconductor.org/packages/release/bioc/html/sva.html). 
+
+### Exposome data 
+
+The exposome is a highly heterogeneous data set, as it can encompass variables 
+from very different natures (e.g. pollution, nutrition, psychosocial exposures, 
+etc.). As such, there is not a straightforward protocol to pre-process this 
+data set. However, we recommend to take the following into account: 
+
+  - Integration of multiple individual exposures into a single composite variable 
+  when appropriate is most of the times preferred. 
+  - Discuss each variable with a corresponding expert and follow their recommendation
+  for pre-processing it.
+  - Establish common thresholds prior to the pre-processing (e.g. what percentage
+  of missing data will be acceptable to use?).
+  - Remove variables with high proportion of missing data and low variability
+  - Remove variables that are highly correlated (e.g. r > 0.95). 
+  - When longitudinal data is available, consider deriving accumulative 
+  variables.
+  - Missing values are very likely to be present. Consider 
+  [imputation methods](https://stefvanbuuren.name/fimd/) or complete case analyses. 
+  
+RAMEN standardizes all exposome variables, so there is no need to do so before. 
+We also make use of LASSO during the variable selection stage, so the method can 
+handle correlation in the data set, which is expected. 
+
+### Covariates to include
+
+We recommend to adjust for the following DNAme confounders, which can lead to 
+biased or spurious results: 
+  - Cell type proportions: If cell counts are not available, proportions can be 
+  estimated using cell type deconvolution tools such as 
+  [CellsPickMe](https://github.com/maggie-fu/CellsPickMe) or 
+  [minfi](https://bioconductor.org/help/course-materials/2015/BioC2015/methylation450k.html#cell-type-composition).
+  - Population stratification: There are multiple methods to account for population
+  stratification in your data. We recommend doing so by adjusting for global 
+  genetic ancestry or genetic ancestry PCA. 
+  
+Additionally, the following sources of DNAme variation not directly related to 
+genetic or environmental variation should also be included as covariates when 
+appropiate:
+  - Sex 
+  - Age
+
+## Workflow overview
+
+Once that we have that data sets ready, the overview of the pipeline is the 
+following:
 
 ```{r,echo= FALSE, fig.cap="RAMEN pipeline"}
 knitr::include_graphics("RAMEN_pipeline.png")
@@ -131,6 +261,8 @@ where:
   -   The thresholds obtained from the simulated null distribution are used to remove winning models which performance are likely to be due to chance. 
 
 In the following sections we will go through each of these steps and guide the user regarding the recommended parameters to use in each function of the package. For illustration purposes, we provide small toy data sets that do not intend to simulate the real biological phenomenon. These data sets are already available in the RAMEN package. 
+
+## Install RAMEN and set up environment
 
 ```{r eval=FALSE}
 ## Install dependencies

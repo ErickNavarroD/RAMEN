@@ -328,6 +328,13 @@ final_res %>%
 
 <img src="man/figures/README-unnamed-chunk-7-1.png" alt="" width="100%" />
 
+It is worth mentioning that RAMEN assumes that all data sets (genome,
+exposome and methylome) have undergone quality control, pre-processing
+and normalization steps when required. The choice of methods for these
+steps are out of the scope of this package, but we provide some
+resources and guidance in the
+[tutorial](https://ericknavarrod.github.io/RAMEN/articles/RAMEN.html).
+
 ## Variations to the standard workflow
 
 Besides using RAMEN for a gene-environment contribution analysis, the
