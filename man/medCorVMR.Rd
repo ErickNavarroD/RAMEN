@@ -2,28 +2,38 @@
 % Please edit documentation in R/medCorVMR.R
 \name{medCorVMR}
 \alias{medCorVMR}
-\title{Compute the median probe methylation pearson correlation for each Variable Methylated Region (VMR).}
+\title{Compute the median probe methylation pearson correlation for each Variable
+Methylated Region (VMR).}
 \usage{
 medCorVMR(VMR_df, methylation_data)
 }
 \arguments{
-\item{VMR_df}{GRanges object converted to a data frame. Must contain the following columns:
-"seqnames", "start", "end"  (all of which are produced automatically when doing the object conversion) and "probes" (containing a list in which each element contains a vector with the probes
-constituting the VMR).}
+\item{VMR_df}{GRanges object converted to a data frame. Must contain the
+following columns: "seqnames", "start", "end"  (all of which are produced
+automatically when doing the object conversion) and "probes" (containing a
+list in which each element contains a vector with the probes constituting the
+VMR).}
 
-\item{methylation_data}{A data frame containing M or B values, with samples as columns and probes as rows. Data is expected to have already passed through quality control and cleaning steps.}
+\item{methylation_data}{A data frame containing M or B values, with samples
+as columns and probes as rows. Data is expected to have already passed
+through quality control and cleaning steps.}
 }
 \value{
-A data frame like VMR_df with an extra column per region containing the median pairwise correlation.
+A data frame like VMR_df with an extra column per region containing
+the median pairwise correlation.
 }
 \description{
-This function will take a GRanges object converted into a data frame, where each row corresponds to a
-Variable Methylated Region. Then, it computes the pairwise correlation of the probes of each VMR and reports
-its median pairwise probe correlation.
+This function will take a GRanges object converted into a data frame, where
+each row corresponds to a Variable Methylated Region. Then, it computes the
+pairwise correlation of the probes of each VMR and reports its median
+pairwise probe correlation.
 }
 \details{
-This function supports parallel computing for increased speed. To do so, you have to set the parallel backend
-in your R session before running the function (e.g., \emph{doParallel::registerDoParallel(4)})). After that, the function can be run as usual. It is recommended to also set options(future.globals.maxSize= +Inf).
+This function supports parallel computing for increased speed. To do so, you
+have to set the parallel backend in your R session before running the
+function (e.g., \emph{doParallel::registerDoParallel(4)})). After that, the
+function can be run as usual. It is recommended to also set
+options(future.globals.maxSize= +Inf).
 }
 \examples{
 # Set the parallel backend to use 2 workers

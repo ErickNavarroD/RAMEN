@@ -46,19 +46,36 @@
 #'
 findCisSNPs <- function(VML_df, genotype_information, distance = 1e6) {
   CHROM <- NULL
-  # Check arguments
-  if (!is.data.frame(VML_df)) stop("Please make sure the VML_df object is a data frame.")
-  if (!is.data.frame(genotype_information)) stop("Please make sure the genotype_information object is a data frame.")
-  if (!all(c("seqnames", "start", "end") %in% colnames(VML_df))) stop("Please make sure the VML_df object has the required columns with the appropiate names (check documentation for further information)")
-  if (!all(c("CHROM", "POS", "ID") %in% colnames(genotype_information))) stop("Please make sure the genotype_information object has the required columns with the appropiate names (check documentation for further information)")
-  message("Reminder: please make sure that the positions of the VML data frame and the ones in the genotype information are from the same genome build.")
+  #### Check arguments ####
+  if (!is.data.frame(VML_df)){
+    stop("Please make sure the VML_df object is a data frame.")
+  }
+  if (!is.data.frame(genotype_information)){
+    stop("Please make sure the genotype_information object is a data frame.")
+  }
+  if (!all(c("seqnames", "start", "end") %in% colnames(VML_df))){
+    stop(paste("Please make sure the VML_df object has the required columns",
+    "with the appropiate names (check documentation for further information)"))
+  }
+  if (!all(c("CHROM", "POS", "ID") %in% colnames(genotype_information))){
+    stop(paste("Please make sure the genotype_information object has the",
+    "required columns with the appropiate names (check documentation for further",
+    "information)"))
+  }
+  message(paste("Reminder: please make sure that the positions of the VML data",
+  "frame and the ones in the genotype information are from the same genome",
+  "build."))
   # Convert VML and snp data into a GenomicRanges object
-  VML_gr <- GenomicRanges::makeGRangesFromDataFrame(VML_df, keep.extra.columns = TRUE)
+  VML_gr <- GenomicRanges::makeGRangesFromDataFrame(VML_df,
+                                                    keep.extra.columns = TRUE)
   genotype_information <- genotype_information |>
-    dplyr::arrange(CHROM) # important step for using Rle later when constructing the GenomicRanges object!
+    # important step for using Rle later when constructing the GenomicRanges
+    # object
+    dplyr::arrange(CHROM)
   seqnames_gr <- table(genotype_information$CHROM)
   genot_gr <- GenomicRanges::GRanges(
-    seqnames = S4Vectors::Rle(names(seqnames_gr), as.numeric(seqnames_gr)), # Number of chromosome; as.numeric to convert from table to numeric vector
+    # Number of chromosome; as.numeric to convert from table to numeric vector
+    seqnames = S4Vectors::Rle(names(seqnames_gr), as.numeric(seqnames_gr)),
     ranges = IRanges::IRanges(genotype_information$POS,
       end = genotype_information$POS,
       names = genotype_information$ID
@@ -68,19 +85,29 @@ findCisSNPs <- function(VML_df, genotype_information, distance = 1e6) {
   VML_extended <- VML_gr + distance
 
   VML_df_with_cisSNPs <- VML_df
-  if (!"VML_index" %in% colnames(VML_df_with_cisSNPs)) { # Add a VML index to each region if not already existing
+  # Add a VML index to each region if not already existing
+  if (!"VML_index" %in% colnames(VML_df_with_cisSNPs)) {
     VML_df_with_cisSNPs <- VML_df_with_cisSNPs |>
-      dplyr::mutate(VML_index = paste("VML", as.character(dplyr::row_number()), sep = ""))
+      dplyr::mutate(VML_index = paste("VML",
+                                      as.character(dplyr::row_number()),
+                                      sep = "")
+                    )
   }
 
   #### Get the number of overlaps per extended VML ####
-  VML_df_with_cisSNPs$surrounding_SNPs <- GenomicRanges::countOverlaps(VML_extended, genot_gr)
+  VML_df_with_cisSNPs$surrounding_SNPs <- GenomicRanges::countOverlaps(VML_extended,
+                                                                       genot_gr)
 
   #### Identify the SNPs that are present in each VML ####
-  snps_per_vml_find <- GenomicRanges::findOverlaps(VML_extended, genot_gr, select = "all")
+  snps_per_vml_find <- GenomicRanges::findOverlaps(VML_extended,
+                                                   genot_gr,
+                                                   select = "all")
   rownames(genotype_information) <- genotype_information$ID
   VML_df_with_cisSNPs <- VML_df_with_cisSNPs |>
-    dplyr::mutate(SNP = lapply(snps_per_vml_find, map_revmap_names, genotype_information))
+    dplyr::mutate(SNP = lapply(snps_per_vml_find,
+                               map_revmap_names,
+                               genotype_information)
+                  )
 
   return(VML_df_with_cisSNPs)
 }

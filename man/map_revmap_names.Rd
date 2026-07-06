@@ -9,19 +9,21 @@ map_revmap_names(positions, manifest_hvp)
 \arguments{
 \item{positions}{A revmap row in the form of a vector}
 
-\item{manifest_hvp}{the manifest of the highly variable probes used in the findVML() function
-with the probes as row names}
+\item{manifest_hvp}{the manifest of the highly variable probes used in the
+findVML() function with the probes as row names}
 }
 \value{
 a vector with the names of the probes that conform one reduced region
 }
 \description{
-Given a revmap row (e.g. 1 5 6), we map those positions to their corresponding probe names
-(and end up with something like "cg00000029",  "cg00000158", "cg00000165".This is a helper function of findVML()).
+Given a revmap row (e.g. 1 5 6), we map those positions to their
+corresponding probe names (and end up with something like "cg00000029",
+"cg00000158", "cg00000165".This is a helper function of findVML()).
 }
 \examples{
 \dontrun{
-target <- data.frame(row.names = c("a", "b", "c", "d"), values = c(1, 1, 1, 1))
+target <- data.frame(row.names = c("a", "b", "c", "d"),
+                     values = c(1, 1, 1, 1))
 query <- c(2, 1)
 
 map_revmap_names(positions = query, manifest_hvp = target)
