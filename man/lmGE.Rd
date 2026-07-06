@@ -179,7 +179,8 @@ VML <- RAMEN::findVML(
 )
 ## Find cis SNPs around VML
 VML_with_cis_snps <- RAMEN::findCisSNPs(
-  VML_df = VML$VML,
+  # Use only 5 for demonstration purposes
+  VML_df = VML$VML [1:5, ],
   genotype_information = RAMEN::test_genotype_information,
   distance = 1e6
 )

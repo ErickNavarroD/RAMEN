@@ -29,8 +29,8 @@
 #' ## Find VML in test data
 #' # Set the parallel backend to use 2 workers
 #' doParallel::registerDoParallel(2)
-#' VML <- RAMEN::findVML(
-#'   methylation_data = RAMEN::test_methylation_data,
+#' VML <- findVML(
+#'   methylation_data = test_methylation_data,
 #'   array_manifest = "IlluminaHumanMethylationEPICv1",
 #'   cor_threshold = 0,
 #'   var_method = "variance",
@@ -40,9 +40,10 @@
 #' )
 #'
 #' ## Summarize methylation states of the found VML
-#' summarized_VML <- RAMEN::summarizeVML(
-#'   VML_df = VML$VML,
-#'   methylation_data = RAMEN::test_methylation_data
+#' summarized_VML <- summarizeVML(
+#'   # Use only 5 for demonstration purposes
+#'   VML_df = VML$VML[1:5, ],
+#'   methylation_data = test_methylation_data
 #' )
 #'
 summarizeVML <- function(VML_df,
