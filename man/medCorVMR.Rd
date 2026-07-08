@@ -5,21 +5,19 @@
 \title{Compute the median probe methylation pearson correlation for each Variable
 Methylated Region (VMR).}
 \usage{
-medCorVMR(VMR_df, methylation_data)
+medCorVMR(VML, methylation_data)
 }
 \arguments{
-\item{VMR_df}{GRanges object converted to a data frame. Must contain the
-following columns: "seqnames", "start", "end"  (all of which are produced
-automatically when doing the object conversion) and "probes" (containing a
-list in which each element contains a vector with the probes constituting the
-VMR).}
+\item{VML}{GRanges object. Must contain a metadata column named "probes",
+where each element contains a vector with the probes constituting the
+VML.}
 
 \item{methylation_data}{A data frame containing M or B values, with samples
 as columns and probes as rows. Data is expected to have already passed
 through quality control and cleaning steps.}
 }
 \value{
-A data frame like VMR_df with an extra column per region containing
+A GRanges object like VML with an extra column per region containing
 the median pairwise correlation.
 }
 \description{
@@ -38,18 +36,16 @@ options(future.globals.maxSize= +Inf).
 \examples{
 # Set the parallel backend to use 2 workers
 doParallel::registerDoParallel(2)
-# Create a VML data.frame
-VMR_df <- data.frame(
-  seqnames = c("chr21", "chr21"),
-  start = c(10861376, 10862171),
-  end = c(10862507, 10883548),
-  probes = I(list(
-    c("cg15043638", "cg18287590", "cg17975851"),
-    c("cg13893907", "cg17035109", "cg06187584")
-  ))
-)
+# Create a VML object
+VML <- GenomicRanges::GRanges(seqnames = c("chr21", "chr21"),
+      ranges = IRanges::IRanges(start = c(10861376, 10862171),
+                       end = c(10862507, 10883548)),
+      probes = I(list(
+        c("cg15043638", "cg18287590", "cg17975851"),
+        c("cg13893907", "cg17035109", "cg06187584")))
+      )
 
 # Compute median correlation for each VMR
-medCorVMR(VMR_df = VMR_df, methylation_data = RAMEN::test_methylation_data)
+medCorVMR(VML = VML, methylation_data = RAMEN::test_methylation_data)
 
 }
