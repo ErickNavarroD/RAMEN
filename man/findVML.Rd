@@ -147,5 +147,4 @@ VML <- RAMEN::findVML(
   var_threshold_percentile = 0.99,
   max_distance = 1000
 )
-
 }
