@@ -388,9 +388,8 @@ findVML <- function(methylation_data,
   # Remove revmap mcol
   S4Vectors::mcols(regions_full_manifest)$revmap <- NULL
   # Keep elements with only one probe
-  lonely_probes <- regions_full_manifest[(GenomicRanges::elementMetadata(regions_full_manifest)[, "n_probes"] <= 1)] |>
-    as.data.frame() |>
-    dplyr::pull(probes) |>
+  lonely_probes <- regions_full_manifest[(GenomicRanges::elementMetadata(regions_full_manifest)[, "n_probes"] <= 1)]
+  lonely_probes <- S4Vectors::mcols(lonely_probes)$probes |>
     unlist()
 
   #### Identify VMRs####
@@ -429,18 +428,13 @@ findVML <- function(methylation_data,
 
   ### Capture canonical VMRs ###
   message("Applying correlation filter to Variable Methylated Regions...")
-  VMRs <- candidate_VMRs[(GenomicRanges::elementMetadata(candidate_VMRs)[, "n_VMPs"] > 1)] |>
-    # Convert the GR to a data frame so that I can use medCorVMR()
-    data.frame()
+  VMRs <- candidate_VMRs[(GenomicRanges::elementMetadata(candidate_VMRs)[, "n_VMPs"] > 1)]
   ### Check for correlation between probes only if we have VMRs
-  if (nrow(VMRs) > 0) {
-    VMRs <- VMRs |>
-      # Compute the median correlation of each region
-      medCorVMR(methylation_data = methylation_data) |>
-      # Remove VMRs whose CpGs are not correlated
-      dplyr::filter(median_correlation > cor_threshold) |>
-      # Create a GR object again
-      GenomicRanges::makeGRangesFromDataFrame(keep.extra.columns = TRUE)
+  if (length(VMRs) > 0) {
+    # Compute the median correlation of each region
+    VMRs <- medCorVMR(VML = VMRs, methylation_data = methylation_data)
+    # Remove VMRs whose CpGs are not correlated
+    VMRs <- VMRs[(GenomicRanges::elementMetadata(VMRs)[, "median_correlation"] > cor_threshold)]
   } else {
     warning("No VMRs were found in this data set")
   }
