@@ -1,0 +1,46 @@
+argument_check <- function(object, data_type, extra_msg = NULL){
+  correct_type <- switch(data_type,
+                 list = is.list(object),
+                 data.frame = is.data.frame(object),
+                 character = is.character(object),
+                 matrix = is.matrix(object),
+                 numeric = is.numeric(object),
+                 GRanges = is(object, "GRanges")
+                 )
+  if (!correct_type) {
+    stop(paste("Please make sure the input",
+               deparse(substitute(object)),
+               "belongs to the",
+               data_type,
+               "class.",
+               extra_msg))
+  }
+}
+
+argument_char_options <- function(object, options, extra_msg = NULL){
+  argument_check(object, "character")
+  if (!length(object) == 1){
+    stop(paste("Please make sure the input",
+               deparse(substitute(object)),
+               "is a character object of length 1"))
+  }
+  if (!object %in% options) {
+    stop(paste("Please make sure the input",
+               deparse(substitute(object)),
+               "is one of the following options:",
+               paste(options, collapse = ", "),
+               ".",
+               extra_msg))
+  }
+}
+
+columns_exist <- function(data.frame, columns, extra_msg = NULL){
+  if (!all(columns %in% colnames(data.frame))){
+    stop(paste("The object",
+               deparse(substitute(data.frame)),
+               "does not have the required columns:",
+               paste(columns, collapse = ", "),
+               ".",
+               extra_msg))
+  }
+}
