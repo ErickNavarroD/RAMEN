@@ -173,7 +173,7 @@ findVML <- function(methylation_data,
     columns_exist(array_manifest,
                   c("chr", "pos", "strand"),
                   paste("Otherwise, provide a string with one of the supported",
-                        "human microarrays ('IlluminaHumanMethylation450k', ",
+                        "human microarrays ('IlluminaHumanMethylation450k',",
                         "'IlluminaHumanMethylationEPICv1', or",
                         "'IlluminaHumanMethylationEPICv2')."))
     # Check that the array strand is in the format expected by the user
