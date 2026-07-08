@@ -38,18 +38,120 @@ test_that("findVML handles a different var_method option", {
 })
 
 test_that("findVML throws errors when expected", {
+  #### methylation_data ####
   expect_error(
     RAMEN::findVML(
-      methylation_data = RAMEN::test_methylation_data,
+      methylation_data = as.matrix(RAMEN::test_methylation_data),
       array_manifest = "IlluminaHumanMethylationEPICv1",
-      cor_threshold = 1000,
-      var_method = "ultrastable",
+      cor_threshold = 0,
+      var_method = "variance",
       var_distribution = "ultrastable",
       var_threshold_percentile = 0.99,
       max_distance = 1000
     ) |>
       suppressMessages(),
-    "'cor_threshold' must be of type 'numeric' and from 0 to 1"
+    "Please make sure the input methylation_data belongs to the data.frame class."
+  )
+  #### array_manifest ####
+  expect_error(
+    RAMEN::findVML(
+      methylation_data = RAMEN::test_methylation_data,
+      array_manifest = "a",
+      cor_threshold = 0,
+      var_method = "variance",
+      var_distribution = "ultrastable",
+      var_threshold_percentile = 0.99,
+      max_distance = 1000
+    ) |>
+      suppressMessages(),
+    paste("Please make sure the input array_manifest is one of the following",
+          "options: IlluminaHumanMethylation450k, IlluminaHumanMethylationEPICv1,",
+          "IlluminaHumanMethylationEPICv2 . Otherwise, please provide a custom",
+          "manifest as a data frame.")
+  )
+  expect_error(
+    RAMEN::findVML(
+      methylation_data = RAMEN::test_methylation_data,
+      array_manifest = data.frame(),
+      cor_threshold = 0,
+      var_method = "variance",
+      var_distribution = "ultrastable",
+      var_threshold_percentile = 0.99,
+      max_distance = 1000
+    ) |>
+      suppressMessages(),
+    paste("The object array_manifest does not have the required columns: chr,",
+          "pos, strand . Otherwise, provide a string with one of the supported",
+          "human microarrays ('IlluminaHumanMethylation450k', ",
+          "'IlluminaHumanMethylationEPICv1', or 'IlluminaHumanMethylationEPICv2')")
+  )
+  #### cor_threshold ####
+  expect_error(
+    RAMEN::findVML(
+      methylation_data = RAMEN::test_methylation_data,
+      array_manifest = "IlluminaHumanMethylationEPICv1",
+      cor_threshold = "1000",
+      var_method = "variance",
+      var_distribution = "ultrastable",
+      var_threshold_percentile = 0.99,
+      max_distance = 1000
+    ) |>
+      suppressMessages(),
+    "Please make sure the input cor_threshold belongs to the numeric class."
+  )
+  expect_error(
+    RAMEN::findVML(
+      methylation_data = RAMEN::test_methylation_data,
+      array_manifest = "IlluminaHumanMethylationEPICv1",
+      cor_threshold = 1000,
+      var_method = "variance",
+      var_distribution = "ultrastable",
+      var_threshold_percentile = 0.99,
+      max_distance = 1000
+    ) |>
+      suppressMessages(),
+    "'cor_threshold' must be a value between 0 and 1 (inclusive)"
+  )
+  #### var_method ####
+  expect_error(
+    RAMEN::findVML(
+      methylation_data = RAMEN::test_methylation_data,
+      array_manifest = "IlluminaHumanMethylationEPICv1",
+      cor_threshold = 0,
+      var_method = 1,
+      var_distribution = "ultrastable",
+      var_threshold_percentile = 0.99,
+      max_distance = 1000
+    ) |>
+      suppressMessages(),
+    "Please make sure the input var_method belongs to the character class."
+  )
+  expect_error(
+    RAMEN::findVML(
+      methylation_data = RAMEN::test_methylation_data,
+      array_manifest = "IlluminaHumanMethylationEPICv1",
+      cor_threshold = 0,
+      var_method = c("variance", "mad"),
+      var_distribution = "ultrastable",
+      var_threshold_percentile = 0.99,
+      max_distance = 1000
+    ) |>
+      suppressMessages(),
+    "Please make sure the input var_method is a character object of length 1"
+  )
+  #### var_distribution ####
+  expect_error(
+    RAMEN::findVML(
+      methylation_data = RAMEN::test_methylation_data,
+      array_manifest = "IlluminaHumanMethylationEPICv1",
+      cor_threshold = 0,
+      var_method = "variance",
+      var_distribution = 1,
+      var_threshold_percentile = 0.99,
+      max_distance = 1000
+    ) |>
+      suppressMessages(),
+    "Please make sure the input var_distribution belongs to the character class."
   )
   expect_error(
     RAMEN::findVML(
@@ -62,45 +164,48 @@ test_that("findVML throws errors when expected", {
       max_distance = 1000
     ) |>
       suppressMessages(),
-    "'var_distribution' must be one of 'all' or 'ultrastable'"
+    "Please make sure the input var_distribution is one of the following options: ultrastable, all"
   )
+  #### var_threshold_percentile ####
   expect_error(
     RAMEN::findVML(
-      methylation_data = as.matrix(RAMEN::test_methylation_data),
+      methylation_data = RAMEN::test_methylation_data,
       array_manifest = "IlluminaHumanMethylationEPICv1",
       cor_threshold = 0,
       var_method = "variance",
       var_distribution = "ultrastable",
-      var_threshold_percentile = 0.99,
+      var_threshold_percentile = "0.99",
       max_distance = 1000
     ) |>
       suppressMessages(),
-    "The methylation_data object must be a data frame with samples as columns and probes as rows."
-  )
-  expect_error(
-    RAMEN::findVML(
-      methylation_data = RAMEN::test_methylation_data,
-      array_manifest = "a",
-      cor_threshold = 0,
-      var_method = "variance",
-      var_distribution = "ultrastable",
-      var_threshold_percentile = 0.99,
-      max_distance = 1000
-    ) |>
-      suppressMessages()
+    "Please make sure the input var_threshold_percentile belongs to the numeric class."
   )
   expect_error(
     RAMEN::findVML(
       methylation_data = RAMEN::test_methylation_data,
       array_manifest = "IlluminaHumanMethylationEPICv1",
       cor_threshold = 0,
-      var_method = "a",
+      var_method = "variance",
       var_distribution = "ultrastable",
-      var_threshold_percentile = 0.99,
+      var_threshold_percentile = 100,
       max_distance = 1000
     ) |>
       suppressMessages(),
-    "The method must be either 'mad' or 'variance'. Please select one of those options"
+    "'var_threshold_percentile' must be a value between 0 and 1 (inclusive)"
+  )
+  #### max_distance ####
+  expect_error(
+    RAMEN::findVML(
+      methylation_data = RAMEN::test_methylation_data,
+      array_manifest = "IlluminaHumanMethylationEPICv1",
+      cor_threshold = 0,
+      var_method = "variance",
+      var_distribution = "ultrastable",
+      var_threshold_percentile = 0.99,
+      max_distance = "1000"
+    ) |>
+      suppressMessages(),
+    "Please make sure the input max_distance belongs to the numeric class."
   )
 })
 
