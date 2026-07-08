@@ -1,4 +1,5 @@
-argument_check <- function(object, data_type, extra_msg = NULL){
+argument_check <- function(object, data_type, extra_msg = NULL,
+                           obj_name = deparse(substitute(object))){
   correct_type <- switch(data_type,
                  list = is.list(object),
                  data.frame = is.data.frame(object),
@@ -9,7 +10,7 @@ argument_check <- function(object, data_type, extra_msg = NULL){
                  )
   if (!correct_type) {
     stop(paste("Please make sure the input",
-               deparse(substitute(object)),
+               obj_name,
                "belongs to the",
                data_type,
                "class.",
@@ -18,15 +19,16 @@ argument_check <- function(object, data_type, extra_msg = NULL){
 }
 
 argument_char_options <- function(object, options, extra_msg = NULL){
-  argument_check(object, "character")
+  obj_name <- deparse(substitute(object))
+  argument_check(object, "character", obj_name = obj_name)
   if (!length(object) == 1){
     stop(paste("Please make sure the input",
-               deparse(substitute(object)),
+               obj_name,
                "is a character object of length 1"))
   }
   if (!object %in% options) {
     stop(paste("Please make sure the input",
-               deparse(substitute(object)),
+               obj_name,
                "is one of the following options:",
                paste(options, collapse = ", "),
                ".",

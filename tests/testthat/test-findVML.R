@@ -11,7 +11,7 @@ test_that("findVML output structure is correct", {
   expect_true("VML" %in% names(VML_test))
   expect_true("highly_variable_probes" %in% names(VML_test))
   expect_true("var_score_threshold" %in% names(VML_test))
-  expect_true(is.data.frame(VML_test$VML))
+  expect_true(is(VML_test$VML, "GRanges"))
   expect_true(is.data.frame(VML_test$highly_variable_probes))
 })
 
@@ -67,7 +67,8 @@ test_that("findVML throws errors when expected", {
     paste("Please make sure the input array_manifest is one of the following",
           "options: IlluminaHumanMethylation450k, IlluminaHumanMethylationEPICv1,",
           "IlluminaHumanMethylationEPICv2 . Otherwise, please provide a custom",
-          "manifest as a data frame.")
+          "manifest as a data frame."),
+    fixed = TRUE
   )
   expect_error(
     RAMEN::findVML(
@@ -82,8 +83,9 @@ test_that("findVML throws errors when expected", {
       suppressMessages(),
     paste("The object array_manifest does not have the required columns: chr,",
           "pos, strand . Otherwise, provide a string with one of the supported",
-          "human microarrays ('IlluminaHumanMethylation450k', ",
-          "'IlluminaHumanMethylationEPICv1', or 'IlluminaHumanMethylationEPICv2')")
+          "human microarrays ('IlluminaHumanMethylation450k',",
+          "'IlluminaHumanMethylationEPICv1', or 'IlluminaHumanMethylationEPICv2')."),
+    fixed = TRUE
   )
   #### cor_threshold ####
   expect_error(
@@ -110,7 +112,8 @@ test_that("findVML throws errors when expected", {
       max_distance = 1000
     ) |>
       suppressMessages(),
-    "'cor_threshold' must be a value between 0 and 1 (inclusive)"
+    "'cor_threshold' must be a value between 0 and 1 (inclusive)",
+    fixed = TRUE
   )
   #### var_method ####
   expect_error(
@@ -191,7 +194,8 @@ test_that("findVML throws errors when expected", {
       max_distance = 1000
     ) |>
       suppressMessages(),
-    "'var_threshold_percentile' must be a value between 0 and 1 (inclusive)"
+    "'var_threshold_percentile' must be a value between 0 and 1 (inclusive)",
+    fixed = TRUE
   )
   #### max_distance ####
   expect_error(
@@ -215,7 +219,7 @@ test_that("findVML works with EPICv2 probes", {
   epic2_methylation_data <- RAMEN::test_methylation_data
   rownames(epic2_methylation_data) <- data.frame(IlluminaHumanMethylationEPICv2anno.20a1.hg38::Locations) |>
     dplyr::filter(chr == "chr21") |>
-    dplyr::arrange(chr, pos) |> # Make sure to extract neighbouring probes to have VML
+    dplyr::arrange(chr, pos) |>
     dplyr::slice_head(n = nrow(RAMEN::test_methylation_data)) |>
     rownames()
 
@@ -230,8 +234,8 @@ test_that("findVML works with EPICv2 probes", {
   ) |>
     suppressMessages()
   expect_true(is.list(VML_epic2))
-  expect_true(is.data.frame(VML_epic2$VML))
-  expect_equal(ncol(VML_epic2$VML), 10)
+  expect_true(is(VML_epic2$VML, "GRanges"))
+  expect_equal(ncol(mcols(VML_epic2$VML)), 5)
 })
 
 test_that("findVML works with var_distribution = 'all' and mad score", {
@@ -248,8 +252,8 @@ test_that("findVML works with var_distribution = 'all' and mad score", {
   ) |>
     suppressMessages()
   expect_true(is.list(VML_allvar))
-  expect_true(is.data.frame(VML_allvar$VML))
-  expect_equal(ncol(VML_allvar$VML), 10)
+  expect_true(is(VML_allvar$VML, "GRanges"))
+  expect_equal(ncol(mcols(VML_allvar$VML)), 5)
 })
 
 test_that("sVMPs have no correlation", {
@@ -260,10 +264,11 @@ test_that("sVMPs have no correlation", {
 })
 
 test_that("correlation is computed correctly", {
-  VML_test_cor <- VML_test$VML |>
-    dplyr::filter(type == "VMR") |>
-    dplyr::arrange(n_VMPs) |>
-    dplyr::slice_tail(n = 1) # Get the VMR with highest number of HVPs
+  vmr_gr <- VML_test$VML[VML_test$VML$type == "VMR"]
+  # Order by n_VMPs ascending, then take the last one (highest n_VMPs)
+  vmr_gr <- vmr_gr[order(vmr_gr$n_VMPs)]
+  VML_test_cor <- vmr_gr[length(vmr_gr)]
+  # get the probes
   probes <- unlist(VML_test_cor$probes)
   methylation_subset <- RAMEN::test_methylation_data[probes, ]
   cor_matrix <- cor(t(methylation_subset))

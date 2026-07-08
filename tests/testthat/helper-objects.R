@@ -12,12 +12,12 @@ suppressMessages(VML_test <- RAMEN::findVML(
 ))
 
 summarized_methyl_VML_test <- RAMEN::summarizeVML(
-  VML_df = VML_test$VML,
+  VML_df = data.frame(VML_test$VML),
   methylation_data = test_methylation_data
 )
 
 suppressMessages(VML_cis_snps_test <- RAMEN::findCisSNPs(
-  VML_df = VML_test$VML,
+  VML_df = data.frame(VML_test$VML),
   genotype_information = RAMEN::test_genotype_information,
   distance = 1e+06
 ))
