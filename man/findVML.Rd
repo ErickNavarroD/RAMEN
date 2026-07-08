@@ -22,25 +22,22 @@ through quality control and cleaning steps.}
 \item{array_manifest}{Information about the probes on the array in a format
 compatible with the Bioconductor annotation packages. The user can specify
 one of the supported human microarrays ("IlluminaHumanMethylation450k" with
-the hg19 genome build, "IlluminaHumanMethylationEPICv1" with the hg19
-genome build, or "IlluminaHumanMethylationEPICv2" with the hg38 genome
-build), or provide a manifest. The manifest requires the probe names as
-row names, and the following columns: "chr" (chromosome); "pos" (genomic
-location of the probe in the genome); and "strand" (this is very important
-to set up, since the VMRs will only be created based on CpGs on the same
-strand; if the positions are reported based on a single DNA strand, this
-should contain either a vector of only "+", "-" or "*" for all of the
-probes).}
+the hg19 genome build, "IlluminaHumanMethylationEPICv1" with the hg19 genome
+build, or "IlluminaHumanMethylationEPICv2" with the hg38 genome build), or
+provide a manifest. The manifest requires the probe names as row names, and
+the following columns: "chr" (chromosome); "pos" (genomic location of the
+probe in the genome); and "strand" (this is very important to set up, since
+the VMRs will only be created based on CpGs on the same strand; if the
+positions are reported based on a single DNA strand, this should contain
+either a vector of only "+", "-" or "*" for all of the probes).}
 
 \item{cor_threshold}{Numeric value (0-1) to be used as the median pearson
-correlation threshold for identifying VMRs (i.e.
-all VMRs will have a median pairwise probe correlation higher than this
-threshold).}
+correlation threshold for identifying VMRs (i.e. all VMRs will have a median
+pairwise probe correlation higher than this threshold).}
 
 \item{var_method}{A string indicating the metric to use to represent
 variability in the data set. The options are "mad" (median absolute
-deviation)
-or "variance".}
+deviation) or "variance".}
 
 \item{var_distribution}{A string indicating which probes in the data set
 should be used to create a variability distribution; the threshold to
@@ -77,7 +74,7 @@ or variance, depending on the specified choice).
 \item $highly_variable_probes: a data frame with the probes that passed the
 variability score threshold imposed by the user, and their variability score
 (MAD score or variance).
-\item $VML: a GRanges-like data frame with VMRs (regions composed of two or more
+\item $VML: a GRanges object listing VMRs (regions composed of two or more
 contiguous, correlated and proximal Highly Variable Probes), and sVMPs
 (highly variable probes without neighboring CpGs measured in \emph{max_distance}
 on the array).
@@ -91,8 +88,8 @@ Methylated Regions and sparse Variable Methylated Probes. See Details below
 for more information.
 }
 \details{
-This function identifies HVPs based on MAD scores or variance, and groups
-them into VML, which are defined as genomic regions with high DNA methylation
+This function identifies HVPs based on variance or MAD scores, and groups
+them into VML, which are defined as genomic locations with high DNA methylation
 variability.To best capture methylome variability patterns in microarrays,
 we identify two types of VML: Variably Methylated Regions (VMRs) and sparse
 Variably Methylated Probes (sVMPs) .
