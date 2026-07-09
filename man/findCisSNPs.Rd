@@ -4,20 +4,18 @@
 \alias{findCisSNPs}
 \title{Find cis SNPs around a set of Variable Methylated Loci (VML)}
 \usage{
-findCisSNPs(VML_df, genotype_information, distance = 1e+06)
+findCisSNPs(VML, genotype_information, distance = 1e+06)
 }
 \arguments{
-\item{VML_df}{A GRanges-like data frame (i.e. the same columns as a GRanges
-object converted to a data frame). Must contain the following columns:
-"seqnames", "start", "end". These columns are present automatically when
-doing the object conversion and correspond to the chromosome number, and
-range of the region.}
+\item{VML}{GRanges object. Must contain a metadata column named "probes",
+where each element contains a vector with the probes constituting the
+VML.}
 
 \item{genotype_information}{A data frame with information about genotyped
 sites of interest. It must contain the following columns: "CHROM"
 (chromosome number), "POS" (Genomic basepair position of the SNP (must be an
 integer), and "ID" (SNP ID). The nomenclature of CHROM must match with the
-one used in the VML_df seqnames column (i.e., if VML_df$seqnames uses 1, 2,
+one used in the VML seqnames column (i.e., if VML uses 1, 2,
 3, X, Y or Chr1, Chr2, Chr3, ChrX, ChrY, etc. as chromosome number, the
 genotype_information$CHROM values must be encoded in the same way).}
 
@@ -25,12 +23,9 @@ genotype_information$CHROM values must be encoded in the same way).}
 cis SNPs. Default is 1 Mb.}
 }
 \value{
-The same VML data frame (a data frame compatible with GRanges
-conversion) with the following new columns:
-\itemize{
-\item The cis SNPs identified for each VML and the number of SNPs surrounding
-each VML in the specified window
-}
+The same VML object with new metadata columns indicating the cis SNPs
+identified for each VML and the number of SNPs surrounding each VML in the
+specified window
 }
 \description{
 Identification of genotyped Single Nucleotide Polymorphisms (SNPs) close to
@@ -54,7 +49,7 @@ VML <- RAMEN::findVML(
 ## Find cis SNPs around VML
 # Use only 5 for demonstration purposes
 VML_with_cis_snps <- RAMEN::findCisSNPs(
-  VML_df = VML$VML[1:5, ],
+  VML = VML$VML[1:5, ],
   genotype_information = RAMEN::test_genotype_information,
   distance = 1e6
 )
