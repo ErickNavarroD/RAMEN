@@ -11,12 +11,7 @@
 #' function (e.g., *doParallel::registerDoParallel(4)*). After that, the
 #' function can be run as usual.
 #'
-#' @param VML_df A GRanges-like data frame. Must contain the following columns:
-#' "seqnames", "start", "end" and "probes" (containing lists as elements, where
-#' each contains a vector with the probes constituting the VML). This is the
-#' "VML" object returned by the *findVML()* function.
-#' @param methylation_data A data frame containing M or B values, with samples
-#' as columns and probes as rows. Row names must be the CpG probe IDs.
+#' @inheritParams medCorVMR
 #'
 #' @return A data frame with samples as rows, and VML as columns. The value
 #' inside each cell corresponds to the summarized methylation value of said VML
@@ -42,53 +37,43 @@
 #' ## Summarize methylation states of the found VML
 #' summarized_VML <- summarizeVML(
 #'   # Use only 5 for demonstration purposes
-#'   VML_df = VML$VML[1:5, ],
+#'   VML = VML$VML[1:5, ],
 #'   methylation_data = test_methylation_data
 #' )
 #'
-summarizeVML <- function(VML_df,
+summarizeVML <- function(VML,
                          methylation_data) {
-  # Input checks
-  if (!is.data.frame(VML_df)) stop("Please provide a data frame in VML_df")
+  #### Input checks ####
+  argument_check(VML, "GRanges")
+  argument_check(methylation_data, "data.frame")
   # Add a VML index to each region if not already existing
-  if (!"VML_index" %in% colnames(VML_df)) {
-    VML_df <- VML_df |>
-      dplyr::mutate(VML_index = paste("VML",
-                                      as.character(dplyr::row_number()),
-                                      sep = ""))
+  if (!"VML_index" %in% colnames(S4Vectors::mcols(VML))) {
+    S4Vectors::mcols(VML)$VML_index = paste("VML", 1:length(VML), sep = "")
   }
-  if (!is.data.frame(methylation_data)) {
-    if (is.matrix(methylation_data)) {
-      methylation_data <- as.data.frame(methylation_data)
-    } else {
-      stop("Please make sure the methylation data is a data frame or matrix with samples as columns and probes as rows.")
-    }
-  }
-  if (!all(unique(unlist(VML_df$probes)) %in% rownames(methylation_data))) {
+
+  if (!all(unique(unlist(VML$probes)) %in% rownames(methylation_data))) {
     warning(paste("Some probes listed in the VML data frame are not found in",
     "the methylation data. Please check that all probes listed in the 'probes'",
     "column of the VML data frame are present in the row names of the",
     "methylation data frame to avoid having NAs."))
   }
-
   # Check that probes is a list.
-  if (!is.list(VML_df$probes)) {
-    stop("Please make sure the 'probes' column in the VML data frame is a column of lists")
+  if (!is.list(VML$probes)) {
+    stop("Please make sure the 'probes' column in the VML object is a list")
   }
 
   VML_index <- i <- NULL # To avoid R CMD check notes
-  summarized_VML <- foreach::foreach(i = VML_df$VML_index,
+
+  #### Summarize VML ####
+  summarized_VML <- foreach::foreach(i = VML$VML_index,
                                      .combine = "cbind") %dopar% {
-    probes <- VML_df |>
-      dplyr::filter(VML_index == i) |>
-      dplyr::pull(probes) |>
+    probes <- VML[VML$VML_index == i]$probes |>
       unlist()
-    subset_meth <- methylation_data[probes, ] |>
-      t() |>
-      as.data.frame()
-    median <- data.frame(apply(subset_meth, 1, median))
-    colnames(median) <- i
-    median
-  }
-  return(summarized_VML)
+    subset_meth <-  methylation_data[probes, , drop = FALSE]
+    median <- apply(subset_meth, 2, median, na.rm = TRUE)
+    matrix(median, ncol = 1, dimnames = list(NULL, i))
+                                     }
+  # Add ID names
+  rownames(summarized_VML) = colnames(methylation_data)
+  return(data.frame(summarized_VML))
 }
