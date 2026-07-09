@@ -1,78 +1,80 @@
 test_that("findCisSNPs output structure is correct", {
-  expect_true(is.data.frame(VML_cis_snps_test))
-  expect_equal(ncol(VML_cis_snps_test), ncol(VML_test$VML) + 2)
-  expect_equal(nrow(VML_cis_snps_test), nrow(VML_test$VML))
+  expect_true(is(VML_cis_snps_test, "GRanges"))
+  expect_equal(ncol(S4Vectors::mcols(VML_cis_snps_test)),
+               ncol(S4Vectors::mcols(VML_test$VML)) + 2)
+  expect_equal(length(VML_cis_snps_test), length(VML_test$VML))
   expect_true(all(
-    c(colnames(VML_test$VML), "surrounding_SNPs", "SNP") %in%
-      colnames(VML_cis_snps_test)
+    c(colnames(S4Vectors::mcols(VML_test$VML)),
+      "surrounding_SNPs",
+      "SNP") %in% colnames(S4Vectors::mcols(VML_cis_snps_test))
   ))
 })
 
 test_that("findCisSNPs adds a VML index when it is not present", {
   # Set the parallel backend to use 2 workers
   doParallel::registerDoParallel(2)
+  # Delete IDs
+  VML_no_IDs <- VML_test$VML[1:5, ]
+  VML_no_IDs$VML_index <- NULL
+  # Run function
   VML_cis_snps_noID <- RAMEN::findCisSNPs(
-    VML_df = VML_test$VML |>
-      dplyr::select(-VML_index),
+    VML = VML_no_IDs,
     genotype_information = RAMEN::test_genotype_information,
     distance = 1e+06
   ) |>
     suppressMessages()
-  expect_true("VML_index" %in% colnames(VML_cis_snps_noID))
+  expect_true("VML_index" %in% colnames(S4Vectors::mcols(VML_cis_snps_noID)))
 })
 
 test_that("findCisSNPs throws errors when expected", {
   expect_error(
     RAMEN::findCisSNPs(
-      VML_df = VML_test$VML |>
-        dplyr::select(-seqnames),
+      VML = data.frame(VML_test$VML),
       genotype_information = RAMEN::test_genotype_information,
       distance = 1e+06
     ) |>
       suppressMessages(),
-    "Please make sure the VML_df object has the required columns with the appropiate names (check documentation for further information)",
+    "Please make sure the input VML belongs to the GRanges class",
     fixed = TRUE
   )
   expect_error(
     RAMEN::findCisSNPs(
-      VML_df = VML_test$VML,
+      VML = VML_test$VML,
       genotype_information = RAMEN::test_genotype_information |>
         dplyr::select(-CHROM),
       distance = 1e+06
     ) |>
       suppressMessages(),
-    "Please make sure the genotype_information object has the required columns with the appropiate names (check documentation for further information)",
+    "The object genotype_information does not have the required columns: CHROM, POS, ID .",
     fixed = TRUE
   )
   expect_error(
     RAMEN::findCisSNPs(
-      VML_df = "a",
-      genotype_information = RAMEN::test_genotype_information,
-      distance = 1e+06
-    ) |>
-      suppressMessages(),
-    "Please make sure the VML_df object is a data frame.",
-    fixed = TRUE
-  )
-  expect_error(
-    RAMEN::findCisSNPs(
-      VML_df = VML_test$VML,
+      VML = VML_test$VML,
       genotype_information = "a",
       distance = 1e+06
     ) |>
       suppressMessages(),
-    "Please make sure the genotype_information object is a data frame."
+    "Please make sure the input genotype_information belongs to the data.frame class."
+  )
+  expect_error(
+    RAMEN::findCisSNPs(
+      VML = VML_test$VML,
+      genotype_information = RAMEN::test_genotype_information,
+      distance = "a"
+    ) |>
+      suppressMessages(),
+    "Please make sure the input distance belongs to the numeric class."
   )
 })
 
 test_that("findCisSNPs returns the right number of cis SNPs", {
   # Set the parallel backend to use 2 workers
   doParallel::registerDoParallel(2)
-  VML_vanilla <- data.frame(
-    VML_index = "1",
+  VML_vanilla <- GRanges(
     seqnames = "chr1",
-    start = 1000,
-    end = 2000,
+    ranges = IRanges::IRanges(start = 1000, end = 2000),
+    VML_index = "1",
     type = "VMR"
   )
   genot_info_test <- data.frame(
@@ -81,25 +83,25 @@ test_that("findCisSNPs returns the right number of cis SNPs", {
     ID = c("rs1", "rs2", "rs3", "rs4")
   )
   test_1 <- RAMEN::findCisSNPs(
-    VML_df = VML_vanilla,
+    VML = VML_vanilla,
     genotype_information = genot_info_test,
     distance = 1
   ) |>
     suppressMessages()
   test_500 <- RAMEN::findCisSNPs(
-    VML_df = VML_vanilla,
+    VML = VML_vanilla,
     genotype_information = genot_info_test,
     distance = 500
   ) |>
     suppressMessages()
   test_1000 <- RAMEN::findCisSNPs(
-    VML_df = VML_vanilla,
+    VML = VML_vanilla,
     genotype_information = genot_info_test,
     distance = 1000
   ) |>
     suppressMessages()
   test_2000 <- RAMEN::findCisSNPs(
-    VML_df = VML_vanilla,
+    VML = VML_vanilla,
     genotype_information = genot_info_test,
     distance = 2000
   ) |>
