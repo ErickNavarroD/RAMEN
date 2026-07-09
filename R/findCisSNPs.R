@@ -44,9 +44,6 @@ findCisSNPs <- function(VML, genotype_information, distance = 1e6) {
   CHROM <- NULL
   #### Check arguments ####
   argument_check(VML, "GRanges")
-  if (!"probes" %in% colnames(mcols(VML))) {
-    stop("Please make sure the VML object has the 'probes' column.")
-  }
   argument_check(genotype_information, "data.frame")
   columns_exist(genotype_information, c("CHROM", "POS", "ID"))
   message(paste("Reminder: please make sure that the positions of the VML data",
