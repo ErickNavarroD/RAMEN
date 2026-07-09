@@ -17,7 +17,7 @@ findVML(
 \arguments{
 \item{methylation_data}{A data frame containing M or B values, with samples
 as columns and probes as rows. Data is expected to have already passed
-through quality control and cleaning steps.}
+through quality control and cleaning steps. Rows must be the CpG probe IDs.}
 
 \item{array_manifest}{Information about the probes on the array in a format
 compatible with the Bioconductor annotation packages. The user can specify

@@ -13,7 +13,7 @@ VML.}
 
 \item{methylation_data}{A data frame containing M or B values, with samples
 as columns and probes as rows. Data is expected to have already passed
-through quality control and cleaning steps.}
+through quality control and cleaning steps. Rows must be the CpG probe IDs.}
 }
 \value{
 A data frame with samples as rows, and VML as columns. The value

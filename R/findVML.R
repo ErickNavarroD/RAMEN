@@ -98,7 +98,7 @@ map_revmap_names <- function(positions, manifest_hvp) {
 #' either a vector of only "+", "-" or "*" for all of the probes).
 #' @param methylation_data A data frame containing M or B values, with samples
 #' as columns and probes as rows. Data is expected to have already passed
-#' through quality control and cleaning steps.
+#' through quality control and cleaning steps. Rows must be the CpG probe IDs.
 #' @param cor_threshold Numeric value (0-1) to be used as the median pearson
 #' correlation threshold for identifying VMRs (i.e. all VMRs will have a median
 #' pairwise probe correlation higher than this threshold).
