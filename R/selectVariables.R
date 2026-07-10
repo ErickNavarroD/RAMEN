@@ -61,16 +61,14 @@
 #' (e.g., *environmental_matrix = NULL*).
 #'
 #'
-#' @param VML_df A data frame converted from a GRanges object. Recommended to
-#' use the output of *RAMEN::findCisSNPs()*. Must have one VML per row, and
-#' contain the following columns: "VML_index" (a unique ID for each VML in
+#' @param VML_wSNPs GRanges object produced by *RAMEN::findCisSNPs()*. Must
+#' contain the following metadata columns: "VML_index" (a unique ID for each VML in
 #' VML_df AS CHARACTERS) and "SNP" (a column with a list as observation,
 #' containing the name of the SNPs surrounding the corresponding VML).  The SNPs
 #' contained in the "SNP" column must be present in the object that is indicated
-#' in the genotype_matrix argument, and it must contain all the VML contained in
+#' in the genotype_matrix argument. VML_wSNPs must contain all the VML contained in
 #' summarized_methyl_VML. VML with no surrounding SNPs must have an empty list
-#' in the SNP column (either list(NULL), list(NA), list("") or
-#' list(character(0))).
+#' in the SNP column (either list(NULL), list(NA), list("") or list(character(0))).
 #' @param environmental_matrix A matrix of environmental variables. Only numeric
 #'  values are supported. In case of factor variables, it is recommended to
 #'  encode them as numbers or re-code them into dummy variables if there are
@@ -81,11 +79,11 @@
 #' model, which would encode the SNPs ordinally depending on the genotype allele
 #'  charge, such as 2 (AA), 1 (AB) and 0 (BB). The column names must correspond
 #'   with individual IDs.
-#' @param summarized_methyl_VML A data frame containing each individual's VML
+#' @param summarized_methyl_VML A matrix containing each individual's VML
 #' summarized methylation. It is suggested to use the output of
-#' RAMEN::summarizeVML().Rows must reflects individuals, and columns VML The
+#' *RAMEN::summarizeVML()*.Rows must reflects individuals, and columns VML The
 #' names of the columns must correspond to the index of said VML, and it must
-#' match the index of VML_df$VML_index. The names of the rows must correspond to
+#' match the index of VML_wSNPs$VML_index. The names of the rows must correspond to
 #'  the sample IDs, and must match with the IDs of the other matrices.
 #' @param covariates A matrix containing the covariates (i.e., concomitant
 #' variables / variables that are not the ones you are interested in) that will
@@ -182,42 +180,26 @@ selectVariables <- function(VML_wSNPs,
     #### Prepare data sets ####
     VML_i = VML_wSNPs[VML_wSNPs$VML_index == i]
     # Select summarized VML information
-    summVMLi <- summarized_methyl_VML[, i]
+    summVMLi <- summarized_methyl_VML[, i, drop = FALSE]
     ## Prepare data
     # subset the genotyping data and match genotype, environment and DNAme IDs
     if (VML_i$SNP %in% empty_lists){ # Catch VML with no surrounding SNPs
       genot_VMLi <- c()
       any_snp <- FALSE
-    } else if (length(VML_i$SNP[[1]]) == 1) {
-      # Special case of sub-setting if SNP is only one because the result is a
-      # vector and not a matrix
-      genot_VMLi <- genotype_matrix[unlist(VML_i$SNP), names(summVMLi)] |>
-        as.matrix()
-      colnames(genot_VMLi) <- VML_i$SNP[[1]]
-      any_snp <- TRUE
     } else {
-      genot_VMLi <- genotype_matrix[unlist(VML_i$SNP), names(summVMLi)] |>
+      genot_VMLi <- genotype_matrix[unlist(VML_i$SNP),
+                                    rownames(summVMLi),
+                                    drop = FALSE] |>
         t()
       any_snp <- TRUE
     }
-    if (ncol(environmental_matrix) == 1) {
-      environ_VMLi <- environmental_matrix[names(summVMLi), ] |>
-        as.matrix()
-      colnames(environ_VMLi) <- colnames(environmental_matrix)
-    } else {
-      environ_VMLi <- environmental_matrix[names(summVMLi), ]
+    if (!is.null(environmental_matrix)) {
+      environ_VMLi <- environmental_matrix[rownames(summVMLi), , drop = FALSE]
     }
     environ_genot_VMLi <- cbind(genot_VMLi, environ_VMLi)
     # Bind covariates data
     if (!is.null(covariates)) {
-      if (ncol(covariates) == 1) {
-        # Match the covariates dataset with the VML information
-        covariates_VMLi <- covariates[names(summVMLi), ] |>
-          as.matrix()
-        colnames(covariates_VMLi) <- colnames(covariates)
-      } else {
-        covariates_VMLi <- covariates[names(summVMLi), ]
-      }
+      covariates_VMLi <- covariates[rownames(summVMLi), , drop = FALSE]
       genot_VMLi <- cbind(genot_VMLi, covariates_VMLi)
       environ_VMLi <- cbind(environ_VMLi, covariates_VMLi)
       environ_genot_VMLi <- cbind(environ_genot_VMLi, covariates_VMLi)
