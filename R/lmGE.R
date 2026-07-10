@@ -73,16 +73,16 @@
 #'   publication of the relaimpo R package (Grömping, 2006).
 #'
 #' @param selected_variables A data frame obtained with *RAMEN::selectVariables()*.
-#'  This data frame must contain three columns: 'VML_index' with characters of
-#'  an unique ID of each VML; ´selected_genot' and 'selected_env' with the SNPs
-#'  and environmental variables, respectively, that will be used for fitting the
-#'   genotype (G), environment (E), additive (G + E) or interaction (G x E)
-#'    models. The columns 'selected_env' and 'selected_genot' must contain lists
-#'     as elements; VML with no environmental or genotype selected variables
-#'     must contain an empty list with NULL, NA , character(0) or "" inside.
+#' This data frame must contain three columns: 'VML_index' with characters of
+#' an unique ID of each VML; ´selected_genot' and 'selected_env' with the SNPs
+#' and environmental variables, respectively, that will be used for fitting the
+#' genotype (G), environment (E), additive (G + E) or interaction (G x E)
+#' models. The columns 'selected_env' and 'selected_genot' must contain lists
+#' as elements; VML with no environmental or genotype selected variables
+#' must contain an empty list (i.e., list(NULL), list(NA), list("") or
+#' list(character(0)) ).
 #' @param model_selection Which metric to use to select the best model for each
-#'  VML. Supported options are "AIC" or BIC". More information about which one to
-#'   use can be found in the Details section.
+#' VML. Supported options are "AIC" or BIC".
 #' @inheritParams selectVariables
 #' @return A data frame with the following columns:
 #'  - VML_index: The unique ID of the VML
@@ -135,7 +135,7 @@
 #' ## Find cis SNPs around VML
 #' VML_with_cis_snps <- RAMEN::findCisSNPs(
 #'   # Use only 5 for demonstration purposes
-#'   VML_df = VML$VML [1:5, ],
+#'   VML = VML$VML [1:5, ],
 #'   genotype_information = RAMEN::test_genotype_information,
 #'   distance = 1e6
 #' )
@@ -148,7 +148,7 @@
 #'
 #' ## Select relevant genotype and environmental variables
 #' selected_vars <- RAMEN::selectVariables(
-#'   VML_df = VML_with_cis_snps,
+#'   VML_wSNPs = VML_with_cis_snps,
 #'   genotype_matrix = RAMEN::test_genotype_matrix,
 #'   environmental_matrix = RAMEN::test_environmental_matrix,
 #'   covariates = RAMEN::test_covariates,
@@ -178,89 +178,32 @@ lmGE <- function(selected_variables,
   e_r_squared <- gxe_r_squared <- second_winner <- delta_aic <- NULL
   delta_r_squared <- basal_AIC <- basal_rsquared <- delta_bic <- basal_BIC <- NULL
 
-  # Check arguments
-  # Check that genotype_matrix, environmental_matrix, covariate matrix (in case
-  # it is provided) and summarized_methyl_VML have the same samples
-  if (!is.data.frame(summarized_methyl_VML)) stop("Please make sure summarized_methyl_VML is a data frame.")
-  if (!all(rownames(summarized_methyl_VML) %in% colnames(genotype_matrix))) stop("Individual IDs in summarized_methyl_VML do not match individual IDs in genotype_matrix")
-  if (!all(rownames(summarized_methyl_VML) %in% rownames(environmental_matrix))) stop("Individual IDs in summarized_methyl_VML do not match individual IDs in environmental_matrix")
+  #### Check arguments ####
+  # Input has the right structure
+  argument_check(selected_variables, "data.frame")
+  columns_exist(selected_variables, c("VML_index",
+                                      "selected_genot",
+                                      "selected_env") )
+  argument_check(selected_variables$selected_env, "list")
+  argument_check(selected_variables$selected_genot, "list")
+  argument_check(selected_variables$VML_index, "character")
+  argument_check(summarized_methyl_VML, "matrix")
+  argument_check(genotype_matrix, "matrix")
+  argument_check(environmental_matrix, "matrix")
+  if (!is.null(covariates)) argument_check(covariates, "matrix")
+  argument_char_options(object = model_selection, options = c("AIC", "BIC"))
+  # All objects have matching IDs
+  vectors_match(rownames(summarized_methyl_VML), colnames(genotype_matrix))
+  vectors_match(rownames(summarized_methyl_VML), rownames(environmental_matrix))
   if (!is.null(covariates)) {
-    if (!all(rownames(summarized_methyl_VML) %in% rownames(covariates))) stop("Individual IDs in summarized_methyl_VML do not match individual IDs in the covariates matrix")
+    vectors_match(rownames(summarized_methyl_VML), rownames(covariates))
   }
-  # Check that selected_variables has the right columns
-  if (!all(c("VML_index", "selected_genot", "selected_env") %in% colnames(selected_variables))) stop("Please make sure the selected_variables data frame contains the columns 'VML_index', 'selected_genot' and 'selected_env'.")
-  # Check that the selected_genot and selected_env columns on selected_variables is a list and the index is characters
-  if (!is.list(selected_variables$selected_genot)) stop("Please make sure the 'selected_genot' column in selected_variables contains lists as elements")
-  if (!is.list(selected_variables$selected_env)) stop("Please make sure the 'selected_env' column in selected_variables contains lists as elements")
-  if (!is.character(selected_variables$VML_index)) stop("Please make sure the 'VML_index' column in selected_variables contains characters")
-  # Check that genotype, environment and covariates are matrices
-  if (!is.matrix(genotype_matrix)) stop("Please make sure the genotype data is provided as a matrix.")
-  if (!is.matrix(environmental_matrix)) stop("Please make sure the environmental data is provided as a matrix.")
-  if (!is.null(covariates)) {
-    if (!is.matrix(covariates)) stop("Please make sure the covariates data is provided as a matrix.")
-  }
-  if (!model_selection %in% c("AIC", "BIC")) stop("Please make sure your model_selection method is 'AIC' or 'BIC'")
-  ## Check that genotype_matrix, environmental_matrix, and covariates (in case
-  ## it is provided) have only numeric values and no NA, NaN, Inf values
-  if (
-    sum(vapply(genotype_matrix, is.na, FUN.VALUE = logical(1))) > 0 ||
-      sum(vapply(genotype_matrix, is.nan, FUN.VALUE = logical(1))) > 0 ||
-      sum(!vapply(genotype_matrix, is.numeric, FUN.VALUE = logical(1))) > 0 ||
-      sum(vapply(genotype_matrix, is.infinite, FUN.VALUE = logical(1))) > 0
-  ) {
-    stop(
-      "Please make sure the genotype matrix contains only finite numeric values."
-    )
-  }
-  if (
-    sum(vapply(environmental_matrix, is.na, FUN.VALUE = logical(1))) > 0 ||
-      sum(vapply(environmental_matrix, is.nan, FUN.VALUE = logical(1))) > 0 ||
-      sum(!vapply(environmental_matrix, is.numeric, FUN.VALUE = logical(1))) > 0 ||
-      sum(vapply(environmental_matrix, is.infinite, FUN.VALUE = logical(1))) > 0
-  ) {
-    stop(
-      "Please make sure the environmental matrix contains only finite numeric values."
-    )
-  }
-  if (!is.null(covariates)) {
-    if (
-      sum(vapply(covariates, is.na, FUN.VALUE = logical(1))) > 0 ||
-        sum(vapply(covariates, is.nan, FUN.VALUE = logical(1))) > 0 ||
-        sum(!vapply(covariates, is.numeric, FUN.VALUE = logical(1))) > 0 ||
-        sum(vapply(covariates, is.infinite, FUN.VALUE = logical(1))) > 0
-    ) {
-      stop(
-        "Please make sure the covariates matrix contains only finite numeric values."
-      )
-    }
-  }
-
-  if (
-    sum(vapply(summarized_methyl_VML,
-      is.na,
-      FUN.VALUE = logical(nrow(summarized_methyl_VML))
-    )) > 0 ||
-      sum(vapply(summarized_methyl_VML,
-        is.nan,
-        FUN.VALUE = logical(nrow(summarized_methyl_VML))
-      )) > 0 ||
-      sum(!vapply(summarized_methyl_VML,
-        is.numeric,
-        FUN.VALUE = logical(1)
-      )) > 0 ||
-      sum(vapply(summarized_methyl_VML,
-        is.infinite,
-        FUN.VALUE = logical(nrow(summarized_methyl_VML))
-      )) > 0
-  ) {
-    stop(
-      "Please make sure the summarized_methyl_VML data frame contains only finite numeric values."
-    )
-  }
-
-
+  # Matrices have obly finite numeric values
+  finite_numeric_check(genotype_matrix)
+  finite_numeric_check(environmental_matrix)
+  finite_numeric_check(summarized_methyl_VML)
+  if (!is.null(covariates)) finite_numeric_check(covariates)
   # Filter VML that have no selected G and no selected E
-  empty_lists <- c(list(NULL), list(""), list(NA), list(character(0)))
   no_vars_VML <- selected_variables |>
     dplyr::filter((selected_env %in% empty_lists &
       selected_genot %in% empty_lists))
