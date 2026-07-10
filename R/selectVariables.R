@@ -123,7 +123,7 @@
 #' ## Find cis SNPs around VML
 #' VML_with_cis_snps <- RAMEN::findCisSNPs(
 #'   # Use only 5 for demonstration purposes
-#'   VML_df = VML$VML[1:5, ],
+#'   VML = VML$VML[1:5, ],
 #'   genotype_information = RAMEN::test_genotype_information,
 #'   distance = 1e6
 #' )
@@ -131,12 +131,12 @@
 #' ## Summarize methylation levels in VML
 #' summarized_methyl_VML <- RAMEN::summarizeVML(
 #'   methylation_data = RAMEN::test_methylation_data,
-#'   VML_df = VML_with_cis_snps
+#'   VML = VML_with_cis_snps
 #' )
 #'
 #' ## Select relevant genotype and environmental variables
 #' selected_vars <- RAMEN::selectVariables(
-#'   VML_df = VML_with_cis_snps,
+#'   VML_wSNPs = VML_with_cis_snps,
 #'   genotype_matrix = RAMEN::test_genotype_matrix,
 #'   environmental_matrix = RAMEN::test_environmental_matrix,
 #'   covariates = RAMEN::test_covariates,
@@ -144,139 +144,79 @@
 #'   seed = 1
 #' )
 #'
-selectVariables <- function(VML_df,
+selectVariables <- function(VML_wSNPs,
                             genotype_matrix,
                             environmental_matrix,
                             covariates = NULL,
                             summarized_methyl_VML,
                             seed = NULL) {
   #### Arguments check ####
-  ## Check that genotype_matrix, environmental_matrix, covariate matrix (in case it is provided) and summarized_methyl_VML have the same samples
-  if (!is.data.frame(summarized_methyl_VML)) stop("Please make sure summarized_methyl_VML is a data frame.")
-  if (!all(rownames(summarized_methyl_VML) %in% colnames(genotype_matrix))) stop("Individual IDs in summarized_methyl_VML do not match individual IDs in genotype_matrix")
-  if (!all(rownames(summarized_methyl_VML) %in% rownames(environmental_matrix))) stop("Individual IDs in summarized_methyl_VML do not match individual IDs in environmental_matrix")
-  if (!is.null(covariates)) {
-    if (!all(rownames(summarized_methyl_VML) %in% rownames(covariates))) stop("Individual IDs in summarized_methyl_VML do not match individual IDs in the covariates matrix")
-  }
-  ## Check that VML_df has index and SNP column
-  if (!all(c("VML_index", "SNP") %in% colnames(VML_df))) stop("Please make sure the VML data frame (VML_df) contains the columns 'SNP' and 'VML_index'.")
-  ## Check that the SNP column on VML_df is a list
-  if (!is.list(VML_df$SNP)) stop("Please make sure the 'SNP' column in VML_df is a column containing lists as values")
-  if (!is.character(VML_df$VML_index)) stop("Please make sure the 'VML_index' column in VML_df is a column of characters")
-  ## Check that genotype, environment and covariates are matrices
-  if (!is.matrix(genotype_matrix)) stop("Please make sure the genotype data is provided as a matrix.")
-  if (!is.null(environmental_matrix)) {
-    if (!is.matrix(environmental_matrix)) stop("Please make sure the environmental data is provided as a matrix.")
-  }
-  if (!is.null(covariates)) {
-    if (!is.matrix(covariates)) stop("Please make sure the covariates data is provided as a matrix.")
+  # Check correct input class
+  argument_check(VML_wSNPs, "GRanges")
+  argument_check(genotype_matrix, "matrix")
+  if (!is.null(environmental_matrix)) argument_check(environmental_matrix, "matrix")
+  if (!is.null(covariates)) argument_check(covariates, "matrix")
+  argument_check(summarized_methyl_VML, "matrix")
+  if (!is.null(seed)) argument_check(seed, "numeric")
+  columns_exist(S4Vectors::mcols(VML_wSNPs), c("VML_index", "SNP"))
+  argument_check(VML_wSNPs$SNP, "list")
+  argument_check(VML_wSNPs$VML_index, "character")
+  # Check that IDs match across data sets
+  vectors_match(rownames(summarized_methyl_VML),colnames(genotype_matrix))
+  vectors_match(rownames(summarized_methyl_VML),rownames(environmental_matrix))
+  if (!is.null(covariates)){
+    vectors_match(rownames(summarized_methyl_VML), rownames(covariates))
   }
   ## Check that genotype_matrix, environmental_matrix, and covariates (in case
-  ## it is provided) have only numeric values and no NA, NaN, Inf values
-  if (
-    sum(vapply(genotype_matrix, is.na, FUN.VALUE = logical(1))) > 0 ||
-      sum(vapply(genotype_matrix, is.nan, FUN.VALUE = logical(1))) > 0 ||
-      sum(!vapply(genotype_matrix, is.numeric, FUN.VALUE = logical(1))) > 0 ||
-      sum(vapply(genotype_matrix, is.infinite, FUN.VALUE = logical(1))) > 0
-  ) {
-    stop(
-      "Please make sure the genotype matrix contains only finite numeric values."
-    )
-  }
-  if (
-    sum(vapply(environmental_matrix, is.na, FUN.VALUE = logical(1))) > 0 ||
-      sum(vapply(environmental_matrix, is.nan, FUN.VALUE = logical(1))) > 0 ||
-      sum(!vapply(environmental_matrix, is.numeric, FUN.VALUE = logical(1))) > 0 ||
-      sum(vapply(environmental_matrix, is.infinite, FUN.VALUE = logical(1))) > 0
-  ) {
-    stop(
-      "Please make sure the environmental matrix contains only finite numeric values."
-    )
-  }
-  if (!is.null(covariates)) {
-    if (
-      sum(vapply(covariates, is.na, FUN.VALUE = logical(1))) > 0 ||
-        sum(vapply(covariates, is.nan, FUN.VALUE = logical(1))) > 0 ||
-        sum(!vapply(covariates, is.numeric, FUN.VALUE = logical(1))) > 0 ||
-        sum(vapply(covariates, is.infinite, FUN.VALUE = logical(1))) > 0
-    ) {
-      stop(
-        "Please make sure the covariates matrix contains only finite numeric values."
-      )
-    }
-  }
-
-  if (
-    sum(vapply(summarized_methyl_VML,
-      is.na,
-      FUN.VALUE = logical(nrow(summarized_methyl_VML))
-    )) > 0 ||
-      sum(vapply(summarized_methyl_VML,
-        is.nan,
-        FUN.VALUE = logical(nrow(summarized_methyl_VML))
-      )) > 0 ||
-      sum(!vapply(summarized_methyl_VML,
-        is.numeric,
-        FUN.VALUE = logical(1)
-      )) > 0 ||
-      sum(vapply(summarized_methyl_VML,
-        is.infinite,
-        FUN.VALUE = logical(nrow(summarized_methyl_VML))
-      )) > 0
-  ) {
-    stop(
-      "Please make sure the summarized_methyl_VML data frame contains only finite numeric values."
-    )
-  }
-
+  ## it is provided) have only numeric values and no NA, NaN, Inf
+  finite_numeric_check(genotype_matrix)
+  finite_numeric_check(environmental_matrix)
+  if (!is.null(covariates)) finite_numeric_check(covariates)
+  finite_numeric_check(summarized_methyl_VML)
   ## Set the seed
   if (!is.null(seed)) set.seed(seed)
   VML_i <- NULL # To avoid R CMD check note about undefined global variable
   #### Run LASSO ####
-  lasso_results <- foreach::foreach(VML_i = iterators::iter(VML_df,
-                                                            by = "row"),
+  lasso_results <- foreach::foreach(i = VML_wSNPs$VML_index,
                                     .combine = "rbind") %dorng% {
     #### Prepare data sets ####
+    VML_i = VML_wSNPs[VML_wSNPs$VML_index == i]
     # Select summarized VML information
-    summVMLi <- summarized_methyl_VML |>
-      dplyr::select(VML_i$VML_index)
+    summVMLi <- summarized_methyl_VML[, i]
     ## Prepare data
     # subset the genotyping data and match genotype, environment and DNAme IDs
-    if (VML_i$SNP %in% list(NULL) || # Catch VML with no surrounding SNPs
-      VML_i$SNP %in% list("") ||
-      VML_i$SNP %in% list(NA) ||
-      VML_i$SNP %in% list(character(0))) {
+    if (VML_i$SNP %in% empty_lists){ # Catch VML with no surrounding SNPs
       genot_VMLi <- c()
       any_snp <- FALSE
     } else if (length(VML_i$SNP[[1]]) == 1) {
       # Special case of sub-setting if SNP is only one because the result is a
       # vector and not a matrix
-      genot_VMLi <- genotype_matrix[unlist(VML_i$SNP), rownames(summVMLi)] |>
+      genot_VMLi <- genotype_matrix[unlist(VML_i$SNP), names(summVMLi)] |>
         as.matrix()
       colnames(genot_VMLi) <- VML_i$SNP[[1]]
       any_snp <- TRUE
     } else {
-      genot_VMLi <- genotype_matrix[unlist(VML_i$SNP), rownames(summVMLi)] |>
+      genot_VMLi <- genotype_matrix[unlist(VML_i$SNP), names(summVMLi)] |>
         t()
       any_snp <- TRUE
     }
     if (ncol(environmental_matrix) == 1) {
-      environ_VMLi <- environmental_matrix[rownames(summVMLi), ] |>
+      environ_VMLi <- environmental_matrix[names(summVMLi), ] |>
         as.matrix()
       colnames(environ_VMLi) <- colnames(environmental_matrix)
     } else {
-      environ_VMLi <- environmental_matrix[rownames(summVMLi), ]
+      environ_VMLi <- environmental_matrix[names(summVMLi), ]
     }
     environ_genot_VMLi <- cbind(genot_VMLi, environ_VMLi)
     # Bind covariates data
     if (!is.null(covariates)) {
       if (ncol(covariates) == 1) {
         # Match the covariates dataset with the VML information
-        covariates_VMLi <- covariates[rownames(summVMLi), ] |>
+        covariates_VMLi <- covariates[names(summVMLi), ] |>
           as.matrix()
         colnames(covariates_VMLi) <- colnames(covariates)
       } else {
-        covariates_VMLi <- covariates[rownames(summVMLi), ]
+        covariates_VMLi <- covariates[names(summVMLi), ]
       }
       genot_VMLi <- cbind(genot_VMLi, covariates_VMLi)
       environ_VMLi <- cbind(environ_VMLi, covariates_VMLi)
@@ -293,7 +233,7 @@ selectVariables <- function(VML_df,
       coef_genot <- stats::coef(
         glmnet::cv.glmnet(
           x = genot_VMLi, # Variables
-          y = summVMLi[, VML_i$VML_index], # Response
+          y = summVMLi, # Response
           alpha = 1,
           nfolds = 5,
           penalty.factor = c(
@@ -321,7 +261,7 @@ selectVariables <- function(VML_df,
       coef_env <- stats::coef(
         glmnet::cv.glmnet(
           x = environ_VMLi, # Variables
-          y = summVMLi[, VML_i$VML_index], # Response
+          y = summVMLi, # Response
           alpha = 1,
           nfolds = 5,
           # Unpenalize the variables in covariates (i.e., force LASSO to keep
@@ -347,7 +287,7 @@ selectVariables <- function(VML_df,
         coef_joint <- stats::coef(
           glmnet::cv.glmnet(
             x = environ_genot_VMLi, # Variables
-            y = summVMLi[, VML_i$VML_index], # Response
+            y = summVMLi, # Response
             alpha = 1,
             nfolds = 5,
             # Unpenalize the variables in covariates (i.e., force LASSO to keep
@@ -392,5 +332,5 @@ selectVariables <- function(VML_df,
     selected_variables_final
   }
 
-  return(data.frame(lasso_results))
+  return(lasso_results)
 }
