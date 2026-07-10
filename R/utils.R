@@ -46,3 +46,30 @@ columns_exist <- function(data.frame, columns, extra_msg = NULL){
                extra_msg))
   }
 }
+
+vectors_match <- function(object_1, object_2, extra_msg = NULL){
+  if (!all(object_1 %in% object_2)){
+    stop(paste("The objects",
+               deparse(substitute(object_1)),
+               "and",
+               deparse(substitute(object_2)),
+               "must match.",
+               extra_msg))
+  }
+}
+
+finite_numeric_check <- function(object, extra_msg = NULL){
+  if (
+    sum(vapply(object, is.na, FUN.VALUE = logical(1))) > 0 ||
+    sum(vapply(object, is.nan, FUN.VALUE = logical(1))) > 0 ||
+    sum(!vapply(object, is.numeric, FUN.VALUE = logical(1))) > 0 ||
+    sum(vapply(object, is.infinite, FUN.VALUE = logical(1))) > 0
+  ) {
+    stop(paste("Please make sure the object",
+               deparse(substitute(object)),
+               "contains only finite numeric values (i.e., no NA, NaN or Inf).",
+               extra_msg))
+  }
+}
+
+empty_lists <- c(list(NULL), list(""), list(NA), list(character(0)))
