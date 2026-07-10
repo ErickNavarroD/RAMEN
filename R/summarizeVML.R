@@ -13,7 +13,7 @@
 #'
 #' @inheritParams medCorVMR
 #'
-#' @return A data frame with samples as rows, and VML as columns. The value
+#' @return A matrix with samples as rows, and VML as columns. The value
 #' inside each cell corresponds to the summarized methylation value of said VML
 #' in the corresponding individual. The column names correspond to the VML_index.
 #'
@@ -75,5 +75,5 @@ summarizeVML <- function(VML,
                                      }
   # Add ID names
   rownames(summarized_VML) = colnames(methylation_data)
-  return(data.frame(summarized_VML))
+  return(summarized_VML)
 }
