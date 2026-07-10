@@ -203,6 +203,8 @@ lmGE <- function(selected_variables,
   finite_numeric_check(environmental_matrix)
   finite_numeric_check(summarized_methyl_VML)
   if (!is.null(covariates)) finite_numeric_check(covariates)
+
+  #### Select best winning model ####
   # Filter VML that have no selected G and no selected E
   no_vars_VML <- selected_variables |>
     dplyr::filter((selected_env %in% empty_lists &
@@ -210,51 +212,31 @@ lmGE <- function(selected_variables,
   selected_variables <- selected_variables |>
     dplyr::filter(!(selected_env %in% empty_lists &
       selected_genot %in% empty_lists))
-
   # Select the winning model
-  winning_models <- foreach::foreach(
-    VML_i = iterators::iter(selected_variables, by = "row"),
-    .combine = "rbind"
-  ) %dopar% { # For every VML
+  winning_models <- foreach::foreach(i = 1:nrow(selected_variables),
+                                     .combine = "rbind") %dopar% { # For every VML
+    #### Prepare data sets ####
     # Create the data frame with all the information for each VML
-    summ_vml_i <- as.matrix(summarized_methyl_VML[, VML_i$VML_index])
+    VML_i = selected_variables[i,]
+    summ_vml_i <- summarized_methyl_VML[, VML_i$VML_index, drop = FALSE]
     colnames(summ_vml_i) <- "DNAme"
     if (!VML_i$selected_env %in% empty_lists) {
-      if (length(VML_i$selected_env[[1]]) == 1) {
-        env_i <- environmental_matrix[rownames(summarized_methyl_VML),
-                                      unlist(VML_i$selected_env)] |>
-          as.matrix()
-        colnames(env_i) <- unlist(VML_i$selected_env)
-      } else {
-        env_i <- environmental_matrix[rownames(summarized_methyl_VML),
-                                      unlist(VML_i$selected_env)]
-      }
+      env_i <- environmental_matrix[rownames(summarized_methyl_VML),
+                                    unlist(VML_i$selected_env),
+                                    drop = FALSE]
     } else {
       env_i <- NULL
     }
     if (!VML_i$selected_genot %in% empty_lists) {
-      if (length(VML_i$selected_genot[[1]]) == 1) {
-        genot_i <- genotype_matrix[unlist(VML_i$selected_genot),
-                                   rownames(summarized_methyl_VML)] |>
-          as.matrix()
-        colnames(genot_i) <- unlist(VML_i$selected_genot)
+      genot_i <- genotype_matrix[unlist(VML_i$selected_genot),
+                                 rownames(summarized_methyl_VML),
+                                 drop = FALSE] |>
+        t()
       } else {
-        genot_i <- genotype_matrix[unlist(VML_i$selected_genot),
-                                   rownames(summarized_methyl_VML)] |>
-          t()
+        genot_i <- NULL
       }
-    } else {
-      genot_i <- NULL
-    }
     if (!is.null(covariates)) {
-      if (ncol(covariates) == 1) {
-        covariates_i <- covariates[rownames(summarized_methyl_VML), ] |>
-          # Match the covariates dataset with the VML information
-          as.matrix()
-        colnames(covariates_i) <- colnames(covariates)
-      } else {
-        covariates_i <- covariates[rownames(summarized_methyl_VML), ]
-      }
+      covariates_i <- covariates[rownames(summarized_methyl_VML), , drop = FALSE]
     }
     full_data_vml_i <- cbind(summ_vml_i, env_i, genot_i, covariates_i)
     colnames(full_data_vml_i) <- make.names(colnames(full_data_vml_i))
@@ -262,7 +244,7 @@ lmGE <- function(selected_variables,
     basal_model_formula <- colnames(covariates) |>
       make.names() |>
       paste(collapse = " + ")
-
+    #### Fit G Models ####
     ## Fit models involving G if G has selected variables
     if (!VML_i$selected_genot %in% empty_lists) {
       models_g_involving_df <- foreach::foreach(
@@ -279,10 +261,13 @@ lmGE <- function(selected_variables,
         # Create data frame structure for the results
         model_g_df <- data.frame(model_group = "G")
         model_g_df$variables <- list(SNP)
-        if (model_selection == "AIC") model_g_df$AIC <- stats::AIC(model_g)
-        if (model_selection == "BIC") model_g_df$BIC <- stats::BIC(model_g)
+        if (model_selection == "AIC"){
+          model_g_df$AIC <- stats::AIC(model_g)
+        } else if (model_selection == "BIC"){
+          model_g_df$BIC <- stats::BIC(model_g)
+        }
         model_g_df$tot_r_squared <- summary(model_g)$r.squared
-
+        #### Fit G+E and GxE models ####
         if (!VML_i$selected_env %in% empty_lists) {
           ### Fit GxE and G+E models if E is not empty
           models_joint_df <- foreach::foreach(
@@ -302,8 +287,11 @@ lmGE <- function(selected_variables,
             # Create data frame structure for the results
             model_ge_df <- data.frame(model_group = "G+E")
             model_ge_df$variables <- list(c(SNP, env))
-            if (model_selection == "AIC") model_ge_df$AIC <- stats::AIC(model_ge)
-            if (model_selection == "BIC") model_ge_df$BIC <- stats::BIC(model_ge)
+            if (model_selection == "AIC"){
+              model_ge_df$AIC <- stats::AIC(model_ge)
+            } else if (model_selection == "BIC"){
+              model_ge_df$BIC <- stats::BIC(model_ge)
+            }
             model_ge_df$tot_r_squared <- summary(model_ge)$r.squared
             # Fit GxE
             model_gxe <- stats::lm(data = as.data.frame(full_data_vml_i),
@@ -317,14 +305,15 @@ lmGE <- function(selected_variables,
                                                                " + ",
                                                                basal_model_formula)
                                    )
-
             # Create data frame structure for the results
             model_gxe_df <- data.frame(model_group = "GxE")
             model_gxe_df$variables <- list(c(SNP, env))
-            if (model_selection == "AIC") model_gxe_df$AIC <- stats::AIC(model_gxe)
-            if (model_selection == "BIC") model_gxe_df$BIC <- stats::BIC(model_gxe)
+            if (model_selection == "AIC"){
+              model_gxe_df$AIC <- stats::AIC(model_gxe)
+            } else if (model_selection == "BIC"){
+              model_gxe_df$BIC <- stats::BIC(model_gxe)
+            }
             model_gxe_df$tot_r_squared <- summary(model_gxe)$r.squared
-
             # Return joint models
             temp_models_joint <- rbind(model_gxe_df, model_ge_df)
             temp_models_joint
@@ -341,7 +330,8 @@ lmGE <- function(selected_variables,
       models_g_involving_df <- NULL
     }
 
-    ### Compute E models if E is not empty
+    #### Fit E models ####
+    # Only if E is not empty
     if (!VML_i$selected_env %in% empty_lists) { # For each env var
       models_e_df <- foreach::foreach(
         env = unlist(VML_i$selected_env), # For every env var
@@ -358,8 +348,11 @@ lmGE <- function(selected_variables,
         # Create data frame structure for the results
         model_e_df <- data.frame(model_group = "E")
         model_e_df$variables <- list(c(env))
-        if (model_selection == "AIC") model_e_df$AIC <- stats::AIC(model_e)
-        if (model_selection == "BIC") model_e_df$BIC <- stats::BIC(model_e)
+        if (model_selection == "AIC"){
+          model_e_df$AIC <- stats::AIC(model_e)
+        } else if (model_selection == "BIC") {
+          model_e_df$BIC <- stats::BIC(model_e)
+        }
         model_e_df$tot_r_squared <- summary(model_e)$r.squared
         # Return the final object
         model_e_df
@@ -524,14 +517,12 @@ lmGE <- function(selected_variables,
       dplyr::select(VML_index, model_group, variables, tot_r_squared,
                     g_r_squared, e_r_squared, gxe_r_squared, AIC,
                     second_winner, delta_aic, delta_r_squared, basal_AIC,
-                    basal_rsquared) |>
-      as.data.frame()
+                    basal_rsquared)
   } else if (model_selection == "BIC") {
     winning_models <- winning_models |>
       dplyr::select(VML_index, model_group, variables, tot_r_squared,
                     g_r_squared, e_r_squared, gxe_r_squared, BIC, second_winner,
-                    delta_bic, delta_r_squared, basal_BIC, basal_rsquared) |>
-      as.data.frame()
+                    delta_bic, delta_r_squared, basal_BIC, basal_rsquared)
   }
 
   if (model_selection == "AIC") {
