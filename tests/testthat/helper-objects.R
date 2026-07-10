@@ -11,19 +11,20 @@ suppressMessages(VML_test <- RAMEN::findVML(
   max_distance = 1000
 ))
 
-summarized_methyl_VML_test <- RAMEN::summarizeVML(
-  VML_df = data.frame(VML_test$VML),
-  methylation_data = test_methylation_data
-)
-
 suppressMessages(VML_cis_snps_test <- RAMEN::findCisSNPs(
-  VML_df = data.frame(VML_test$VML),
+  VML = VML_test$VML,
   genotype_information = RAMEN::test_genotype_information,
   distance = 1e+06
 ))
 
+summarized_methyl_VML_test <- RAMEN::summarizeVML(
+  VML = VML_test$VML,
+  methylation_data = test_methylation_data
+)
+
+
 suppressMessages(selected_variables_test <- RAMEN::selectVariables(
-  VML_df = VML_cis_snps_test,
+  VML_wSNPs = VML_cis_snps_test,
   genotype_matrix = RAMEN::test_genotype_matrix,
   environmental_matrix = RAMEN::test_environmental_matrix,
   covariates = RAMEN::test_covariates,
