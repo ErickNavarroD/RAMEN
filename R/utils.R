@@ -6,7 +6,7 @@ argument_check <- function(object, data_type, extra_msg = NULL,
                  character = is.character(object),
                  matrix = is.matrix(object),
                  numeric = is.numeric(object),
-                 GRanges = is(object, "GRanges")
+                 GRanges = methods::is(object, "GRanges")
                  )
   if (!correct_type) {
     stop(paste("Please make sure the input",

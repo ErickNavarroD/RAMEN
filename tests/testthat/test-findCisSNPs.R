@@ -71,7 +71,7 @@ test_that("findCisSNPs throws errors when expected", {
 test_that("findCisSNPs returns the right number of cis SNPs", {
   # Set the parallel backend to use 2 workers
   doParallel::registerDoParallel(2)
-  VML_vanilla <- GRanges(
+  VML_vanilla <- GenomicRanges::GRanges(
     seqnames = "chr1",
     ranges = IRanges::IRanges(start = 1000, end = 2000),
     VML_index = "1",

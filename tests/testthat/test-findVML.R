@@ -235,7 +235,7 @@ test_that("findVML works with EPICv2 probes", {
     suppressMessages()
   expect_true(is.list(VML_epic2))
   expect_true(is(VML_epic2$VML, "GRanges"))
-  expect_equal(ncol(mcols(VML_epic2$VML)), 5)
+  expect_equal(ncol(S4Vectors::mcols(VML_epic2$VML)), 5)
 })
 
 test_that("findVML works with var_distribution = 'all' and mad score", {
@@ -253,7 +253,7 @@ test_that("findVML works with var_distribution = 'all' and mad score", {
     suppressMessages()
   expect_true(is.list(VML_allvar))
   expect_true(is(VML_allvar$VML, "GRanges"))
-  expect_equal(ncol(mcols(VML_allvar$VML)), 5)
+  expect_equal(ncol(S4Vectors::mcols(VML_allvar$VML)), 5)
 })
 
 test_that("sVMPs have no correlation", {

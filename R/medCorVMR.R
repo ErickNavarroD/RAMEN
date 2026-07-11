@@ -39,7 +39,7 @@
 #'
 medCorVMR <- function(VML, methylation_data) {
   argument_check(VML, "GRanges")
-  if (!"probes" %in% colnames(mcols(VML))) {
+  if (!"probes" %in% colnames(S4Vectors::mcols(VML))) {
     stop("Please make sure the VML object has the 'probes' column.")
   }
   argument_check(methylation_data, "data.frame")
