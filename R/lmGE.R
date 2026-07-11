@@ -173,7 +173,7 @@ lmGE <- function(selected_variables,
                  covariates = NULL,
                  model_selection = "AIC") {
   #### Binding of variables used within the tidyverse framework ####
-  selected_env <- selected_genot <- VML_i <- SNP <- env <- model_group <- NULL
+  selected_env <- selected_genot <- i <- SNP <- env <- model_group <- NULL
   AIC <- BIC <- tot_r_squared <- VML_index <- variables <- g_r_squared <- NULL
   e_r_squared <- gxe_r_squared <- second_winner <- delta_aic <- NULL
   delta_r_squared <- basal_AIC <- basal_rsquared <- delta_bic <- basal_BIC <- NULL
@@ -253,10 +253,10 @@ lmGE <- function(selected_variables,
       ) %do% { # For each SNP
         ### Fit G models
         model_g <- stats::lm(data = as.data.frame(full_data_vml_i),
-                             formula = stringr::str_glue("DNAme ~ ",
-                                                         make.names(SNP),
-                                                         " + ",
-                                                         basal_model_formula))
+                             formula = paste("DNAme ~",
+                                             make.names(SNP),
+                                             "+",
+                                             basal_model_formula))
 
         # Create data frame structure for the results
         model_g_df <- data.frame(model_group = "G")
@@ -276,12 +276,12 @@ lmGE <- function(selected_variables,
           ) %do% {
             # Fit G + E
             model_ge <- stats::lm(data = as.data.frame(full_data_vml_i),
-                                  formula = stringr::str_glue("DNAme ~ ",
-                                                              make.names(SNP),
-                                                              " + ",
-                                                              make.names(env),
-                                                              " + ",
-                                                              basal_model_formula)
+                                  formula = paste("DNAme ~",
+                                                  make.names(SNP),
+                                                  "+",
+                                                  make.names(env),
+                                                  "+",
+                                                  basal_model_formula)
                                   )
 
             # Create data frame structure for the results
@@ -295,15 +295,16 @@ lmGE <- function(selected_variables,
             model_ge_df$tot_r_squared <- summary(model_ge)$r.squared
             # Fit GxE
             model_gxe <- stats::lm(data = as.data.frame(full_data_vml_i),
-                                   formula = stringr::str_glue("DNAme ~ ",
-                                                               make.names(SNP),
-                                                               " + ",
-                                                               make.names(env),
-                                                               " + ",
-                                                               make.names(SNP),
-                                                               "*", make.names(env),
-                                                               " + ",
-                                                               basal_model_formula)
+                                   formula = paste("DNAme ~ ",
+                                                   make.names(SNP),
+                                                   " + ",
+                                                   make.names(env),
+                                                   " + ",
+                                                   make.names(SNP),
+                                                   "*", make.names(env),
+                                                   " + ",
+                                                   basal_model_formula,
+                                                   sep = "")
                                    )
             # Create data frame structure for the results
             model_gxe_df <- data.frame(model_group = "GxE")
@@ -339,10 +340,10 @@ lmGE <- function(selected_variables,
       ) %do% {
         # Fit E models
         model_e <- stats::lm(data = as.data.frame(full_data_vml_i),
-                             formula = stringr::str_glue("DNAme ~ ",
-                                                         make.names(env),
-                                                         " + ",
-                                                         basal_model_formula)
+                             formula = paste("DNAme ~",
+                                             make.names(env),
+                                             "+",
+                                             basal_model_formula)
                              )
 
         # Create data frame structure for the results
@@ -415,8 +416,8 @@ lmGE <- function(selected_variables,
     # Test the winning model against the basal one and decompose variance for
     # the G, E and GxE components
     model_basal <- stats::lm(data = as.data.frame(full_data_vml_i),
-                             formula = stringr::str_glue("DNAme ~ ",
-                                                         basal_model_formula)
+                             formula = paste("DNAme ~",
+                                             basal_model_formula)
                              ) # set the basal model for comparing the rest
     if (model_selection == "AIC") {
       winning_model_VML_i$basal_AIC <- stats::AIC(model_basal)
@@ -426,10 +427,10 @@ lmGE <- function(selected_variables,
     winning_model_VML_i$basal_rsquared <- summary(model_basal)$r.squared
     if (winning_model_VML_i$model_group == "G") {
       winning_lm <- stats::lm(data = as.data.frame(full_data_vml_i),
-                              formula = stringr::str_glue("DNAme ~ ",
-                                                          make.names(unlist(winning_model_VML_i$variables)),
-                                                          " + ",
-                                                          basal_model_formula)
+                              formula = paste("DNAme ~",
+                                              make.names(unlist(winning_model_VML_i$variables)),
+                                              "+",
+                                              basal_model_formula)
                               )
       r_decomp <- relaimpo::calc.relimp.lm(
         object = winning_lm,
@@ -441,10 +442,10 @@ lmGE <- function(selected_variables,
       winning_model_VML_i$gxe_r_squared <- NA_real_
     } else if (winning_model_VML_i$model_group == "E") {
       winning_lm <- stats::lm(data = as.data.frame(full_data_vml_i),
-                              formula = stringr::str_glue("DNAme ~ ",
-                                                          make.names(unlist(winning_model_VML_i$variables))[1],
-                                                          " + ",
-                                                          basal_model_formula)
+                              formula = paste("DNAme ~",
+                                              make.names(unlist(winning_model_VML_i$variables))[1],
+                                              "+",
+                                              basal_model_formula)
                               )
       r_decomp <- relaimpo::calc.relimp.lm(
         object = winning_lm,
@@ -456,12 +457,12 @@ lmGE <- function(selected_variables,
       winning_model_VML_i$gxe_r_squared <- NA_real_
     } else if (winning_model_VML_i$model_group == "G+E") {
       winning_lm <- stats::lm(data = as.data.frame(full_data_vml_i),
-                              formula = stringr::str_glue("DNAme ~ ",
-                                                          make.names(unlist(winning_model_VML_i$variables))[1],
-                                                          " + ",
-                                                          make.names(unlist(winning_model_VML_i$variables))[2],
-                                                          " + ",
-                                                          basal_model_formula)
+                              formula = paste("DNAme ~",
+                                              make.names(unlist(winning_model_VML_i$variables))[1],
+                                              "+",
+                                              make.names(unlist(winning_model_VML_i$variables))[2],
+                                              "+",
+                                              basal_model_formula)
                               )
       r_decomp <- relaimpo::calc.relimp.lm(
         object = winning_lm,
@@ -474,16 +475,17 @@ lmGE <- function(selected_variables,
       winning_model_VML_i$gxe_r_squared <- NA_real_
     } else if (winning_model_VML_i$model_group == "GxE") {
       winning_lm <- stats::lm(data = as.data.frame(full_data_vml_i),
-                              formula = stringr::str_glue("DNAme ~ ",
-                                                          make.names(unlist(winning_model_VML_i$variables))[1],
-                                                          " + ",
-                                                          make.names(unlist(winning_model_VML_i$variables))[2],
-                                                          " + ",
-                                                          make.names(unlist(winning_model_VML_i$variables))[1],
-                                                          "*",
-                                                          make.names(unlist(winning_model_VML_i$variables))[2],
-                                                          " + ",
-                                                          basal_model_formula)
+                              formula = paste("DNAme ~ ",
+                                              make.names(unlist(winning_model_VML_i$variables))[1],
+                                              " + ",
+                                              make.names(unlist(winning_model_VML_i$variables))[2],
+                                              " + ",
+                                              make.names(unlist(winning_model_VML_i$variables))[1],
+                                              "*",
+                                              make.names(unlist(winning_model_VML_i$variables))[2],
+                                              " + ",
+                                              basal_model_formula,
+                                              sep = "")
                               )
       r_decomp <- relaimpo::calc.relimp.lm(
         object = winning_lm,
@@ -499,10 +501,11 @@ lmGE <- function(selected_variables,
       # this package, this option will be used.
       winning_model_VML_i$g_r_squared <- r_decomp$lmg[make.names(unlist(winning_model_VML_i$variables))[1]]
       winning_model_VML_i$e_r_squared <- r_decomp$lmg[make.names(unlist(winning_model_VML_i$variables))[2]]
-      winning_model_VML_i$gxe_r_squared <- r_decomp$lmg[stringr::str_glue(
+      winning_model_VML_i$gxe_r_squared <- r_decomp$lmg[paste(
         make.names(unlist(winning_model_VML_i$variables))[1],
         ":",
-        make.names(unlist(winning_model_VML_i$variables))[2])
+        make.names(unlist(winning_model_VML_i$variables))[2],
+        sep = "")
         ]
     }
 
