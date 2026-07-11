@@ -23,7 +23,7 @@
 #' @export
 #' @examples
 #' ## Find VML in test data
-#' VML <- RAMEN::findVML(
+#' VML <- findVML(
 #'   methylation_data = RAMEN::test_methylation_data,
 #'   array_manifest = "IlluminaHumanMethylationEPICv1",
 #'   cor_threshold = 0,
@@ -34,7 +34,7 @@
 #' )
 #' ## Find cis SNPs around VML
 #' # Use only 5 for demonstration purposes
-#' VML_with_cis_snps <- RAMEN::findCisSNPs(
+#' VML_with_cis_snps <- findCisSNPs(
 #'   VML = VML$VML[1:5, ],
 #'   genotype_information = RAMEN::test_genotype_information,
 #'   distance = 1e6
