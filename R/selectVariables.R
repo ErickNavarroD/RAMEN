@@ -173,7 +173,7 @@ selectVariables <- function(VML_wSNPs,
   finite_numeric_check(summarized_methyl_VML)
   ## Set the seed
   if (!is.null(seed)) set.seed(seed)
-  VML_i <- NULL # To avoid R CMD check note about undefined global variable
+  i <- NULL # To avoid R CMD check note about undefined global variable
   #### Run LASSO ####
   lasso_results <- foreach::foreach(i = VML_wSNPs$VML_index,
                                     .combine = "rbind") %dorng% {
