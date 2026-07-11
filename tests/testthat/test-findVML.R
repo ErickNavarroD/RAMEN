@@ -257,10 +257,8 @@ test_that("findVML works with var_distribution = 'all' and mad score", {
 })
 
 test_that("sVMPs have no correlation", {
-  sVMPs <- VML_test$VML |>
-    dplyr::filter(type == "sVMP") |>
-    dplyr::pull(median_correlation)
-  expect_true(all(is.na(sVMPs)))
+  sVMPs <- VML_test$VML[VML_test$VML$type == "sVMP"]
+  expect_true(all(is.na(sVMPs$median_correlation)))
 })
 
 test_that("correlation is computed correctly", {
