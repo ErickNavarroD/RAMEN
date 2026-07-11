@@ -47,10 +47,10 @@ Imports:
     GenomicRanges,
     glmnet,
     IRanges,
+    methods,
     relaimpo,
     S4Vectors,
-    stats,
-    stringr
+    stats
 VignetteBuilder: knitr
 Depends: 
     R (>= 4.2.0)
