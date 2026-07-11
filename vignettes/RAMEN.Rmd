@@ -469,7 +469,7 @@ VML <- RAMEN::findVML(
 dplyr::glimpse(VML$var_score_threshold) 
 # check the HVPs identified and their variability score
 head(VML$highly_variable_probes) 
-# Take a look at the identified VML data frame
+# Take a look at the identified VML GRanges object
 head(VML$VML) 
 ```
 
@@ -487,17 +487,18 @@ backend in your R session BEFORE running the function (e.g.,
 *doParallel::registerDoParallel(4)*)). After that, the function can be run 
 normally. When working with big datasets, the parallel backend might throw an 
 error if you exceed the maximum allowed size of globals exported for future 
-expression. This can be fixed by increasing the allowed size (e.g. running `options(future.globals.maxSize= +Inf)`)
+expression. This can be fixed by increasing the allowed size (e.g. running 
+`options(future.globals.maxSize= +Inf)`)
 
-Finally, we will extract the VML data frame, which we can use to produce plots 
+Finally, we will extract the VML GRanges object, which we can use to produce plots 
 and explore the results. This data frame will also be used for the following 
 parts of the pipeline. 
 
 ```{r}
-VML_df <- VML$VML
+VML_gr <- VML$VML
 
 # Example of an epxloration plot
-VML_df |>
+data.frame(VML_gr) |>
   dplyr::filter(width > 1) |> # Only plot VMRs, since sVMPs all have a lenght of 1
   ggplot2::ggplot(aes(x = width)) +
   ggplot2::geom_histogram(binwidth = 50, fill = "#BAB4D8") +
@@ -513,7 +514,7 @@ region is returned per individual as the representative value.
 
 ```{r}
 summarized_methyl_VML <- RAMEN::summarizeVML(
-  VML_df = VML_df,
+  VML = VML_gr,
   methylation_data = test_methylation_data
 )
 
@@ -521,7 +522,7 @@ summarized_methyl_VML <- RAMEN::summarizeVML(
 summarized_methyl_VML[1:5, 1:5]
 ```
 
-The result is a data frame of VML IDs as columns and individual IDs as rows. 
+The result is a matrix of VML IDs as columns and individual IDs as rows. 
 
 ## Identify *cis* SNPs
 
@@ -544,7 +545,7 @@ potentially relevant SNPs.
 head(RAMEN::test_genotype_information)
 
 VML_cis_snps <- RAMEN::findCisSNPs(
-  VML_df = VML_df,
+  VML = VML_gr,
   genotype_information = RAMEN::test_genotype_information,
   distance = 1e+06
 )
@@ -553,7 +554,7 @@ VML_cis_snps <- RAMEN::findCisSNPs(
 head(VML_cis_snps)
 ```
 
-We can see that the resulting data frame is almost exactly the same, but with 
+We can see that the resulting GRanges object is almost exactly the same, but with 
 two new columns (*surrounding_SNPs* and *SNP*) that contain information about 
 how many SNPs were found in *cis* and what are their IDs according to the 
 genotype data that we have. 
@@ -568,6 +569,7 @@ We can also explore the resulting object through plots such as the following:
 
 ```{r cissnps, fig.cap="Disribution of SNPs in cis of VML."}
 VML_cis_snps |>
+  data.frame() |> 
   dplyr::mutate(surrounding_SNPs = case_when(
     surrounding_SNPs > 3000 ~ 3000,
     TRUE ~ surrounding_SNPs
@@ -628,7 +630,7 @@ head(test_covariates)
 
 # Now let's run the function
 selected_variables <- RAMEN::selectVariables(
-  VML_df = VML_cis_snps,
+  VML_wSNPs = VML_cis_snps,
   genotype_matrix = RAMEN::test_genotype_matrix,
   environmental_matrix = RAMEN::test_environmental_matrix,
   covariates = RAMEN::test_covariates,
@@ -657,6 +659,7 @@ SNPs per VML on average as seen in Figure \@ref(fig:cissnps)).
 selected_variables |>
   dplyr::left_join(
     VML_cis_snps |>
+      data.frame() |> 
       select(c(VML_index, type)),
     by = "VML_index"
   ) |>
@@ -831,7 +834,7 @@ labelled as B during the the selectVariables() stage, we recommend using the
 following formula:
 
 ```{r}
-vml_size <- nrow(VML_cis_snps) # Number of VML in your data set
+(vml_size <- length(VML_cis_snps)) # Number of VML in your data set
 desired_obs <- 400000 # We want ~300k informative observations, and we are adding
 # 100k extra to account for the VML that will be labelled as Basal (B) during
 # selectVariables()
@@ -841,12 +844,13 @@ desired_obs <- 400000 # We want ~300k informative observations, and we are addin
 Since this is a toy example, for demonstration purposes we will run only 2 
 permutations (this is the most time consuming part of the analysis!). But please
 make sure to run the recommended number of permutations in your real data
-analysis.
+analysis. In real data sets where we have thousands of probes, ~5-10 permutations
+are typically needed. 
 
 ```{r}
 # Compute the null distribution
 null_dist <- RAMEN::nullDistGE(
-  VML_df = VML_cis_snps,
+  VML_wSNPs = VML_cis_snps,
   genotype_matrix = RAMEN::test_genotype_matrix,
   environmental_matrix = RAMEN::test_environmental_matrix,
   summarized_methyl_VML = summarized_methyl_VML,
