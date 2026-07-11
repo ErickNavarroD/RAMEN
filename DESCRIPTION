@@ -47,13 +47,10 @@ Imports:
     GenomicRanges,
     glmnet,
     IRanges,
-    iterators,
-    lifecycle,
     relaimpo,
     S4Vectors,
     stats,
-    stringr,
-    tibble
+    stringr
 VignetteBuilder: knitr
 Depends: 
     R (>= 4.2.0)

@@ -261,8 +261,7 @@ findVML <- function(methylation_data,
       epicv2_ultrastable_cpgs <- IlluminaHumanMethylationEPICv2anno.20a1.hg38::Other |>
         data.frame() |>
         dplyr::filter(Methyl450_Loci %in% RAMEN::ultrastable_cpgs) |>
-        tibble::rownames_to_column("epicv2_probes") |>
-        dplyr::pull(epicv2_probes)
+        rownames()
       var_threshold <- stats::quantile(
         var_scores[(row.names(var_scores) %in% epicv2_ultrastable_cpgs), ],
         var_threshold_percentile
@@ -309,8 +308,7 @@ findVML <- function(methylation_data,
   # Filter the manifest to remove the probes that have no variability score
   # information because they were not measured/did not pass the QC and are not
   # highly variable
-  manifest_hvp <- manifest |>
-    tibble::rownames_to_column(var = "TargetID") |>
+  manifest_hvp <- cbind(TargetID = rownames(manifest), manifest) |>
     dplyr::select(c(TargetID, chr, pos, strand)) |>
     dplyr::filter(
       !is.na(pos), # Remove probes with no map info
@@ -320,14 +318,13 @@ findVML <- function(methylation_data,
     # Remove probes that have no methylation information in the processed data
     #  and are not highly variable
     dplyr::left_join(
-      var_scores |> # Add variability information
-        tibble::rownames_to_column(var = "TargetID"),
+      # Add variability information
+      cbind(TargetID = rownames(var_scores), var_scores),
       by = "TargetID"
     ) |>
     # important step for using Rle later when constructing the GenomicRanges
     # object
-    dplyr::arrange(chr) |>
-    as.data.frame()
+    dplyr::arrange(chr)
   rownames(manifest_hvp) <- manifest_hvp$TargetID
   if (is.factor(manifest_hvp$chr)){
     manifest_hvp <- manifest_hvp |>
@@ -336,8 +333,8 @@ findVML <- function(methylation_data,
 
   #### Identify sparse Variable Methylated Probes####
   message("Identifying sparse Variable Methylated Probes")
-  full_manifest <- manifest |>
-    tibble::rownames_to_column(var = "TargetID") |>
+  full_manifest <-cbind(TargetID = rownames(manifest), manifest) |>
+    # Select necessary columns in case there is more
     dplyr::select(c(TargetID, chr, pos, strand)) |>
     dplyr::filter(
       # Remove probes with no map info
@@ -347,9 +344,7 @@ findVML <- function(methylation_data,
     ) |>
     # important step for using Rle later when constructing the GenomicRanges
     # object
-    dplyr::arrange(chr) |>
-    as.data.frame()
-  rownames(full_manifest) <- full_manifest$TargetID
+    dplyr::arrange(chr)
   if (is.factor(full_manifest$chr)){
     full_manifest <- full_manifest |>
       dplyr::mutate(chr = droplevels(chr))
@@ -454,8 +449,7 @@ findVML <- function(methylation_data,
 
   return(list(
     var_score_threshold = var_threshold,
-    highly_variable_probes = var_scores |>
-      tibble::rownames_to_column(var = "TargetID") |>
+    highly_variable_probes = cbind(TargetID = rownames(var_scores), var_scores) |>
       dplyr::filter(TargetID %in% manifest_hvp$TargetID),
     VML = VML
   ))
