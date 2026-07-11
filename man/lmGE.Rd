@@ -21,13 +21,14 @@ and environmental variables, respectively, that will be used for fitting the
 genotype (G), environment (E), additive (G + E) or interaction (G x E)
 models. The columns 'selected_env' and 'selected_genot' must contain lists
 as elements; VML with no environmental or genotype selected variables
-must contain an empty list with NULL, NA , character(0) or "" inside.}
+must contain an empty list (i.e., list(NULL), list(NA), list("") or
+list(character(0)) ).}
 
-\item{summarized_methyl_VML}{A data frame containing each individual's VML
+\item{summarized_methyl_VML}{A matrix containing each individual's VML
 summarized methylation. It is suggested to use the output of
-RAMEN::summarizeVML().Rows must reflects individuals, and columns VML The
+\emph{RAMEN::summarizeVML()}.Rows must reflects individuals, and columns VML The
 names of the columns must correspond to the index of said VML, and it must
-match the index of VML_df$VML_index. The names of the rows must correspond to
+match the index of VML_wSNPs$VML_index. The names of the rows must correspond to
 the sample IDs, and must match with the IDs of the other matrices.}
 
 \item{genotype_matrix}{A matrix of number-encoded genotypes. Columns must
@@ -49,8 +50,7 @@ etc.). Each column should correspond to a covariate and each row to an
 individual. Row names must correspond to the individual IDs.}
 
 \item{model_selection}{Which metric to use to select the best model for each
-VML. Supported options are "AIC" or BIC". More information about which one to
-use can be found in the Details section.}
+VML. Supported options are "AIC" or BIC".}
 }
 \value{
 A data frame with the following columns:
@@ -180,7 +180,7 @@ VML <- RAMEN::findVML(
 ## Find cis SNPs around VML
 VML_with_cis_snps <- RAMEN::findCisSNPs(
   # Use only 5 for demonstration purposes
-  VML_df = VML$VML [1:5, ],
+  VML = VML$VML [1:5, ],
   genotype_information = RAMEN::test_genotype_information,
   distance = 1e6
 )
@@ -188,12 +188,12 @@ VML_with_cis_snps <- RAMEN::findCisSNPs(
 ## Summarize methylation levels in VML
 summarized_methyl_VML <- RAMEN::summarizeVML(
   methylation_data = RAMEN::test_methylation_data,
-  VML_df = VML_with_cis_snps
+  VML = VML_with_cis_snps
 )
 
 ## Select relevant genotype and environmental variables
 selected_vars <- RAMEN::selectVariables(
-  VML_df = VML_with_cis_snps,
+  VML_wSNPs = VML_with_cis_snps,
   genotype_matrix = RAMEN::test_genotype_matrix,
   environmental_matrix = RAMEN::test_environmental_matrix,
   covariates = RAMEN::test_covariates,

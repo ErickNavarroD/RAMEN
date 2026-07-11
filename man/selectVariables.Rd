@@ -6,7 +6,7 @@
 Variably Methylated Loci (VML)}
 \usage{
 selectVariables(
-  VML_df,
+  VML_wSNPs,
   genotype_matrix,
   environmental_matrix,
   covariates = NULL,
@@ -15,16 +15,14 @@ selectVariables(
 )
 }
 \arguments{
-\item{VML_df}{A data frame converted from a GRanges object. Recommended to
-use the output of \emph{RAMEN::findCisSNPs()}. Must have one VML per row, and
-contain the following columns: "VML_index" (a unique ID for each VML in
+\item{VML_wSNPs}{GRanges object produced by \emph{RAMEN::findCisSNPs()}. Must
+contain the following metadata columns: "VML_index" (a unique ID for each VML in
 VML_df AS CHARACTERS) and "SNP" (a column with a list as observation,
 containing the name of the SNPs surrounding the corresponding VML).  The SNPs
 contained in the "SNP" column must be present in the object that is indicated
-in the genotype_matrix argument, and it must contain all the VML contained in
+in the genotype_matrix argument. VML_wSNPs must contain all the VML contained in
 summarized_methyl_VML. VML with no surrounding SNPs must have an empty list
-in the SNP column (either list(NULL), list(NA), list("") or
-list(character(0))).}
+in the SNP column (either list(NULL), list(NA), list("") or list(character(0))).}
 
 \item{genotype_matrix}{A matrix of number-encoded genotypes. Columns must
 correspond to samples, and rows to SNPs. We suggest using a gene-dosage
@@ -44,11 +42,11 @@ be adjusted for in the final GxE models (e.g., cell type proportions, age,
 etc.). Each column should correspond to a covariate and each row to an
 individual. Row names must correspond to the individual IDs.}
 
-\item{summarized_methyl_VML}{A data frame containing each individual's VML
+\item{summarized_methyl_VML}{A matrix containing each individual's VML
 summarized methylation. It is suggested to use the output of
-RAMEN::summarizeVML().Rows must reflects individuals, and columns VML The
+\emph{RAMEN::summarizeVML()}.Rows must reflects individuals, and columns VML The
 names of the columns must correspond to the index of said VML, and it must
-match the index of VML_df$VML_index. The names of the rows must correspond to
+match the index of VML_wSNPs$VML_index. The names of the rows must correspond to
 the sample IDs, and must match with the IDs of the other matrices.}
 
 \item{seed}{An integer number that initializes a pseudo-random number
@@ -143,7 +141,7 @@ VML <- RAMEN::findVML(
 ## Find cis SNPs around VML
 VML_with_cis_snps <- RAMEN::findCisSNPs(
   # Use only 5 for demonstration purposes
-  VML_df = VML$VML[1:5, ],
+  VML = VML$VML[1:5, ],
   genotype_information = RAMEN::test_genotype_information,
   distance = 1e6
 )
@@ -151,12 +149,12 @@ VML_with_cis_snps <- RAMEN::findCisSNPs(
 ## Summarize methylation levels in VML
 summarized_methyl_VML <- RAMEN::summarizeVML(
   methylation_data = RAMEN::test_methylation_data,
-  VML_df = VML_with_cis_snps
+  VML = VML_with_cis_snps
 )
 
 ## Select relevant genotype and environmental variables
 selected_vars <- RAMEN::selectVariables(
-  VML_df = VML_with_cis_snps,
+  VML_wSNPs = VML_with_cis_snps,
   genotype_matrix = RAMEN::test_genotype_matrix,
   environmental_matrix = RAMEN::test_environmental_matrix,
   covariates = RAMEN::test_covariates,

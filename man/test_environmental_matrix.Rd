@@ -10,7 +10,8 @@
 A data frame with 30 rows and 100 columns:
 \describe{
 \item{\emph{rownames}}{Individual ID}
-\item{E1:100}{100 example environmental exposures; column names correspond to exposure IDs}
+\item{E1:100}{100 example environmental exposures; column names correspond
+to exposure IDs}
 }
 }
 }
@@ -18,6 +19,7 @@ A data frame with 30 rows and 100 columns:
 test_environmental_matrix
 }
 \description{
-One hundred environmental exposure variables drawn from a normal distribution with mean=0 and sd=1 for 30 individuals.
+One hundred environmental exposure variables drawn from a normal distribution
+with mean=0 and sd=1 for 30 individuals.
 }
 \keyword{datasets}

@@ -6,27 +6,25 @@
 variability}
 \usage{
 nullDistGE(
-  VML_df,
+  VML_wSNPs,
   genotype_matrix,
   environmental_matrix,
   summarized_methyl_VML,
-  permutations = 10,
+  permutations = 5,
   covariates = NULL,
   seed = NULL,
   model_selection = "AIC"
 )
 }
 \arguments{
-\item{VML_df}{A data frame converted from a GRanges object. Recommended to
-use the output of \emph{RAMEN::findCisSNPs()}. Must have one VML per row, and
-contain the following columns: "VML_index" (a unique ID for each VML in
+\item{VML_wSNPs}{GRanges object produced by \emph{RAMEN::findCisSNPs()}. Must
+contain the following metadata columns: "VML_index" (a unique ID for each VML in
 VML_df AS CHARACTERS) and "SNP" (a column with a list as observation,
 containing the name of the SNPs surrounding the corresponding VML).  The SNPs
 contained in the "SNP" column must be present in the object that is indicated
-in the genotype_matrix argument, and it must contain all the VML contained in
+in the genotype_matrix argument. VML_wSNPs must contain all the VML contained in
 summarized_methyl_VML. VML with no surrounding SNPs must have an empty list
-in the SNP column (either list(NULL), list(NA), list("") or
-list(character(0))).}
+in the SNP column (either list(NULL), list(NA), list("") or list(character(0))).}
 
 \item{genotype_matrix}{A matrix of number-encoded genotypes. Columns must
 correspond to samples, and rows to SNPs. We suggest using a gene-dosage
@@ -40,14 +38,14 @@ encode them as numbers or re-code them into dummy variables if there are
 more than two levels. Columns must correspond to environmental variables
 and rows to individuals. Row names must be the individual IDs.}
 
-\item{summarized_methyl_VML}{A data frame containing each individual's VML
+\item{summarized_methyl_VML}{A matrix containing each individual's VML
 summarized methylation. It is suggested to use the output of
-RAMEN::summarizeVML().Rows must reflects individuals, and columns VML The
+\emph{RAMEN::summarizeVML()}.Rows must reflects individuals, and columns VML The
 names of the columns must correspond to the index of said VML, and it must
-match the index of VML_df$VML_index. The names of the rows must correspond to
+match the index of VML_wSNPs$VML_index. The names of the rows must correspond to
 the sample IDs, and must match with the IDs of the other matrices.}
 
-\item{permutations}{description}
+\item{permutations}{Numer of permutation analyses to run.}
 
 \item{covariates}{A matrix containing the covariates (i.e., concomitant
 variables / variables that are not the ones you are interested in) that will
@@ -62,8 +60,7 @@ for result reproducibility.
 \strong{Please note that setting a seed in this function modifies the seed globally}.}
 
 \item{model_selection}{Which metric to use to select the best model for each
-VML. Supported options are "AIC" or BIC". More information about which one to
-use can be found in the Details section.}
+VML. Supported options are "AIC" or BIC".}
 }
 \value{
 A data frame with the following columns:
@@ -132,7 +129,7 @@ VML <- findVML(
 ## Find cis SNPs around VML
 VML_with_cis_snps <- findCisSNPs(
   # Use only 5 for demonstration purposes
-  VML_df = VML$VML[1:5, ],
+  VML = VML$VML[1:5, ],
   genotype_information = test_genotype_information,
   distance = 1e6
 )
@@ -140,13 +137,13 @@ VML_with_cis_snps <- findCisSNPs(
 ## Summarize methylation levels in VML
 summarized_methyl_VML <- summarizeVML(
   methylation_data = test_methylation_data,
-  VML_df = VML_with_cis_snps
+  VML = VML_with_cis_snps
 )
 
 ## Simulate null distribution of G and E contributions on DNAme variability
 ## We will only run one permutation for demonstration purposes
 null_dist <- nullDistGE(
-  VML_df = VML_with_cis_snps,
+  VML_wSNPs = VML_with_cis_snps,
   genotype_matrix = test_genotype_matrix,
   environmental_matrix = test_environmental_matrix,
   summarized_methyl_VML = summarized_methyl_VML,
