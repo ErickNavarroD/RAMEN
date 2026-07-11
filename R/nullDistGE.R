@@ -34,9 +34,9 @@
 #' distribution and reduces the computational time. For further information
 #' please read the RAMEN paper (https://doi.org/10.1186/s13059-025-03864-4).
 #'
-#' @param permutations description
 #' @inheritParams selectVariables
 #' @inheritParams lmGE
+#' @param permutations Numer of permutation analyses to run.
 #'
 #' @return A data frame with the following columns:
 #'  - VML_index: The unique ID of the VML.
@@ -69,7 +69,7 @@
 #' ## Find cis SNPs around VML
 #' VML_with_cis_snps <- findCisSNPs(
 #'   # Use only 5 for demonstration purposes
-#'   VML_df = VML$VML[1:5, ],
+#'   VML = VML$VML[1:5, ],
 #'   genotype_information = test_genotype_information,
 #'   distance = 1e6
 #' )
@@ -77,13 +77,13 @@
 #' ## Summarize methylation levels in VML
 #' summarized_methyl_VML <- summarizeVML(
 #'   methylation_data = test_methylation_data,
-#'   VML_df = VML_with_cis_snps
+#'   VML = VML_with_cis_snps
 #' )
 #'
 #' ## Simulate null distribution of G and E contributions on DNAme variability
 #' ## We will only run one permutation for demonstration purposes
 #' null_dist <- nullDistGE(
-#'   VML_df = VML_with_cis_snps,
+#'   VML_wSNPs = VML_with_cis_snps,
 #'   genotype_matrix = test_genotype_matrix,
 #'   environmental_matrix = test_environmental_matrix,
 #'   summarized_methyl_VML = summarized_methyl_VML,
@@ -93,87 +93,51 @@
 #'   seed = 1,
 #'   model_selection = "AIC"
 #' )
-nullDistGE <- function(VML_df,
+nullDistGE <- function(VML_wSNPs,
                        genotype_matrix,
                        environmental_matrix,
                        summarized_methyl_VML,
-                       permutations = 10,
+                       permutations = 5,
                        covariates = NULL,
                        seed = NULL,
                        model_selection = "AIC") {
   #### Argument check ####
   ## Check that genotype_matrix, environmental_matrix, and covariates (in case
   ## it is provided) have only numeric values and no NA, NaN, Inf values
-  if (!is.data.frame(summarized_methyl_VML)) stop("Please make sure summarized_methyl_VML is a data frame.")
-  if (
-    sum(vapply(genotype_matrix, is.na, FUN.VALUE = logical(1))) > 0 ||
-      sum(vapply(genotype_matrix, is.nan, FUN.VALUE = logical(1))) > 0 ||
-      sum(!vapply(genotype_matrix, is.numeric, FUN.VALUE = logical(1))) > 0 ||
-      sum(vapply(genotype_matrix, is.infinite, FUN.VALUE = logical(1))) > 0
-  ) {
-    stop(
-      "Please make sure the genotype matrix contains only finite numeric values."
-    )
-  }
-  if (
-    sum(vapply(environmental_matrix, is.na, FUN.VALUE = logical(1))) > 0 ||
-      sum(vapply(environmental_matrix, is.nan, FUN.VALUE = logical(1))) > 0 ||
-      sum(!vapply(environmental_matrix, is.numeric, FUN.VALUE = logical(1))) > 0 ||
-      sum(vapply(environmental_matrix, is.infinite, FUN.VALUE = logical(1))) > 0
-  ) {
-    stop(
-      "Please make sure the environmental matrix contains only finite numeric values."
-    )
-  }
-  if (!is.null(covariates)) {
-    if (
-      sum(vapply(covariates, is.na, FUN.VALUE = logical(1))) > 0 ||
-        sum(vapply(covariates, is.nan, FUN.VALUE = logical(1))) > 0 ||
-        sum(!vapply(covariates, is.numeric, FUN.VALUE = logical(1))) > 0 ||
-        sum(vapply(covariates, is.infinite, FUN.VALUE = logical(1))) > 0
-    ) {
-      stop(
-        "Please make sure the covariates matrix contains only finite numeric values."
-      )
-    }
-  }
-  if (
-    sum(vapply(summarized_methyl_VML,
-      is.na,
-      FUN.VALUE = logical(nrow(summarized_methyl_VML))
-    )) > 0 ||
-      sum(vapply(summarized_methyl_VML,
-        is.nan,
-        FUN.VALUE = logical(nrow(summarized_methyl_VML))
-      )) > 0 ||
-      sum(!vapply(summarized_methyl_VML,
-        is.numeric,
-        FUN.VALUE = logical(1)
-      )) > 0 ||
-      sum(vapply(summarized_methyl_VML,
-        is.infinite,
-        FUN.VALUE = logical(nrow(summarized_methyl_VML))
-      )) > 0
-  ) {
-    stop(
-      "Please make sure the summarized_methyl_VML data frame contains only finite numeric values."
-    )
-  }
-
+  argument_check(VML_wSNPs, "GRanges")
+  columns_exist(S4Vectors::mcols(VML_wSNPs), c("VML_index", "SNP"))
+  argument_check(VML_wSNPs$SNP, "list")
+  argument_check(VML_wSNPs$VML_index, "character")
+  argument_check(genotype_matrix, "matrix")
+  argument_check(environmental_matrix, "matrix")
+  argument_check(summarized_methyl_VML, "matrix")
+  argument_check(permutations, "numeric")
+  if (permutations < 1) stop("Please provide a permutation number >= 1")
+  if (!is.null(covariates)) argument_check(covariates, "matrix")
+  if (!is.null(seed)) argument_check(seed, "numeric")
+  argument_char_options(object = model_selection, options = c("AIC", "BIC"))
+  # Matrices have only finite numeric values
+  finite_numeric_check(genotype_matrix)
+  finite_numeric_check(environmental_matrix)
+  finite_numeric_check(summarized_methyl_VML)
+  if (!is.null(covariates)) finite_numeric_check(covariates)
 
   #### Shuffle data ####
   # Set shuffle order
   if (!is.null(seed)) set.seed(seed)
+  # Initialize permutation object
   permutation_order <- data.frame(sample(rownames(summarized_methyl_VML),
-    size = length(rownames(summarized_methyl_VML))
+                                         size = length(rownames(summarized_methyl_VML))
   ))
-  for (i in 1:(permutations - 1)) {
-    permutation_order <- cbind(
-      permutation_order,
-      data.frame(sample(rownames(summarized_methyl_VML),
-        size = length(rownames(summarized_methyl_VML))
-      ))
-    )
+  if (permutations > 1){
+    # Append order of other permutations
+    for (i in 1:(permutations - 1)) {
+      permutation_order <- cbind(
+        permutation_order,
+        data.frame(sample(rownames(summarized_methyl_VML),
+                          size = length(rownames(summarized_methyl_VML))
+        )))
+    }
   }
   colnames(permutation_order) <- 1:permutations
 
@@ -185,20 +149,19 @@ nullDistGE <- function(VML_df,
   #### Run permutation ####
   null_dist <- foreach::foreach(i = 1:permutations, .combine = rbind) %do% {
     message("Starting permutation ", i, " of ", permutations)
-    # Shuffle the datasets
-    permutated_genotype <- genotype_matrix[, permutation_order[, i]] |>
-      as.matrix()
-    rownames(permutated_genotype) <- rownames(genotype_matrix)
+    # Change order of samples
+    permutated_genotype <- genotype_matrix[,permutation_order[, i],
+                                           drop = FALSE]
+    permutated_environment <- environmental_matrix[permutation_order[, i], ,
+                                                   drop = FALSE]
+    # Assign previous row and colnames - break relationships, i.e., shuffle
     colnames(permutated_genotype) <- colnames(genotype_matrix)
-    permutated_environment <- environmental_matrix[permutation_order[, i], ] |>
-      as.matrix()
-    colnames(permutated_environment) <- colnames(environmental_matrix)
     rownames(permutated_environment) <- rownames(environmental_matrix)
 
     # Run RAMEN
     message("Starting variable selection of permutation ", i, " of ", permutations)
     selected_variables <- RAMEN::selectVariables(
-      VML_df = VML_df,
+      VML_wSNPs = VML_wSNPs,
       genotype_matrix = permutated_genotype,
       environmental_matrix = permutated_environment,
       covariates = covariates,
