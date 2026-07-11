@@ -143,7 +143,7 @@
 #' ## Summarize methylation levels in VML
 #' summarized_methyl_VML <- RAMEN::summarizeVML(
 #'   methylation_data = RAMEN::test_methylation_data,
-#'   VML_df = VML_with_cis_snps
+#'   VML = VML_with_cis_snps
 #' )
 #'
 #' ## Select relevant genotype and environmental variables
@@ -198,7 +198,7 @@ lmGE <- function(selected_variables,
   if (!is.null(covariates)) {
     vectors_match(rownames(summarized_methyl_VML), rownames(covariates))
   }
-  # Matrices have obly finite numeric values
+  # Matrices have only finite numeric values
   finite_numeric_check(genotype_matrix)
   finite_numeric_check(environmental_matrix)
   finite_numeric_check(summarized_methyl_VML)
