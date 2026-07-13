@@ -61,14 +61,17 @@ You can install the latest version of RAMEN from
 
 ``` r
 ## Install dependencies
-# install.packages("devtools")
 # install.packages("BiocManager")
 # BiocManager::install("S4Vectors")
 # BiocManager::install("IRanges")
 # BiocManager::install("GenomicRanges")
+## If using any of these Illumina microarrays, pick one: 
+# BiocManager::install("IlluminaHumanMethylation450kanno.ilmn12.hg19")
+# BiocManager::install("IlluminaHumanMethylationEPICanno.ilm10b4.hg19")
+# BiocManager::install("IlluminaHumanMethylationEPICv2anno.20a1.hg38")
 
 ## Install the RAMEN package from GitHub
-BiocManager::install("ErickNavarroD/RAMEN@ropensci-software-review")
+BiocManager::install("ErickNavarroD/RAMEN")
 ```
 
 ## Usage
@@ -106,14 +109,14 @@ VML <- RAMEN::findVML(
   max_distance = 1000
 )
 
-head(VML$VML) # Take a look at the identified VML data frame
+head(VML$VML) # Take a look at the identified VML GRanges object
 ```
 
 2.  Summarize the regional methylation state of each VML with `summarizeVML()`.
 
 ```{r}
 summarized_methyl_VML <- RAMEN::summarizeVML(
-  VML_df = VML$VML,
+  VML = VML$VML,
   methylation_data = test_methylation_data
 )
 
@@ -125,7 +128,7 @@ summarized_methyl_VML[1:5, 1:5]
 
 ```{r}
 VML_cis_snps <- RAMEN::findCisSNPs(
-  VML_df = VML$VML,
+  VML = VML$VML,
   genotype_information = RAMEN::test_genotype_information,
   distance = 1e+06
 )
@@ -139,7 +142,7 @@ relevant *cis* SNPs and environmental variables with `selectVariables()`.
 
 ```{r}
 selected_variables <- RAMEN::selectVariables(
-  VML_df = VML_cis_snps,
+  VML_wSNPs = VML_cis_snps,
   genotype_matrix = RAMEN::test_genotype_matrix,
   environmental_matrix = RAMEN::test_environmental_matrix,
   covariates = RAMEN::test_covariates,
@@ -174,7 +177,7 @@ selected by *lmGE()*.
 
 ```{r}
 null_dist <- RAMEN::nullDistGE(
-  VML_df = VML_cis_snps,
+  VML_wSNPs = VML_cis_snps,
   genotype_matrix = RAMEN::test_genotype_matrix,
   environmental_matrix = RAMEN::test_environmental_matrix,
   summarized_methyl_VML = summarized_methyl_VML,
