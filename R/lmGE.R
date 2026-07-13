@@ -183,7 +183,7 @@ lmGE <- function(selected_variables,
   argument_check(selected_variables, "data.frame")
   columns_exist(selected_variables, c("VML_index",
                                       "selected_genot",
-                                      "selected_env") )
+                                      "selected_env"))
   argument_check(selected_variables$selected_env, "list")
   argument_check(selected_variables$selected_genot, "list")
   argument_check(selected_variables$VML_index, "character")
@@ -213,11 +213,11 @@ lmGE <- function(selected_variables,
     dplyr::filter(!(selected_env %in% empty_lists &
       selected_genot %in% empty_lists))
   # Select the winning model
-  winning_models <- foreach::foreach(i = 1:nrow(selected_variables),
+  winning_models <- foreach::foreach(i = seq_len(nrow(selected_variables)),
                                      .combine = "rbind") %dopar% { # For every VML
     #### Prepare data sets ####
     # Create the data frame with all the information for each VML
-    VML_i = selected_variables[i,]
+    VML_i <- selected_variables[i, ]
     summ_vml_i <- summarized_methyl_VML[, VML_i$VML_index, drop = FALSE]
     colnames(summ_vml_i) <- "DNAme"
     if (!VML_i$selected_env %in% empty_lists) {
@@ -261,9 +261,9 @@ lmGE <- function(selected_variables,
         # Create data frame structure for the results
         model_g_df <- data.frame(model_group = "G")
         model_g_df$variables <- list(SNP)
-        if (model_selection == "AIC"){
+        if (model_selection == "AIC") {
           model_g_df$AIC <- stats::AIC(model_g)
-        } else if (model_selection == "BIC"){
+        } else if (model_selection == "BIC") {
           model_g_df$BIC <- stats::BIC(model_g)
         }
         model_g_df$tot_r_squared <- summary(model_g)$r.squared
@@ -287,15 +287,15 @@ lmGE <- function(selected_variables,
             # Create data frame structure for the results
             model_ge_df <- data.frame(model_group = "G+E")
             model_ge_df$variables <- list(c(SNP, env))
-            if (model_selection == "AIC"){
+            if (model_selection == "AIC") {
               model_ge_df$AIC <- stats::AIC(model_ge)
-            } else if (model_selection == "BIC"){
+            } else if (model_selection == "BIC") {
               model_ge_df$BIC <- stats::BIC(model_ge)
             }
             model_ge_df$tot_r_squared <- summary(model_ge)$r.squared
             # Fit GxE
             model_gxe <- stats::lm(data = as.data.frame(full_data_vml_i),
-                                   formula = paste("DNAme ~ ",
+                                   formula = paste0("DNAme ~ ",
                                                    make.names(SNP),
                                                    " + ",
                                                    make.names(env),
@@ -303,15 +303,14 @@ lmGE <- function(selected_variables,
                                                    make.names(SNP),
                                                    "*", make.names(env),
                                                    " + ",
-                                                   basal_model_formula,
-                                                   sep = "")
+                                                   basal_model_formula)
                                    )
             # Create data frame structure for the results
             model_gxe_df <- data.frame(model_group = "GxE")
             model_gxe_df$variables <- list(c(SNP, env))
-            if (model_selection == "AIC"){
+            if (model_selection == "AIC") {
               model_gxe_df$AIC <- stats::AIC(model_gxe)
-            } else if (model_selection == "BIC"){
+            } else if (model_selection == "BIC") {
               model_gxe_df$BIC <- stats::BIC(model_gxe)
             }
             model_gxe_df$tot_r_squared <- summary(model_gxe)$r.squared
@@ -349,7 +348,7 @@ lmGE <- function(selected_variables,
         # Create data frame structure for the results
         model_e_df <- data.frame(model_group = "E")
         model_e_df$variables <- list(c(env))
-        if (model_selection == "AIC"){
+        if (model_selection == "AIC") {
           model_e_df$AIC <- stats::AIC(model_e)
         } else if (model_selection == "BIC") {
           model_e_df$BIC <- stats::BIC(model_e)
@@ -475,7 +474,7 @@ lmGE <- function(selected_variables,
       winning_model_VML_i$gxe_r_squared <- NA_real_
     } else if (winning_model_VML_i$model_group == "GxE") {
       winning_lm <- stats::lm(data = as.data.frame(full_data_vml_i),
-                              formula = paste("DNAme ~ ",
+                              formula = paste0("DNAme ~ ",
                                               make.names(unlist(winning_model_VML_i$variables))[1],
                                               " + ",
                                               make.names(unlist(winning_model_VML_i$variables))[2],
@@ -484,8 +483,7 @@ lmGE <- function(selected_variables,
                                               "*",
                                               make.names(unlist(winning_model_VML_i$variables))[2],
                                               " + ",
-                                              basal_model_formula,
-                                              sep = "")
+                                              basal_model_formula)
                               )
       r_decomp <- relaimpo::calc.relimp.lm(
         object = winning_lm,
@@ -501,11 +499,10 @@ lmGE <- function(selected_variables,
       # this package, this option will be used.
       winning_model_VML_i$g_r_squared <- r_decomp$lmg[make.names(unlist(winning_model_VML_i$variables))[1]]
       winning_model_VML_i$e_r_squared <- r_decomp$lmg[make.names(unlist(winning_model_VML_i$variables))[2]]
-      winning_model_VML_i$gxe_r_squared <- r_decomp$lmg[paste(
+      winning_model_VML_i$gxe_r_squared <- r_decomp$lmg[paste0(
         make.names(unlist(winning_model_VML_i$variables))[1],
         ":",
-        make.names(unlist(winning_model_VML_i$variables))[2],
-        sep = "")
+        make.names(unlist(winning_model_VML_i$variables))[2])
         ]
     }
 

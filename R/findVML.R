@@ -177,7 +177,7 @@ findVML <- function(methylation_data,
                         "'IlluminaHumanMethylationEPICv1', or",
                         "'IlluminaHumanMethylationEPICv2')."))
     # Check that the array strand is in the format expected by the user
-    if (base::length(base::unique(array_manifest$strand)) > 1){
+    if (base::length(base::unique(array_manifest$strand)) > 1) {
       warning(paste("The manifest currently has more than one type of strands.",
                     "Please note that this function is strand sensitive. So, probes in",
                     "proximal coordinates but different strands on the manifest will not be",
@@ -282,7 +282,7 @@ findVML <- function(methylation_data,
       if (!requireNamespace("IlluminaHumanMethylation450kanno.ilmn12.hg19",
         quietly = TRUE
       )) {
-        stop( paste("Package \"IlluminaHumanMethylation450kanno.ilmn12.hg19\" ",
+        stop(paste("Package \"IlluminaHumanMethylation450kanno.ilmn12.hg19\" ",
         "must be installed to use this function."),
           call. = FALSE
         )
@@ -326,14 +326,14 @@ findVML <- function(methylation_data,
     # object
     dplyr::arrange(chr)
   rownames(manifest_hvp) <- manifest_hvp$TargetID
-  if (is.factor(manifest_hvp$chr)){
+  if (is.factor(manifest_hvp$chr)) {
     manifest_hvp <- manifest_hvp |>
       dplyr::mutate(chr = droplevels(chr))
   }
 
   #### Identify sparse Variable Methylated Probes####
   message("Identifying sparse Variable Methylated Probes")
-  full_manifest <-cbind(TargetID = rownames(manifest), manifest) |>
+  full_manifest <- cbind(TargetID = rownames(manifest), manifest) |>
     # Select necessary columns in case there is more
     dplyr::select(c(TargetID, chr, pos, strand)) |>
     dplyr::filter(
@@ -345,7 +345,7 @@ findVML <- function(methylation_data,
     # important step for using Rle later when constructing the GenomicRanges
     # object
     dplyr::arrange(chr)
-  if (is.factor(full_manifest$chr)){
+  if (is.factor(full_manifest$chr)) {
     full_manifest <- full_manifest |>
       dplyr::mutate(chr = droplevels(chr))
   }
@@ -442,10 +442,10 @@ findVML <- function(methylation_data,
                                                         nrow(S4Vectors::mcols(sVMPs)))
 
   ### Make final GRanges object ####
-  VML = c(VMRs, sVMPs)
+  VML <- c(VMRs, sVMPs)
   S4Vectors::mcols(VML)$type <- c(rep("VMR", length(VMRs)),
                        rep("sVMP", length(sVMPs)))
-  S4Vectors::mcols(VML)$VML_index = paste("VML", 1:length(VML), sep = "")
+  S4Vectors::mcols(VML)$VML_index <- paste0("VML", seq_len(length(VML)))
 
   return(list(
     var_score_threshold = var_threshold,

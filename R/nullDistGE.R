@@ -129,7 +129,7 @@ nullDistGE <- function(VML_wSNPs,
   permutation_order <- data.frame(sample(rownames(summarized_methyl_VML),
                                          size = length(rownames(summarized_methyl_VML))
   ))
-  if (permutations > 1){
+  if (permutations > 1) {
     # Append order of other permutations
     for (i in 1:(permutations - 1)) {
       permutation_order <- cbind(
@@ -150,7 +150,7 @@ nullDistGE <- function(VML_wSNPs,
   null_dist <- foreach::foreach(i = 1:permutations, .combine = rbind) %do% {
     message("Starting permutation ", i, " of ", permutations)
     # Change order of samples
-    permutated_genotype <- genotype_matrix[,permutation_order[, i],
+    permutated_genotype <- genotype_matrix[, permutation_order[, i],
                                            drop = FALSE]
     permutated_environment <- environmental_matrix[permutation_order[, i], ,
                                                    drop = FALSE]

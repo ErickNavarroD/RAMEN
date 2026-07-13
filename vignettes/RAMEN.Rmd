@@ -276,14 +276,17 @@ available in the RAMEN package.
 
 ```{r eval=FALSE}
 ## Install dependencies
-# install.packages("devtools")
 # install.packages("BiocManager")
 # BiocManager::install("S4Vectors")
 # BiocManager::install("IRanges")
 # BiocManager::install("GenomicRanges")
+## If using any of these Illumina microarrays, pick one: 
+# BiocManager::install("IlluminaHumanMethylation450kanno.ilmn12.hg19")
+# BiocManager::install("IlluminaHumanMethylationEPICanno.ilm10b4.hg19")
+# BiocManager::install("IlluminaHumanMethylationEPICv2anno.20a1.hg38")
 
 ## Install the RAMEN package from GitHub
-BiocManager::install("ErickNavarroD/RAMEN@ropensci-software-review")
+BiocManager::install("ErickNavarroD/RAMEN")
 ```
 
 ```{r setup, warning=FALSE, message=FALSE}
@@ -352,8 +355,7 @@ appropriate for statistical analyses (see Pan Du, *et al.*, 2010,
 *BMC Bioinformatics*). 
 
 Now, there are a couple of options that we provide to define Highly Variable 
-Probes, which are the building blocks of VML. Let's talk about two of the more
-important ones: 
+Probes, which are the building blocks of VML. Let's talk about two of the moreimportant ones: 
 
 ### var_method
 
@@ -466,11 +468,11 @@ VML <- RAMEN::findVML(
 
 # Take a look at the resulting object
 # check the specific threshold that was used to label HVPs
-dplyr::glimpse(VML$var_score_threshold) 
+dplyr::glimpse(VML$var_score_threshold)
 # check the HVPs identified and their variability score
-head(VML$highly_variable_probes) 
+head(VML$highly_variable_probes)
 # Take a look at the identified VML GRanges object
-head(VML$VML) 
+head(VML$VML)
 ```
 
 We can sometimes see the following warning message: 
@@ -569,7 +571,7 @@ We can also explore the resulting object through plots such as the following:
 
 ```{r cissnps, fig.cap="Disribution of SNPs in cis of VML."}
 VML_cis_snps |>
-  data.frame() |> 
+  data.frame() |>
   dplyr::mutate(surrounding_SNPs = case_when(
     surrounding_SNPs > 3000 ~ 3000,
     TRUE ~ surrounding_SNPs
@@ -659,7 +661,7 @@ SNPs per VML on average as seen in Figure \@ref(fig:cissnps)).
 selected_variables |>
   dplyr::left_join(
     VML_cis_snps |>
-      data.frame() |> 
+      data.frame() |>
       select(c(VML_index, type)),
     by = "VML_index"
   ) |>
@@ -882,7 +884,7 @@ chance increases their probability of having a higher R2_difference.
 ```{r, fig.cap = "R2 difference (winner - basal) in a suffled data set."}
 # See the distribution of R2_difference across different winning models
 null_dist |>
-  drop_na() |> # Remove Basal models from the results, where there is no 
+  drop_na() |> # Remove Basal models from the results, where there is no
   # difference between chosen model and basal model
   ggplot2::ggplot(aes(x = R2_difference)) +
   ggplot2::geom_histogram() +
@@ -895,7 +897,7 @@ We suggest using the 95th percentile of those distributions as a threshold to
 remove bad performing winning models found in our observed data. 
 
 ```{r}
-# Get a cutoff of the 95th percentile of the null distribution for single and 
+# Get a cutoff of the 95th percentile of the null distribution for single and
 # joint models
 cutoff_single <- quantile(
   null_dist |>
@@ -919,7 +921,7 @@ final_res <- lmge_res |>
       model_group %in% c("G", "E") ~ r2_difference_basal > cutoff_single,
       model_group %in% c("G+E", "GxE") ~ r2_difference_basal > cutoff_joint
     ),
-    # Label the final model group, replacing bad performing winning models with 
+    # Label the final model group, replacing bad performing winning models with
     # "B" (basal)
     model_group = case_when(
       pass_cutoff_threshold ~ model_group,
@@ -1034,7 +1036,7 @@ data.table::fwrite(selected_variables, file = "path/selected_variables.csv")
 # Read the csv file and make lists the elements in the required columns
 selected_variables <- fread("path/selected_variables.csv", data.table = FALSE) |>
   mutate(
-    selected_genot = str_split(selected_genot, pattern = "\\|"), 
+    selected_genot = str_split(selected_genot, pattern = "\\|"),
     # fwrite saves lists as strings separated by |, so we need to split them
     selected_env = str_split(selected_env, pattern = "\\|"),
     VMR_index = as.character(VMR_index)

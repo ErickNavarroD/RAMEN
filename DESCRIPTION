@@ -27,7 +27,6 @@ Description: Using population data, RAMEN identifies which genetic (G), environm
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 Suggests: 
     BiocStyle,
     knitr,
@@ -59,3 +58,4 @@ URL:
     https://ericknavarrod.github.io/RAMEN/ ,
     https://github.com/ErickNavarroD/RAMEN/
 BugReports: https://github.com/ErickNavarroD/RAMEN/issues
+Config/roxygen2/version: 8.0.0

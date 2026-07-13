@@ -36,10 +36,9 @@ test_methylation_data <- matrix(m_values,
 ) |>
   as.data.frame()
 
-colnames(test_methylation_data) <- paste(
+colnames(test_methylation_data) <- paste0(
   "ID",
-  as.character(1:sample_size),
-  sep = ""
+  as.character(1:sample_size)
 )
 rownames(test_methylation_data) <- rownames(test_array_manifest)
 

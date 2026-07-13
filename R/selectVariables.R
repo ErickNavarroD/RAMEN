@@ -160,9 +160,9 @@ selectVariables <- function(VML_wSNPs,
   argument_check(VML_wSNPs$SNP, "list")
   argument_check(VML_wSNPs$VML_index, "character")
   # Check that IDs match across data sets
-  vectors_match(rownames(summarized_methyl_VML),colnames(genotype_matrix))
-  vectors_match(rownames(summarized_methyl_VML),rownames(environmental_matrix))
-  if (!is.null(covariates)){
+  vectors_match(rownames(summarized_methyl_VML), colnames(genotype_matrix))
+  vectors_match(rownames(summarized_methyl_VML), rownames(environmental_matrix))
+  if (!is.null(covariates)) {
     vectors_match(rownames(summarized_methyl_VML), rownames(covariates))
   }
   ## Check that genotype_matrix, environmental_matrix, and covariates (in case
@@ -178,12 +178,12 @@ selectVariables <- function(VML_wSNPs,
   lasso_results <- foreach::foreach(i = VML_wSNPs$VML_index,
                                     .combine = "rbind") %dorng% {
     #### Prepare data sets ####
-    VML_i = VML_wSNPs[VML_wSNPs$VML_index == i]
+    VML_i <- VML_wSNPs[VML_wSNPs$VML_index == i]
     # Select summarized VML information
     summVMLi <- summarized_methyl_VML[, i, drop = FALSE]
     ## Prepare data
     # subset the genotyping data and match genotype, environment and DNAme IDs
-    if (VML_i$SNP %in% empty_lists){ # Catch VML with no surrounding SNPs
+    if (VML_i$SNP %in% empty_lists) { # Catch VML with no surrounding SNPs
       genot_VMLi <- c()
       any_snp <- FALSE
     } else {

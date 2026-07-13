@@ -17,9 +17,8 @@ test_that("summarizeVML adds VML_index when not present", {
   )
   expect_true(is.matrix(summarized_no_index))
   # All VMLs are included
-  expect_true(all(colnames(summarized_no_index) %in% paste("VML",
-                                                           1:length(VML_no_IDs),
-                                                           sep = ""))
+  expect_true(all(colnames(summarized_no_index) %in% paste0("VML",
+                                                           seq_len(length(VML_no_IDs)))
   )
   # All individuals are included
   expect_equal(nrow(summarized_no_index), ncol(RAMEN::test_methylation_data))
@@ -66,4 +65,3 @@ test_that("summarizeVML throws errors when expected", {
     "Please make sure the input methylation_data belongs to the data.frame class."
   )
 })
-

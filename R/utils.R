@@ -1,5 +1,5 @@
 argument_check <- function(object, data_type, extra_msg = NULL,
-                           obj_name = deparse(substitute(object))){
+                           obj_name = deparse(substitute(object))) {
   correct_type <- switch(data_type,
                  list = is.list(object),
                  data.frame = is.data.frame(object),
@@ -18,10 +18,10 @@ argument_check <- function(object, data_type, extra_msg = NULL,
   }
 }
 
-argument_char_options <- function(object, options, extra_msg = NULL){
+argument_char_options <- function(object, options, extra_msg = NULL) {
   obj_name <- deparse(substitute(object))
   argument_check(object, "character", obj_name = obj_name)
-  if (!length(object) == 1){
+  if (!length(object) == 1) {
     stop(paste("Please make sure the input",
                obj_name,
                "is a character object of length 1"))
@@ -36,8 +36,8 @@ argument_char_options <- function(object, options, extra_msg = NULL){
   }
 }
 
-columns_exist <- function(data.frame, columns, extra_msg = NULL){
-  if (!all(columns %in% colnames(data.frame))){
+columns_exist <- function(data.frame, columns, extra_msg = NULL) {
+  if (!all(columns %in% colnames(data.frame))) {
     stop(paste("The object",
                deparse(substitute(data.frame)),
                "does not have the required columns:",
@@ -47,8 +47,8 @@ columns_exist <- function(data.frame, columns, extra_msg = NULL){
   }
 }
 
-vectors_match <- function(object_1, object_2, extra_msg = NULL){
-  if (!all(object_1 %in% object_2)){
+vectors_match <- function(object_1, object_2, extra_msg = NULL) {
+  if (!all(object_1 %in% object_2)) {
     stop(paste("The objects",
                deparse(substitute(object_1)),
                "and",
@@ -58,7 +58,7 @@ vectors_match <- function(object_1, object_2, extra_msg = NULL){
   }
 }
 
-finite_numeric_check <- function(object, extra_msg = NULL){
+finite_numeric_check <- function(object, extra_msg = NULL) {
   if (
     sum(vapply(object, is.na, FUN.VALUE = logical(1))) > 0 ||
     sum(vapply(object, is.nan, FUN.VALUE = logical(1))) > 0 ||
