@@ -211,6 +211,24 @@ test_that("findVML throws errors when expected", {
       suppressMessages(),
     "Please make sure the input max_distance belongs to the numeric class."
   )
+  #### Low number of ultrastable probes ####
+  expect_error(
+    RAMEN::findVML(
+      methylation_data = RAMEN::test_methylation_data[1:5, ],
+      array_manifest = "IlluminaHumanMethylationEPICv1",
+      cor_threshold = 0,
+      var_method = "variance",
+      var_distribution = "ultrastable",
+      var_threshold_percentile = 0.99,
+      max_distance = 1000) |>
+      suppressMessages(),
+    paste("Your data set should contain more than 25 ultrastable probes",
+          "(RAMEN::ultrastable_cpgs) to compute a variance threshold. If",
+          "not, please get the",
+          "variability threshold based on all the probes in your data set",
+          "(var_distribution = 'all', var_threshold_percentile = 0.9)."),
+    fixed = TRUE
+  )
 })
 
 test_that("findVML works with EPICv2 probes", {
@@ -222,6 +240,12 @@ test_that("findVML works with EPICv2 probes", {
     dplyr::arrange(chr, pos) |>
     dplyr::slice_head(n = nrow(RAMEN::test_methylation_data)) |>
     rownames()
+  epicv2_ultrastable_cpgs <- IlluminaHumanMethylationEPICv2anno.20a1.hg38::Other |>
+    data.frame() |>
+    dplyr::filter(Methyl450_Loci %in% RAMEN::ultrastable_cpgs) |>
+    rownames()
+  # Add artificially ultrastable probes
+  rownames(epic2_methylation_data)[1:30] = epicv2_ultrastable_cpgs[1:30]
 
   VML_epic2 <- RAMEN::findVML(
     methylation_data = epic2_methylation_data,
@@ -232,6 +256,7 @@ test_that("findVML works with EPICv2 probes", {
     var_threshold_percentile = 0.99,
     max_distance = 1000
   ) |>
+    suppressWarnings() |>
     suppressMessages()
   expect_true(is.list(VML_epic2))
   expect_true(is(VML_epic2$VML, "GRanges"))

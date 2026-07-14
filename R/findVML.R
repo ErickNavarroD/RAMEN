@@ -56,7 +56,7 @@ map_revmap_names <- function(positions, manifest_hvp) {
 #' kilobase). Modelling DNAme variability through regions rather than individual
 #' CpGs provides several methodological advantages in association studies, since
 #' CpGs display a significant correlation for co-methylation when they are close
-#' (≤ 1 kilobase). Some of these advantages include increasing statistical power
+#' (less than 1 kilobase). Some of these advantages include increasing statistical power
 #' by testing redundant probes only once, reducing false-positives driven by one
 #' problematic probe in a region, and improving comparability between studies
 #' that analyze the same genomic region but measure distinct CpGs due to
@@ -201,11 +201,11 @@ findVML <- function(methylation_data,
       # If the user provides their own manifest and is choosing to use the
       # ultrastable probes, make sure that a good number of them is present
       # in the data set. If not, throw an error
-      if (sum(row.names(array_manifest) %in% RAMEN::ultrastable_cpgs) < 100) {
+      if (sum(row.names(array_manifest) %in% RAMEN::ultrastable_cpgs) < 25) {
         stop(paste("The var_distribution = 'ultrastable' option is only",
                    "compatible with Illumina human microarrays at the moment. If you are",
                    "using a human Illumina microarray please indicate it with their",
-                   "corresponding string, or make sure that it contains a more than 100",
+                   "corresponding string, or make sure that it contains a more than 25",
                    "ultrastable probes (RAMEN::ultrastable_cpgs). If not, please get the",
                    "variability threshold based on all the probes in your data set",
                    "(var_distribution = 'all', var_threshold_percentile = 0.9)."))
@@ -233,7 +233,6 @@ findVML <- function(methylation_data,
   }
   # max_distance
   argument_check(max_distance, "numeric")
-
 
   #### Compute variation metric ####
   if (var_method == "mad") {
@@ -277,6 +276,13 @@ findVML <- function(methylation_data,
         var_scores[(row.names(var_scores) %in% epicv2_ultrastable_cpgs), ],
         var_threshold_percentile
       )
+      if (sum(row.names(var_scores) %in% epicv2_ultrastable_cpgs) < 25) {
+        stop(paste("Your data set should contain more than 25 ultrastable probes",
+                   "(RAMEN::ultrastable_cpgs) to compute a variance threshold. If",
+                   "not, please get the",
+                   "variability threshold based on all the probes in your data set",
+                   "(var_distribution = 'all', var_threshold_percentile = 0.9)."))
+      }
     } else {
       # EPICv1 or 450k (same probe name as the ultrastable probes)
       # Subset only ultrastable probes
@@ -284,6 +290,13 @@ findVML <- function(methylation_data,
         var_scores[(row.names(var_scores) %in% RAMEN::ultrastable_cpgs), ],
         var_threshold_percentile
       )
+      if (sum(row.names(var_scores) %in% RAMEN::ultrastable_cpgs) < 25) {
+        stop(paste("Your data set should contain more than 25 ultrastable probes",
+                   "(RAMEN::ultrastable_cpgs) to compute a variance threshold. If",
+                   "not, please get the",
+                   "variability threshold based on all the probes in your data set",
+                   "(var_distribution = 'all', var_threshold_percentile = 0.9)."))
+      }
     }
   }
   # Replace the array manifest if the user provided a string with the name of
