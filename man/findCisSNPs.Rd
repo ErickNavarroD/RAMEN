@@ -32,6 +32,11 @@ Identification of genotyped Single Nucleotide Polymorphisms (SNPs) close to
 each VML using a distance threshold.
 }
 \details{
+For DNAme data, previous studies (e.g. Gibbs, et al., 2010, McClay, et al.,
+2015) have found that SNPs are more likely to associate with DNAme levels
+the closer they are to the CpG. We recommend to include SNPs within 500 kb to
+1 Mb to capture SNPs with a high potential to associate with DNAme.
+
 \strong{Important}: please make sure that the positions of the VML data frame and
 the ones in the genotype information are from the same genome build.
 }
