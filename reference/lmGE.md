@@ -240,6 +240,46 @@ selected_vars <- RAMEN::selectVariables(
   summarized_methyl_VML = summarized_methyl_VML,
   seed = 1
 )
+#> Loading required package: stats4
+#> Loading required package: BiocGenerics
+#> Loading required package: generics
+#> 
+#> Attaching package: ‘generics’
+#> The following objects are masked from ‘package:base’:
+#> 
+#>     as.difftime, as.factor, as.ordered, intersect, is.element, setdiff,
+#>     setequal, union
+#> 
+#> Attaching package: ‘BiocGenerics’
+#> The following objects are masked from ‘package:stats’:
+#> 
+#>     IQR, mad, sd, var, xtabs
+#> The following objects are masked from ‘package:base’:
+#> 
+#>     Filter, Find, Map, Position, Reduce, anyDuplicated, aperm, append,
+#>     as.data.frame, basename, cbind, colnames, dirname, do.call,
+#>     duplicated, eval, evalq, get, grep, grepl, is.unsorted, lapply,
+#>     mapply, match, mget, order, paste, pmax, pmax.int, pmin, pmin.int,
+#>     rank, rbind, rownames, sapply, saveRDS, table, tapply, unique,
+#>     unsplit, which.max, which.min
+#> Loading required package: S4Vectors
+#> 
+#> Attaching package: ‘S4Vectors’
+#> The following object is masked from ‘package:utils’:
+#> 
+#>     findMatches
+#> The following objects are masked from ‘package:base’:
+#> 
+#>     I, expand.grid, unname
+#> Loading required package: IRanges
+#> Loading required package: Seqinfo
+#> Loading required package: Matrix
+#> 
+#> Attaching package: ‘Matrix’
+#> The following object is masked from ‘package:S4Vectors’:
+#> 
+#>     expand
+#> Loaded glmnet 5.0
 #> Loading required package: foreach
 #> Loading required package: rngtools
 
