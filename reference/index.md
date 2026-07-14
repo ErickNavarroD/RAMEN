@@ -8,9 +8,6 @@
   : Identify Variable Methylated Loci in microarrays
 - [`lmGE()`](https://ericknavarrod.github.io/RAMEN/reference/lmGE.md) :
   Fit linear G, E, G+E and GxE models and select the winning model
-- [`map_revmap_names()`](https://ericknavarrod.github.io/RAMEN/reference/map_revmap_names.md)
-  : Map revmap column to probe names after reducing a GenomicRanges
-  object
 - [`medCorVMR()`](https://ericknavarrod.github.io/RAMEN/reference/medCorVMR.md)
   : Compute the median probe methylation pearson correlation for each
   Variable Methylated Region (VMR).

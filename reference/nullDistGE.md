@@ -14,11 +14,11 @@ methodology.
 
 ``` r
 nullDistGE(
-  VML_df,
+  VML_wSNPs,
   genotype_matrix,
   environmental_matrix,
   summarized_methyl_VML,
-  permutations = 10,
+  permutations = 5,
   covariates = NULL,
   seed = NULL,
   model_selection = "AIC"
@@ -27,19 +27,17 @@ nullDistGE(
 
 ## Arguments
 
-- VML_df:
+- VML_wSNPs:
 
-  A data frame converted from a GRanges object. Recommended to use the
-  output of *RAMEN::findCisSNPs()*. Must have one VML per row, and
-  contain the following columns: "VML_index" (a unique ID for each VML
-  in VML_df AS CHARACTERS) and "SNP" (a column with a list as
-  observation, containing the name of the SNPs surrounding the
-  corresponding VML). The SNPs contained in the "SNP" column must be
-  present in the object that is indicated in the genotype_matrix
-  argument, and it must contain all the VML contained in
-  summarized_methyl_VML. VML with no surrounding SNPs must have an empty
-  list in the SNP column (either list(NULL), list(NA), list("") or
-  list(character(0)) ).
+  GRanges object produced by *RAMEN::findCisSNPs()*. Must contain the
+  following metadata columns: "VML_index" (a unique ID for each VML in
+  VML_df AS CHARACTERS) and "SNP" (a column with a list as observation,
+  containing the name of the SNPs surrounding the corresponding VML).
+  The SNPs contained in the "SNP" column must be present in the object
+  that is indicated in the genotype_matrix argument. VML_wSNPs must
+  contain all the VML contained in summarized_methyl_VML. VML with no
+  surrounding SNPs must have an empty list in the SNP column (either
+  list(NULL), list(NA), list("") or list(character(0))).
 
 - genotype_matrix:
 
@@ -59,16 +57,16 @@ nullDistGE(
 
 - summarized_methyl_VML:
 
-  A data frame containing each individual's VML summarized methylation.
-  It is suggested to use the output of RAMEN::summarizeVML().Rows must
+  A matrix containing each individual's VML summarized methylation. It
+  is suggested to use the output of *RAMEN::summarizeVML()*.Rows must
   reflects individuals, and columns VML The names of the columns must
   correspond to the index of said VML, and it must match the index of
-  VML_df\$VML_index. The names of the rows must correspond to the sample
-  IDs, and must match with the IDs of the other matrices.
+  VML_wSNPs\$VML_index. The names of the rows must correspond to the
+  sample IDs, and must match with the IDs of the other matrices.
 
 - permutations:
 
-  description
+  Numer of permutation analyses to run.
 
 - covariates:
 
@@ -89,8 +87,7 @@ nullDistGE(
 - model_selection:
 
   Which metric to use to select the best model for each VML. Supported
-  options are "AIC" or BIC". More information about which one to use can
-  be found in the Details section.
+  options are "AIC" or BIC".
 
 ## Value
 
@@ -145,9 +142,11 @@ time. For further information please read the RAMEN paper
 ## Examples
 
 ``` r
+# Set the parallel backend to use 2 workers
+doParallel::registerDoParallel(2)
 ## Find VML in test data
-VML <- RAMEN::findVML(
-  methylation_data = RAMEN::test_methylation_data,
+VML <- findVML(
+  methylation_data = test_methylation_data,
   array_manifest = "IlluminaHumanMethylationEPICv1",
   cor_threshold = 0,
   var_method = "variance",
@@ -160,48 +159,35 @@ VML <- RAMEN::findVML(
 #> Identifying Variable Methylated Regions...
 #> Applying correlation filter to Variable Methylated Regions...
 ## Find cis SNPs around VML
-VML_with_cis_snps <- RAMEN::findCisSNPs(
-  VML_df = VML$VML,
-  genotype_information = RAMEN::test_genotype_information,
+VML_with_cis_snps <- findCisSNPs(
+  # Use only 5 for demonstration purposes
+  VML = VML$VML[1:5, ],
+  genotype_information = test_genotype_information,
   distance = 1e6
 )
 #> Reminder: please make sure that the positions of the VML data frame and the ones in the genotype information are from the same genome build.
 
 ## Summarize methylation levels in VML
-summarized_methyl_VML <- RAMEN::summarizeVML(
-  methylation_data = RAMEN::test_methylation_data,
-  VML_df = VML_with_cis_snps
+summarized_methyl_VML <- summarizeVML(
+  methylation_data = test_methylation_data,
+  VML = VML_with_cis_snps
 )
 
 ## Simulate null distribution of G and E contributions on DNAme variability
-null_dist <- RAMEN::nullDistGE(
-  VML_df = VML_with_cis_snps,
-  genotype_matrix = RAMEN::test_genotype_matrix,
-  environmental_matrix = RAMEN::test_environmental_matrix,
+## We will only run one permutation for demonstration purposes
+null_dist <- nullDistGE(
+  VML_wSNPs = VML_with_cis_snps,
+  genotype_matrix = test_genotype_matrix,
+  environmental_matrix = test_environmental_matrix,
   summarized_methyl_VML = summarized_methyl_VML,
-  permutations = 5,
-  covariates = RAMEN::test_covariates,
+  # Use one permutation for demonstration purposes
+  permutations = 1,
+  covariates = test_covariates,
   seed = 1,
   model_selection = "AIC"
 )
-#> Starting permutation 1 of 5
-#> Starting variable selection of permutation 1 of 5
-#> Starting lmGE in permutation 1 of 5
-#> Wrapping up permutation 1 of 5
-#> Starting permutation 2 of 5
-#> Starting variable selection of permutation 2 of 5
-#> Starting lmGE in permutation 2 of 5
-#> Wrapping up permutation 2 of 5
-#> Starting permutation 3 of 5
-#> Starting variable selection of permutation 3 of 5
-#> Starting lmGE in permutation 3 of 5
-#> Wrapping up permutation 3 of 5
-#> Starting permutation 4 of 5
-#> Starting variable selection of permutation 4 of 5
-#> Starting lmGE in permutation 4 of 5
-#> Wrapping up permutation 4 of 5
-#> Starting permutation 5 of 5
-#> Starting variable selection of permutation 5 of 5
-#> Starting lmGE in permutation 5 of 5
-#> Wrapping up permutation 5 of 5
+#> Starting permutation 1 of 1
+#> Starting variable selection of permutation 1 of 1
+#> Starting lmGE in permutation 1 of 1
+#> Wrapping up permutation 1 of 1
 ```

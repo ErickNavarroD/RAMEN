@@ -8,28 +8,25 @@ its median pairwise probe correlation.
 ## Usage
 
 ``` r
-medCorVMR(VMR_df, methylation_data)
+medCorVMR(VML, methylation_data)
 ```
 
 ## Arguments
 
-- VMR_df:
+- VML:
 
-  GRanges object converted to a data frame. Must contain the following
-  columns: "seqnames", "start", "end" (all of which are produced
-  automatically when doing the object conversion) and "probes"
-  (containing a list in which each element contains a vector with the
-  probes constituting the VMR).
+  GRanges object. Must contain a metadata column named "probes", where
+  each element contains a vector with the probes constituting the VML.
 
 - methylation_data:
 
   A data frame containing M or B values, with samples as columns and
   probes as rows. Data is expected to have already passed through
-  quality control and cleaning steps.
+  quality control and cleaning steps. Rows must be the CpG probe IDs.
 
 ## Value
 
-A data frame like VMR_df with an extra column per region containing the
+A GRanges object like VML with an extra column per region containing the
 median pairwise correlation.
 
 ## Details
@@ -43,21 +40,28 @@ options(future.globals.maxSize= +Inf).
 ## Examples
 
 ``` r
-
-# Create a VML data.frame
-VMR_df <- data.frame(
-  seqnames = c("chr21", "chr21"),
-  start = c(10861376, 10862171),
-  end = c(10862507, 10883548),
-  probes = I(list(
-    c("cg15043638", "cg18287590", "cg17975851"),
-    c("cg13893907", "cg17035109", "cg06187584")
-  ))
-)
+# Set the parallel backend to use 2 workers
+doParallel::registerDoParallel(2)
+# Create a VML object
+VML <- GenomicRanges::GRanges(seqnames = c("chr21", "chr21"),
+      ranges = IRanges::IRanges(start = c(10861376, 10862171),
+                       end = c(10862507, 10883548)),
+      probes = I(list(
+        c("cg15043638", "cg18287590", "cg17975851"),
+        c("cg13893907", "cg17035109", "cg06187584")))
+      )
 
 # Compute median correlation for each VMR
-medCorVMR(VMR_df = VMR_df, methylation_data = RAMEN::test_methylation_data)
-#>   seqnames    start      end       probes median_correlation
-#> 1    chr21 10861376 10862507 cg150436....          0.7275160
-#> 2    chr21 10862171 10883548 cg138939....          0.7468144
+medCorVMR(VML = VML, methylation_data = RAMEN::test_methylation_data)
+#> GRanges object with 2 ranges and 2 metadata columns:
+#>       seqnames            ranges strand |                           probes
+#>          <Rle>         <IRanges>  <Rle> |                           <list>
+#>   [1]    chr21 10861376-10862507      * | cg15043638,cg18287590,cg17975851
+#>   [2]    chr21 10862171-10883548      * | cg13893907,cg17035109,cg06187584
+#>       median_correlation
+#>                <numeric>
+#>   [1]           0.727516
+#>   [2]           0.746814
+#>   -------
+#>   seqinfo: 1 sequence from an unspecified genome; no seqlengths
 ```

@@ -10,7 +10,8 @@ the next best model from a different category, and the explained
 variance decomposed for the G, E and GxE components (when applicable).
 If a VML has no variables selected in the selected_variables object, it
 will be returned with "B" (basal) as the best model (interpreted as no G
-or E associated effect).
+or E associated effect). For guidance on interpretation, please build
+and read the package's vignette.
 
 ## Usage
 
@@ -36,17 +37,17 @@ lmGE(
   the genotype (G), environment (E), additive (G + E) or interaction (G
   x E) models. The columns 'selected_env' and 'selected_genot' must
   contain lists as elements; VML with no environmental or genotype
-  selected variables must contain an empty list with NULL, NA ,
-  character(0) or "" inside.
+  selected variables must contain an empty list (i.e., list(NULL),
+  list(NA), list("") or list(character(0)) ).
 
 - summarized_methyl_VML:
 
-  A data frame containing each individual's VML summarized methylation.
-  It is suggested to use the output of RAMEN::summarizeVML().Rows must
+  A matrix containing each individual's VML summarized methylation. It
+  is suggested to use the output of *RAMEN::summarizeVML()*.Rows must
   reflects individuals, and columns VML The names of the columns must
   correspond to the index of said VML, and it must match the index of
-  VML_df\$VML_index. The names of the rows must correspond to the sample
-  IDs, and must match with the IDs of the other matrices.
+  VML_wSNPs\$VML_index. The names of the rows must correspond to the
+  sample IDs, and must match with the IDs of the other matrices.
 
 - genotype_matrix:
 
@@ -75,8 +76,7 @@ lmGE(
 - model_selection:
 
   Which metric to use to select the best model for each VML. Supported
-  options are "AIC" or BIC". More information about which one to use can
-  be found in the Details section.
+  options are "AIC" or BIC".
 
 ## Value
 
@@ -200,6 +200,8 @@ the documentation and publication of the relaimpo R package (Grömping,
 ## Examples
 
 ``` r
+# Set the parallel backend to use 2 workers
+doParallel::registerDoParallel(2)
 ## Find VML in test data
 VML <- RAMEN::findVML(
   methylation_data = RAMEN::test_methylation_data,
@@ -216,7 +218,8 @@ VML <- RAMEN::findVML(
 #> Applying correlation filter to Variable Methylated Regions...
 ## Find cis SNPs around VML
 VML_with_cis_snps <- RAMEN::findCisSNPs(
-  VML_df = VML$VML,
+  # Use only 5 for demonstration purposes
+  VML = VML$VML [1:5, ],
   genotype_information = RAMEN::test_genotype_information,
   distance = 1e6
 )
@@ -225,12 +228,12 @@ VML_with_cis_snps <- RAMEN::findCisSNPs(
 ## Summarize methylation levels in VML
 summarized_methyl_VML <- RAMEN::summarizeVML(
   methylation_data = RAMEN::test_methylation_data,
-  VML_df = VML_with_cis_snps
+  VML = VML_with_cis_snps
 )
 
 ## Select relevant genotype and environmental variables
 selected_vars <- RAMEN::selectVariables(
-  VML_df = VML_with_cis_snps,
+  VML_wSNPs = VML_with_cis_snps,
   genotype_matrix = RAMEN::test_genotype_matrix,
   environmental_matrix = RAMEN::test_environmental_matrix,
   covariates = RAMEN::test_covariates,

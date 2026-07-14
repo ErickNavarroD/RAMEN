@@ -11,10 +11,16 @@
 - **Michael S. Kobor**. Author.
   [](https://orcid.org/0000-0003-4140-1743)
 
+- **Lluís Revilla Sancho**. Reviewer.
+  [](https://orcid.org/0000-0001-9747-2570)
+
+- **Ulduz Vafadarshamasbi**. Reviewer.
+  [](https://orcid.org/0000-0002-8370-8084)
+
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/ErickNavarroD/RAMEN/blob/v2.0.1/inst/CITATION)
+[`inst/CITATION`](https://github.com/ErickNavarroD/RAMEN/blob/main/inst/CITATION)
 
 Navarro-Delgado E, Edwards K, Fu M, Merrill S, Konwar C, MacIsaac J, Lin
 D, Mandhane P, Simons E, Subbarao P, Moraes T, Lahti J, Miller G, Binder

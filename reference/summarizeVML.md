@@ -9,29 +9,27 @@ in a dataset, returns a with the median methylation of that region
 ## Usage
 
 ``` r
-summarizeVML(VML_df, methylation_data)
+summarizeVML(VML, methylation_data)
 ```
 
 ## Arguments
 
-- VML_df:
+- VML:
 
-  A GRanges-like data frame. Must contain the following columns:
-  "seqnames", "start", "end" and "probes" (containing lists as elements,
-  where each contains a vector with the probes constituting the VML).
-  This is the "VML" object returned by the *findVML()* function.
+  GRanges object. Must contain a metadata column named "probes", where
+  each element contains a vector with the probes constituting the VML.
 
 - methylation_data:
 
   A data frame containing M or B values, with samples as columns and
-  probes as rows. Row names must be the CpG probe IDs.
+  probes as rows. Data is expected to have already passed through
+  quality control and cleaning steps. Rows must be the CpG probe IDs.
 
 ## Value
 
-A data frame with samples as rows, and VML as columns. The value inside
-each cell corresponds to the summarized methylation value of said VML in
-the corresponding individual. The column names correspond to the
-VML_index.
+A matrix with samples as rows, and VML as columns. The value inside each
+cell corresponds to the summarized methylation value of said VML in the
+corresponding individual. The column names correspond to the VML_index.
 
 ## Details
 
@@ -44,8 +42,10 @@ the function can be run as usual.
 
 ``` r
 ## Find VML in test data
-VML <- RAMEN::findVML(
-  methylation_data = RAMEN::test_methylation_data,
+# Set the parallel backend to use 2 workers
+doParallel::registerDoParallel(2)
+VML <- findVML(
+  methylation_data = test_methylation_data,
   array_manifest = "IlluminaHumanMethylationEPICv1",
   cor_threshold = 0,
   var_method = "variance",
@@ -59,8 +59,9 @@ VML <- RAMEN::findVML(
 #> Applying correlation filter to Variable Methylated Regions...
 
 ## Summarize methylation states of the found VML
-summarized_VML <- RAMEN::summarizeVML(
-  VML_df = VML$VML,
-  methylation_data = RAMEN::test_methylation_data
+summarized_VML <- summarizeVML(
+  # Use only 5 for demonstration purposes
+  VML = VML$VML[1:5, ],
+  methylation_data = test_methylation_data
 )
 ```

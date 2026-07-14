@@ -26,7 +26,7 @@ findVML(
 
   A data frame containing M or B values, with samples as columns and
   probes as rows. Data is expected to have already passed through
-  quality control and cleaning steps.
+  quality control and cleaning steps. Rows must be the CpG probe IDs.
 
 - array_manifest:
 
@@ -100,18 +100,19 @@ A list with the following elements:
   variability score threshold imposed by the user, and their variability
   score (MAD score or variance).
 
-- \$VML: a GRanges-like data frame with VMRs (regions composed of two or
-  more contiguous, correlated and proximal Highly Variable Probes), and
-  sVMPs (highly variable probes without neighboring CpGs measured in
+- \$VML: a GRanges object listing VMRs (regions composed of two or more
+  contiguous, correlated and proximal Highly Variable Probes), and sVMPs
+  (highly variable probes without neighboring CpGs measured in
   *max_distance* on the array).
 
 ## Details
 
-This function identifies HVPs based on MAD scores or variance, and
-groups them into VML, which are defined as genomic regions with high DNA
-methylation variability.To best capture methylome variability patterns
-in microarrays, we identify two types of VML: Variably Methylated
-Regions (VMRs) and sparse Variably Methylated Probes (sVMPs) .
+This function identifies HVPs based on variance or MAD scores, and
+groups them into VML, which are defined as genomic locations with high
+DNA methylation variability.To best capture methylome variability
+patterns in microarrays, we identify two types of VML: Variably
+Methylated Regions (VMRs) and sparse Variably Methylated Probes (sVMPs)
+.
 
 In one hand, we defined VMRs as two or more proximal highly variable
 probes (default: \< 1kb apart) with correlated DNAme level (default: r
@@ -122,7 +123,20 @@ co-methylation when they are close (less than or equal to 1 kilobase).
 Modelling DNAme variability through regions rather than individual CpGs
 provides several methodological advantages in association studies, since
 CpGs display a significant correlation for co-methylation when they are
-close (less than or equal to 1 kilobase)
+close (less than or equal to 1 kilobase). Modelling DNAme variability
+through regions rather than individual CpGs provides several
+methodological advantages in association studies, since CpGs display a
+significant correlation for co-methylation when they are close (less
+than 1 kilobase). Some of these advantages include increasing
+statistical power by testing redundant probes only once, reducing
+false-positives driven by one problematic probe in a region, and
+improving comparability between studies that analyze the same genomic
+region but measure distinct CpGs due to microarray design differences.
+In contrast with Differentially Methylated Regions (DMRs), a different
+class of regional construct used in the field, VMRs denote regions with
+high inter-individual variability in methylation levels within a single
+population, while DMRs represent regions where DNA methylation differs
+significantly across a variable of interest.
 
 In addition to traditional VMRs, we also identified sparse Variably
 Methylated Probes (sVMPs), a second type of VML that takes into account
@@ -159,7 +173,8 @@ running the function.
 ## Examples
 
 ``` r
-
+# Set the parallel backend to use 2 workers
+doParallel::registerDoParallel(2)
 VML <- RAMEN::findVML(
   methylation_data = RAMEN::test_methylation_data,
   array_manifest = "IlluminaHumanMethylationEPICv1",

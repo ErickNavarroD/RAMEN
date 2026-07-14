@@ -3,13 +3,32 @@
 ## Introduction
 
 **Regional Association of Methylome variability with the Exposome and
-geNome (RAMEN)** is an R package whose goal is to integrate genomic,
-methylomic and exposomic data to model the contribution of genetics (G)
-and the environment (E) to DNA methylation (DNAme) variability. RAMEN
-identifies Variable Methylated Loci (VML) in microarray DNAme data and
-then, using genotype and environmental data, it identifies which of the
-following models better explains this variability in regions across the
-methylome:
+geNome** **(RAMEN)** is an R package which goal is to estimate the
+contribution of genetic variants and environmental exposures to loci
+with high DNA methylation (DNAme) variability at a genome-wide scale
+using population data. Characterizing the factors that contribute to
+DNAme variability is important because DNAme is a key epigenetic
+mechanism that regulates gene expression and plays an important role in
+development, disease, and environmental adaptation.
+
+RAMEN provides a Findable, Accesible, Interoperable and Reusable (FAIR)
+workflow to conduct gene-environment contribution analyses to
+high-dimensional DNA methylome data (described in [Navarro-Delgado et
+al. (2025)](https://doi.org/10.1186/s13059-025-03864-4). Using a blend
+of traditional statistical methods and machine learning approaches,
+RAMEN is designed to be computationally efficient and user-friendly,
+allowing researchers to gain insights into the complex interplay between
+genetics, environment and DNA methylation variability. The package
+includes a detailed tutorial, and individual functions that could be
+useful for other applications beyond the gene-environment contribution
+analysis.
+
+RAMEN takes advantage of the fact that DNA methylation levels at nearby
+CpG sites are often correlated, and uses this information to identify
+Variable Methylated Loci (VML) from microarray DNA methylation data.
+Then, integrating genomic and exposomic data, it can identify which
+model out of the following explains best the DNA methylation variability
+at each VML:
 
 | Model                         | Name                   | Abbreviation |
 |:------------------------------|:-----------------------|:-------------|
@@ -23,7 +42,7 @@ Fitted models {.table}
 where G variables are represented by SNPs, E variables by environmental
 exposures, and where covars are concomitant variables (i.e. variables
 that are adjusted for in the model and not of interest in the study such
-as cell type proportion, age, etc.).
+as cell type proportion, age, population structure, etc.).
 
 The main [gene-environment interaction
 modeling](#gene-environment-interaction-analysis) pipeline is conducted
@@ -75,9 +94,8 @@ analysis to identify which model (G, E, G+E or GxE) better explains the
 variability across the genome. In this vignette, we will illustrate how
 to use the package.
 
-To conduct this analysis, the following cleaned data sets (i.e. after
-quality and exploratory data analysis checks) from a cohort are
-required:
+To conduct this analysis, we will use the following data sets from a
+population cohort:
 
 - DNAme data
 - DNAme array manifest
@@ -86,8 +104,142 @@ required:
 - Environmental exposure data
 - Concomitant variables data
 
-Once that we have that data, the overview of the pipeline is the
-following:
+### Data expectations
+
+RAMEN expects all data sets (genome, exposome, methylome and covariates)
+to have undergone quality control, pre-processing and normalization when
+required. The choice of methods to do so is beyond the scope of this
+vignette, but we provide some broad recommendations and resources here.
+
+#### Genomic data
+
+The QC of genotyping data is a crucial step in any genetic study, as it
+ensures the accuracy and reliability of the results. We recommend the
+following steps for QC of microarray genotyping data:
+
+- Remove unreliable samples: The specific criteria for removing samples
+  will vary depending on the genotyping platform, but common criteria
+  include removing samples with low call rate, chromosome aneuploidy, or
+  indicators of sample mislabeling such as genotype mismatches when
+  comparing to SNPs in the DNAme microarray, or reported-predicted sex
+  mismatches in neonatal samples. If working with Illumina genotyping
+  data, we recommend to see their [technical
+  note](https://www.illumina.com/Documents/products/technotes/technote_infinium_genotyping_data_analysis.pdf)
+  or the RAMEN paper [Supplementaty
+  Methods](https://link.springer.com/article/10.1186/s13059-025-03864-4#Sec10)
+  for specific cutoffs.
+- Remove unreliable/uninformative SNPs: The specific criteria for
+  removing SNPs may also vary depending on the genotyping platform, but
+  common criteria include removing SNPs with low call frequency,
+  genotype clustering metrics, low minor allele frequencies, or
+  deviations from the Hardy-Weinberg equilibrium. If working with
+  Illumina genotyping data, we recommend to see their [technical
+  note](https://www.illumina.com/Documents/products/technotes/technote_infinium_genotyping_data_analysis.pdf)
+  or the RAMEN paper [Supplementaty
+  Methods](https://link.springer.com/article/10.1186/s13059-025-03864-4#Sec10)
+  for specific cutoffs and more detailed information.
+- Remove related samples: We recommend using PLINK’s PI_HAT metric to
+  identify and remove related samples if working with a
+  genetically-homogeneous population. Otherwise, we recommend using the
+  [KING-robust kinship
+  estimator](https://doi.org/10.1093/bioinformatics/btq559) also
+  implemented in
+  [PLINK](https://www.cog-genomics.org/plink/2.0/distance).
+- Remove genetic variants in sex chromosomes.
+- (Optional) Impute missing genotypes: To increase the number of genetic
+  variants available for analysis, we recommend using imputation methods
+  to infer missing genotypes based on the observed genotypes and a
+  reference panel. We recommend checking out the [Michigan Imputation
+  Server](https://imputationserver.sph.umich.edu). Following imputation,
+  another round of QC must be conducted to remove poorly imputed SNPs
+  and variants with a low Minor Allele Frequency. The code used in the
+  RAMEN paper to do this can be found
+  [here](https://github.com/ErickNavarroD/NavarroDelgado_2025_VMRs/blob/main/source/pre_processing/genome_CHILD/Imputation_CHILD_genot.Rmd)
+- Conduct LD pruning: It is recommended to remove SNPs in high linkage
+  disequilibrium (LD) to reduce redundancy and improve computational
+  efficiency. We recommend using
+  [PLINK](https://www.cog-genomics.org/plink/1.9/ld).
+
+#### DNA methylation data
+
+The steps needed to conduct QC on DNAme data might vary depending on the
+study design and the plataform, but the steps generally follow this
+structure:
+
+- Remove poor quality samples: criteria such as
+  [EWAStools](https://hhhh5.github.io/ewastools/articles/exemplary_ewas.html))
+  or [lumi](https://bioc.r-universe.dev/lumi) QC metrics, sample
+  contamination, detection p value, missing probes and outliers are
+  commonly used.
+- Normalization: The choice of normalization method is an active area of
+  discussion in the DNAme field, and will ultimately depend on the
+  nature of your experiment. This step is critical to account for probe
+  type bias and background correction. We suggest users to read studies
+  comparing the methodologies, such as [Welsh H., et
+  al.](https://doi.org/10.1186/s13148-023-01459-z), or [Wang T et
+  al.](https://doi.org/10.1080/15592294.2015.1057384). *The choice of*
+  *normalization method will have a substantial impact on the detection
+  of VML*. Based on our observations (manuscript in preparation), we
+  suggest to avoid Quantile Normalization methods (e.g. SWAN or DASEN),
+  as they can excessively remove variance from the data set. We suggest
+  to use noob+bmiq or noob+funnorm. *If comparing VML across different
+  data sets, they must all be derived from data* *using the same
+  normalization method*.
+- Remove poor quality probes: common criteria are removing SNP probes in
+  the array, probes with low detection value, probes reported to be
+  cross-hybridizing or polymorphic (i.e., overlapping with common
+  genetic variants) based on previous reports such as [Pidsley R., et
+  al.](https://doi.org/10.1186/s13059-016-1066-1).
+- Remove batch effects associated with technical variation (chip and
+  row). This can be done using the ComBat function from the [sva
+  package](https://bioconductor.org/packages/release/bioc/html/sva.html).
+
+#### Exposome data
+
+The exposome is a highly heterogeneous data set, as it can encompass
+variables from very different natures (e.g. pollution, nutrition,
+psychosocial exposures, etc.). As such, there is not a straightforward
+protocol to pre-process this data set. However, we recommend to take the
+following into account:
+
+- Integration of multiple individual exposures into a single composite
+  variable when appropriate is most of the times preferred.
+- Discuss each variable with a corresponding expert and follow their
+  recommendation for pre-processing it.
+- Establish common thresholds prior to the pre-processing (e.g. what
+  percentage of missing data will be acceptable to use?).
+- Remove variables with high proportion of missing data and low
+  variability
+- Remove variables that are highly correlated (e.g. r \> 0.95).
+- When longitudinal data is available, consider deriving accumulative
+  variables.
+- Missing values are very likely to be present. Consider [imputation
+  methods](https://stefvanbuuren.name/fimd/) or complete case analyses.
+
+RAMEN standardizes all exposome variables, so there is no need to do so
+before. We also make use of LASSO during the variable selection stage,
+so the method can handle correlation in the data set, which is expected.
+
+#### Covariates to include
+
+We recommend to adjust for the following DNAme confounders, which can
+lead to biased or spurious results: - Cell type proportions: If cell
+counts are not available, proportions can be estimated using cell type
+deconvolution tools such as
+[CellsPickMe](https://github.com/maggie-fu/CellsPickMe) or
+[minfi](https://bioconductor.org/help/course-materials/2015/BioC2015/methylation450k.html#cell-type-composition). -
+Population stratification: There are multiple methods to account for
+population stratification in your data. We recommend doing so by
+adjusting for global genetic ancestry or genetic ancestry PCA.
+
+Additionally, the following sources of DNAme variation not directly
+related to genetic or environmental variation should also be included as
+covariates when appropiate: - Sex - Age
+
+### Workflow overview
+
+Once that we have that data sets ready, the overview of the pipeline is
+the following:
 
 ![RAMEN pipeline](RAMEN_pipeline.png)
 
@@ -114,6 +266,24 @@ function of the package. For illustration purposes, we provide small toy
 data sets that do not intend to simulate the real biological phenomenon.
 These data sets are already available in the RAMEN package.
 
+### Install RAMEN and set up environment
+
+``` r
+
+## Install dependencies
+# install.packages("BiocManager")
+# BiocManager::install("S4Vectors")
+# BiocManager::install("IRanges")
+# BiocManager::install("GenomicRanges")
+## If using any of these Illumina microarrays, pick one: 
+# BiocManager::install("IlluminaHumanMethylation450kanno.ilmn12.hg19")
+# BiocManager::install("IlluminaHumanMethylationEPICanno.ilm10b4.hg19")
+# BiocManager::install("IlluminaHumanMethylationEPICv2anno.20a1.hg38")
+
+## Install the RAMEN package from GitHub
+BiocManager::install("ErickNavarroD/RAMEN")
+```
+
 ``` r
 
 # Load the packages used throughout the vignette
@@ -121,15 +291,19 @@ library(RAMEN)
 library(dplyr)
 library(ggplot2)
 library(tidyr)
+library(doParallel)
+
+# Set the parallel backend to use 2 workers
+doParallel::registerDoParallel(2)
 ```
 
 ### Identify VML and summarize their methylation state
 
 The first step of the pipeline is to identify the **Variable Methylated
-Loci**(VML) in the data set. You might be wondering *“What is a VML and
-why do we use them instead of DNAme levels from each CpG site?”*. We use
-**loci** because it is well established that nearby CpG sites are [very
-likely to share a similar DNAme
+Loci** (VML) in the data set. You might be wondering *“What is a VML and
+why do we use them instead of DNAme levels from each CpG site?”* . We
+use **loci** because it is well established that nearby CpG sites are
+[very likely to share a similar DNAme
 profile](https://doi.org/10.1016/j.stemcr.2018.07.003) and therefore
 work as functional units. Then, from a statistical point of view,
 testing separately proximal CpGs that are part of the same unit is
@@ -153,6 +327,21 @@ RAMEN identifies 2 categories of VML:
   the CoMeBack R package (Gatev et al., 2020) where a simulation to
   empirically determine a default guidance specification for a
   correlation threshold parameter dependent on sample size is done.
+  Modelling DNAme variability through regions rather than individual
+  CpGs provides several methodological advantages in association
+  studies, since CpGs display a significant correlation for
+  co-methylation when they are close (less than 1 kilobase). Some of
+  these advantages include increasing statistical power by testing
+  redundant probes only once, reducing false-positives driven by one
+  problematic probe in a region, and improving comparability between
+  studies that analyze the same genomic region but measure distinct CpGs
+  due to microarray design differences. In contrast with Differentially
+  Methylated Regions (DMRs), a different class of regional construct
+  used in the field, VMRs denote regions with high inter-individual
+  variability in methylation levels within a single population, while
+  DMRs represent regions where DNA methylation differs significantly
+  across a variable of interest.
+
 - sparse Variably Methylated Probe (sVMP): Genomic loci that are
   composed of a Highly Variable Probe that has no nearby probes measured
   in the array (according to the distance parameter specified by the
@@ -183,9 +372,9 @@ M-values because its use is more appropriate for statistical analyses
 
 Now, there are a couple of options that we provide to define Highly
 Variable Probes, which are the building blocks of VML. Let’s talk about
-two of the more important ones:
+two of the moreimportant ones:
 
-#### var_method
+#### Note on argument: var_method
 
 We need to chose a metric to quantify the variability of each probe
 across individuals. Different metrics exist for this purpose, each one
@@ -242,7 +431,7 @@ this more of a fine-tuning parameter rather than a game-changer.
 
 HVPs with mad vs var
 
-#### var_distribution
+#### Note on argument: var_distribution
 
 The second argument that we are going to discuss is var_distribution.
 There are two options that you can choose from: “all” and “ultrastable”.
@@ -314,39 +503,45 @@ VML <- RAMEN::findVML(
 #> Identifying sparse Variable Methylated Probes
 #> Identifying Variable Methylated Regions...
 #> Applying correlation filter to Variable Methylated Regions...
-#> Warning: executing %dopar% sequentially: no parallel backend registered
 
 # Take a look at the resulting object
-dplyr::glimpse(VML$var_score_threshold) # check the specific threshold that was used to label HVPs
+# check the specific threshold that was used to label HVPs
+dplyr::glimpse(VML$var_score_threshold)
 #>  Named num 13.9
 #>  - attr(*, "names")= chr "99%"
-head(VML$highly_variable_probes) # check the HVPs identified and their variability score
-#>     TargetID var_score
-#> 1 cg06187584  17.05579
-#> 2 cg09872009  14.79451
-#> 3 cg05437132  15.17790
-#> 4 cg00750806  17.14818
-#> 5 cg12301579  14.00143
-#> 6 cg17634528  19.95238
-head(VML$VML) # Take a look at the identified VML data frame
-#>   VML_index type seqnames    start      end width strand       probes n_VMPs
-#> 1      VML1  VMR    chr21 10990119 10990903   785      + cg098720....      2
-#> 2      VML2  VMR    chr21 11109021 11109336   316      + cg007508....      2
-#> 3      VML3  VMR    chr21 31799091 31799248   158      + cg245007....      2
-#> 4      VML4  VMR    chr21 32715908 32716792   885      + cg164170....      2
-#> 5      VML5  VMR    chr21 15955548 15955699   152      - cg147721....      2
-#> 6      VML6  VMR    chr21 26573136 26573196    61      - cg111120....      2
-#>   median_correlation
-#> 1          0.6099180
-#> 2          0.6261681
-#> 3          0.7279154
-#> 4          0.6932442
-#> 5          0.8120654
-#> 6          0.6173683
+# check the HVPs identified and their variability score
+head(VML$highly_variable_probes)
+#>              TargetID var_score
+#> cg06187584 cg06187584  17.05579
+#> cg09872009 cg09872009  14.79451
+#> cg05437132 cg05437132  15.17790
+#> cg00750806 cg00750806  17.14818
+#> cg12301579 cg12301579  14.00143
+#> cg17634528 cg17634528  19.95238
+# Take a look at the identified VML GRanges object
+head(VML$VML)
+#> GRanges object with 6 ranges and 5 metadata columns:
+#>       seqnames            ranges strand |    n_VMPs                probes
+#>          <Rle>         <IRanges>  <Rle> | <numeric>                <list>
+#>   [1]    chr21 10990119-10990903      + |         2 cg09872009,cg05437132
+#>   [2]    chr21 11109021-11109336      + |         2 cg00750806,cg12301579
+#>   [3]    chr21 31799091-31799248      + |         2 cg24500711,cg07621949
+#>   [4]    chr21 32715908-32716792      + |         2 cg16417027,cg14151498
+#>   [5]    chr21 15955548-15955699      - |         2 cg14772146,cg07412745
+#>   [6]    chr21 26573136-26573196      - |         2 cg11112002,cg23973918
+#>       median_correlation        type   VML_index
+#>                <numeric> <character> <character>
+#>   [1]           0.609918         VMR        VML1
+#>   [2]           0.626168         VMR        VML2
+#>   [3]           0.727915         VMR        VML3
+#>   [4]           0.693244         VMR        VML4
+#>   [5]           0.812065         VMR        VML5
+#>   [6]           0.617368         VMR        VML6
+#>   -------
+#>   seqinfo: 1 sequence from an unspecified genome; no seqlengths
 ```
 
-Furthermore, we can see the following warning message in the chunk
-above:
+We can sometimes see the following warning message:
 
 ``` r
 
@@ -366,16 +561,16 @@ size of globals exported for future expression. This can be fixed by
 increasing the allowed size (e.g. running
 `options(future.globals.maxSize= +Inf)`)
 
-Finally, we will extract the VML data frame, which we can use to produce
-plots and explore the results. This data frame will also be used for the
-following parts of the pipeline.
+Finally, we will extract the VML GRanges object, which we can use to
+produce plots and explore the results. This data frame will also be used
+for the following parts of the pipeline.
 
 ``` r
 
-VML_df <- VML$VML
+VML_gr <- VML$VML
 
 # Example of an epxloration plot
-VML_df |>
+data.frame(VML_gr) |>
   dplyr::filter(width > 1) |> # Only plot VMRs, since sVMPs all have a lenght of 1
   ggplot2::ggplot(aes(x = width)) +
   ggplot2::geom_histogram(binwidth = 50, fill = "#BAB4D8") +
@@ -383,7 +578,7 @@ VML_df |>
   ggplot2::ggtitle("VMRs width (bp)")
 ```
 
-![](RAMEN_files/figure-html/unnamed-chunk-8-1.png)
+![](RAMEN_files/figure-html/unnamed-chunk-9-1.png)
 
 Next, we want to summarize the DNAme level of each VML per individual.
 To do this, we use
@@ -396,7 +591,7 @@ per individual as the representative value.
 ``` r
 
 summarized_methyl_VML <- RAMEN::summarizeVML(
-  VML_df = VML_df,
+  VML = VML_gr,
   methylation_data = test_methylation_data
 )
 
@@ -410,8 +605,7 @@ summarized_methyl_VML[1:5, 1:5]
 #> ID5 2.899969 4.930614 4.919235 3.664651 2.926548
 ```
 
-The result is a data frame of VML IDs as columns and individual IDs as
-rows.
+The result is a matrix of VML IDs as columns and individual IDs as rows.
 
 ### Identify *cis* SNPs
 
@@ -426,8 +620,8 @@ the important ones.
 
 There is not a clear consensus on how close a SNP has to be from a DNAme
 site to be considered *cis* - the distance threshold tend to go from few
-kb to 1 megabase. We recommend to use a 1 Mb window to cast a wide net
-and catch most potentially relevant SNPs.
+kb to 1 megabase. We recommend to include SNPs within 500 kb to 1 Mb to
+capture SNPs with a high potential to associate with DNAme.
 
 ``` r
 
@@ -443,7 +637,7 @@ head(RAMEN::test_genotype_information)
 #> 6 chr21 14681195 21:14681195:G:T
 
 VML_cis_snps <- RAMEN::findCisSNPs(
-  VML_df = VML_df,
+  VML = VML_gr,
   genotype_information = RAMEN::test_genotype_information,
   distance = 1e+06
 )
@@ -451,24 +645,37 @@ VML_cis_snps <- RAMEN::findCisSNPs(
 
 # Take a look at the result
 head(VML_cis_snps)
-#>   VML_index type seqnames    start      end width strand       probes n_VMPs
-#> 1      VML1  VMR    chr21 10990119 10990903   785      + cg098720....      2
-#> 2      VML2  VMR    chr21 11109021 11109336   316      + cg007508....      2
-#> 3      VML3  VMR    chr21 31799091 31799248   158      + cg245007....      2
-#> 4      VML4  VMR    chr21 32715908 32716792   885      + cg164170....      2
-#> 5      VML5  VMR    chr21 15955548 15955699   152      - cg147721....      2
-#> 6      VML6  VMR    chr21 26573136 26573196    61      - cg111120....      2
-#>   median_correlation surrounding_SNPs          SNP
-#> 1          0.6099180                1 21:10873....
-#> 2          0.6261681                1 21:10873....
-#> 3          0.7279154              659 21:30813....
-#> 4          0.6932442              855 21:31718....
-#> 5          0.8120654              726 21:14957....
-#> 6          0.6173683              788 21:25582....
+#> GRanges object with 6 ranges and 7 metadata columns:
+#>       seqnames            ranges strand |    n_VMPs                probes
+#>          <Rle>         <IRanges>  <Rle> | <numeric>                <list>
+#>   [1]    chr21 10990119-10990903      + |         2 cg09872009,cg05437132
+#>   [2]    chr21 11109021-11109336      + |         2 cg00750806,cg12301579
+#>   [3]    chr21 31799091-31799248      + |         2 cg24500711,cg07621949
+#>   [4]    chr21 32715908-32716792      + |         2 cg16417027,cg14151498
+#>   [5]    chr21 15955548-15955699      - |         2 cg14772146,cg07412745
+#>   [6]    chr21 26573136-26573196      - |         2 cg11112002,cg23973918
+#>       median_correlation        type   VML_index surrounding_SNPs
+#>                <numeric> <character> <character>        <integer>
+#>   [1]           0.609918         VMR        VML1                1
+#>   [2]           0.626168         VMR        VML2                1
+#>   [3]           0.727915         VMR        VML3              659
+#>   [4]           0.693244         VMR        VML4              855
+#>   [5]           0.812065         VMR        VML5              726
+#>   [6]           0.617368         VMR        VML6              788
+#>                                                         SNP
+#>                                                      <list>
+#>   [1]                                       21:10873592:G:A
+#>   [2]                                       21:10873592:G:A
+#>   [3]   21:30813322:G:A,21:30860437:G:A,21:30862803:T:C,...
+#>   [4] 21:31718195:C:T,21:31719083:AAG:A,21:31719372:C:T,...
+#>   [5]   21:14957973:A:G,21:15167527:T:C,21:15169567:C:T,...
+#>   [6]   21:25582143:A:G,21:25586702:G:A,21:25587960:G:T,...
+#>   -------
+#>   seqinfo: 1 sequence from an unspecified genome; no seqlengths
 ```
 
-We can see that the resulting data frame is almost exactly the same, but
-with two new columns (*surrounding_SNPs* and *SNP*) that contain
+We can see that the resulting GRanges object is almost exactly the same,
+but with two new columns (*surrounding_SNPs* and *SNP*) that contain
 information about how many SNPs were found in *cis* and what are their
 IDs according to the genotype data that we have.
 
@@ -485,6 +692,7 @@ following:
 ``` r
 
 VML_cis_snps |>
+  data.frame() |>
   dplyr::mutate(surrounding_SNPs = case_when(
     surrounding_SNPs > 3000 ~ 3000,
     TRUE ~ surrounding_SNPs
@@ -548,7 +756,7 @@ downstream computational time and improves the modeling performance by:
 Please make sure that your data has no NAs, since the LASSO
 implementation we use in RAMEN does not support missing values, and that
 all values are numeric. If your data has missing values, consider
-[handling](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3668100/) them.
+[handling](https://doi.org/10.4097/kjae.2013.64.5.402) them.
 
 ``` r
 
@@ -579,14 +787,13 @@ head(test_covariates)
 
 # Now let's run the function
 selected_variables <- RAMEN::selectVariables(
-  VML_df = VML_cis_snps,
+  VML_wSNPs = VML_cis_snps,
   genotype_matrix = RAMEN::test_genotype_matrix,
   environmental_matrix = RAMEN::test_environmental_matrix,
   covariates = RAMEN::test_covariates,
   summarized_methyl_VML = summarized_methyl_VML,
   seed = 1
 )
-#> Loading required package: foreach
 #> Loading required package: rngtools
 ```
 
@@ -621,6 +828,7 @@ and 771.3644068 SNPs per VML on average as seen in Figure
 selected_variables |>
   dplyr::left_join(
     VML_cis_snps |>
+      data.frame() |>
       select(c(VML_index, type)),
     by = "VML_index"
   ) |>
@@ -840,7 +1048,8 @@ selectVariables() stage, we recommend using the following formula:
 
 ``` r
 
-vml_size <- nrow(VML_cis_snps) # Number of VML in your data set
+(vml_size <- length(VML_cis_snps)) # Number of VML in your data set
+#> [1] 118
 desired_obs <- 400000 # We want ~300k informative observations, and we are adding
 # 100k extra to account for the VML that will be labelled as Basal (B) during
 # selectVariables()
@@ -851,13 +1060,14 @@ desired_obs <- 400000 # We want ~300k informative observations, and we are addin
 Since this is a toy example, for demonstration purposes we will run only
 2 permutations (this is the most time consuming part of the analysis!).
 But please make sure to run the recommended number of permutations in
-your real data analysis.
+your real data analysis. In real data sets where we have thousands of
+probes, ~5-10 permutations are typically needed.
 
 ``` r
 
 # Compute the null distribution
 null_dist <- RAMEN::nullDistGE(
-  VML_df = VML_cis_snps,
+  VML_wSNPs = VML_cis_snps,
   genotype_matrix = RAMEN::test_genotype_matrix,
   environmental_matrix = RAMEN::test_environmental_matrix,
   summarized_methyl_VML = summarized_methyl_VML,
@@ -906,7 +1116,8 @@ their probability of having a higher R2_difference.
 
 # See the distribution of R2_difference across different winning models
 null_dist |>
-  drop_na() |> # Remove Basal models from the results, where there is no difference between chosen model and basal model
+  drop_na() |> # Remove Basal models from the results, where there is no
+  # difference between chosen model and basal model
   ggplot2::ggplot(aes(x = R2_difference)) +
   ggplot2::geom_histogram() +
   ggplot2::facet_grid("model_group") +
@@ -916,7 +1127,7 @@ null_dist |>
 ```
 
 ![R2 difference (winner - basal) in a suffled data
-set.](RAMEN_files/figure-html/unnamed-chunk-16-1.png)
+set.](RAMEN_files/figure-html/unnamed-chunk-17-1.png)
 
 R2 difference (winner - basal) in a suffled data set.
 
@@ -926,7 +1137,8 @@ data.
 
 ``` r
 
-# Get a cutoff of the 95th percentile of the null distribution for single and joint models
+# Get a cutoff of the 95th percentile of the null distribution for single and
+# joint models
 cutoff_single <- quantile(
   null_dist |>
     filter(model_group %in% c("G", "E")) |>
@@ -949,7 +1161,8 @@ final_res <- lmge_res |>
       model_group %in% c("G", "E") ~ r2_difference_basal > cutoff_single,
       model_group %in% c("G+E", "GxE") ~ r2_difference_basal > cutoff_joint
     ),
-    # Label the final model group, replacing bad performing winning models with "B" (basal)
+    # Label the final model group, replacing bad performing winning models with
+    # "B" (basal)
     model_group = case_when(
       pass_cutoff_threshold ~ model_group,
       TRUE ~ "B"
@@ -1061,12 +1274,15 @@ outputs of the package’s function can help users in other DNAme
 analyses, such as:
 
 - Reduction of tests prior to an EWAS or differential methylation
-  analysis with
+  analysis  
+  with
   [`RAMEN::findVML()`](https://ericknavarrod.github.io/RAMEN/reference/findVML.md)(i.e.,
-  conducting the analysis on identified VML which 1) reduces redundant
-  tests by grouping nearby correlated CpGs, and 2) avoids tests in
-  non-variant regions). This can help to reduce the multiple hypothesis
-  testing burden.
+  conducting the analysis on identified VML which
+
+1.  reduces redundant tests by grouping nearby correlated CpGs, and 2)
+    avoids tests in non-variant regions). This can help to reduce the
+    multiple hypothesis testing burden.
+
 - Summarize a DNAme region of interest with
   [`RAMEN::summarizeVML()`](https://ericknavarrod.github.io/RAMEN/reference/summarizeVML.md)
 - Easily conduct variable selection in high-dimensional data sets to
@@ -1107,7 +1323,8 @@ data.table::fwrite(selected_variables, file = "path/selected_variables.csv")
 # Read the csv file and make lists the elements in the required columns
 selected_variables <- fread("path/selected_variables.csv", data.table = FALSE) |>
   mutate(
-    selected_genot = str_split(selected_genot, pattern = "\\|"), # fwrite saves lists as strings separated by |, so we need to splut them
+    selected_genot = str_split(selected_genot, pattern = "\\|"),
+    # fwrite saves lists as strings separated by |, so we need to split them
     selected_env = str_split(selected_env, pattern = "\\|"),
     VMR_index = as.character(VMR_index)
   )
@@ -1147,152 +1364,142 @@ sessionInfo()
 #> tzcode source: system (glibc)
 #> 
 #> attached base packages:
-#> [1] stats     graphics  grDevices utils     datasets  methods   base     
+#> [1] parallel  stats     graphics  grDevices utils     datasets  methods  
+#> [8] base     
 #> 
 #> other attached packages:
-#> [1] doRNG_1.8.6.3    rngtools_1.5.2   foreach_1.5.2    tidyr_1.3.2     
-#> [5] ggplot2_4.0.3    dplyr_1.2.1      RAMEN_2.0.1      knitr_1.51      
-#> [9] BiocStyle_2.40.0
+#>  [1] doRNG_1.8.6.3     rngtools_1.5.2    doParallel_1.0.17 iterators_1.0.14 
+#>  [5] foreach_1.5.2     tidyr_1.3.2       ggplot2_4.0.3     dplyr_1.2.1      
+#>  [9] RAMEN_2.1.0       knitr_1.51        BiocStyle_2.40.0 
 #> 
 #> loaded via a namespace (and not attached):
 #>   [1] RColorBrewer_1.1-3                                 
-#>   [2] shape_1.4.6.1                                      
-#>   [3] jsonlite_2.0.0                                     
-#>   [4] magrittr_2.0.5                                     
-#>   [5] GenomicFeatures_1.64.0                             
-#>   [6] farver_2.1.2                                       
-#>   [7] rmarkdown_2.31                                     
-#>   [8] fs_2.1.0                                           
-#>   [9] BiocIO_1.22.0                                      
-#>  [10] ragg_1.5.2                                         
-#>  [11] vctrs_0.7.3                                        
-#>  [12] multtest_2.68.0                                    
-#>  [13] memoise_2.0.1                                      
-#>  [14] Rsamtools_2.28.0                                   
-#>  [15] DelayedMatrixStats_1.34.0                          
-#>  [16] RCurl_1.98-1.19                                    
-#>  [17] askpass_1.2.1                                      
-#>  [18] htmltools_0.5.9                                    
-#>  [19] S4Arrays_1.12.0                                    
-#>  [20] curl_7.1.0                                         
-#>  [21] survey_4.5                                         
-#>  [22] Rhdf5lib_2.0.0                                     
-#>  [23] SparseArray_1.12.2                                 
-#>  [24] rhdf5_2.56.0                                       
-#>  [25] sass_0.4.10                                        
-#>  [26] nor1mix_1.3-3                                      
-#>  [27] bslib_0.11.0                                       
-#>  [28] desc_1.4.3                                         
-#>  [29] plyr_1.8.9                                         
-#>  [30] cachem_1.1.0                                       
-#>  [31] GenomicAlignments_1.48.0                           
-#>  [32] lifecycle_1.0.5                                    
-#>  [33] IlluminaHumanMethylationEPICanno.ilm10b4.hg19_0.6.0
-#>  [34] iterators_1.0.14                                   
-#>  [35] pkgconfig_2.0.3                                    
-#>  [36] Matrix_1.7-5                                       
-#>  [37] R6_2.6.1                                           
-#>  [38] fastmap_1.2.0                                      
-#>  [39] MatrixGenerics_1.24.0                              
-#>  [40] digest_0.6.39                                      
-#>  [41] siggenes_1.86.0                                    
-#>  [42] reshape_0.8.10                                     
-#>  [43] AnnotationDbi_1.74.0                               
-#>  [44] S4Vectors_0.50.1                                   
-#>  [45] textshaping_1.0.5                                  
-#>  [46] GenomicRanges_1.64.0                               
-#>  [47] RSQLite_3.53.3                                     
-#>  [48] base64_2.0.2                                       
-#>  [49] labeling_0.4.3                                     
-#>  [50] httr_1.4.8                                         
-#>  [51] abind_1.4-8                                        
-#>  [52] compiler_4.6.1                                     
-#>  [53] beanplot_1.3.1                                     
-#>  [54] bit64_4.8.2                                        
-#>  [55] withr_3.0.3                                        
-#>  [56] S7_0.2.2                                           
-#>  [57] BiocParallel_1.46.0                                
-#>  [58] DBI_1.3.0                                          
-#>  [59] HDF5Array_1.40.0                                   
-#>  [60] MASS_7.3-65                                        
-#>  [61] openssl_2.4.2                                      
-#>  [62] DelayedArray_0.38.2                                
-#>  [63] corpcor_1.6.10                                     
-#>  [64] rjson_0.2.23                                       
-#>  [65] tools_4.6.1                                        
-#>  [66] otel_0.2.0                                         
-#>  [67] rentrez_1.2.4                                      
-#>  [68] glue_1.8.1                                         
-#>  [69] quadprog_1.5-8                                     
-#>  [70] h5mread_1.4.0                                      
-#>  [71] restfulr_0.0.17                                    
-#>  [72] nlme_3.1-169                                       
-#>  [73] rhdf5filters_1.24.0                                
-#>  [74] grid_4.6.1                                         
-#>  [75] generics_0.1.4                                     
-#>  [76] gtable_0.3.6                                       
-#>  [77] tzdb_0.5.0                                         
-#>  [78] preprocessCore_1.74.0                              
-#>  [79] hms_1.1.4                                          
-#>  [80] data.table_1.18.4                                  
-#>  [81] xml2_1.6.0                                         
-#>  [82] XVector_0.52.0                                     
-#>  [83] BiocGenerics_0.58.1                                
-#>  [84] stringr_1.6.0                                      
-#>  [85] pillar_1.11.1                                      
-#>  [86] limma_3.68.4                                       
-#>  [87] genefilter_1.94.0                                  
-#>  [88] mitools_2.4                                        
-#>  [89] splines_4.6.1                                      
-#>  [90] lattice_0.22-9                                     
-#>  [91] survival_3.8-6                                     
-#>  [92] rtracklayer_1.72.0                                 
-#>  [93] bit_4.6.0                                          
-#>  [94] GEOquery_2.80.0                                    
-#>  [95] annotate_1.90.0                                    
-#>  [96] tidyselect_1.2.1                                   
-#>  [97] locfit_1.5-9.12                                    
-#>  [98] Biostrings_2.80.1                                  
-#>  [99] bookdown_0.47                                      
-#> [100] IRanges_2.46.0                                     
-#> [101] Seqinfo_1.2.0                                      
-#> [102] SummarizedExperiment_1.42.0                        
-#> [103] stats4_4.6.1                                       
-#> [104] xfun_0.60                                          
-#> [105] Biobase_2.72.0                                     
-#> [106] scrime_1.3.7                                       
-#> [107] statmod_1.5.2                                      
-#> [108] matrixStats_1.5.0                                  
-#> [109] relaimpo_2.2-7                                     
-#> [110] stringi_1.8.7                                      
-#> [111] boot_1.3-32                                        
-#> [112] yaml_2.3.12                                        
-#> [113] evaluate_1.0.5                                     
-#> [114] codetools_0.2-20                                   
-#> [115] cigarillo_1.2.0                                    
-#> [116] tibble_3.3.1                                       
-#> [117] minfi_1.58.0                                       
-#> [118] BiocManager_1.30.27                                
-#> [119] cli_3.6.6                                          
-#> [120] bumphunter_1.54.0                                  
-#> [121] xtable_1.8-8                                       
-#> [122] systemfonts_1.3.2                                  
-#> [123] jquerylib_0.1.4                                    
-#> [124] Rcpp_1.1.2                                         
-#> [125] png_0.1-9                                          
-#> [126] XML_3.99-0.23                                      
-#> [127] parallel_4.6.1                                     
-#> [128] readr_2.2.0                                        
-#> [129] pkgdown_2.2.1                                      
-#> [130] blob_1.3.0                                         
-#> [131] mclust_6.1.3                                       
-#> [132] sparseMatrixStats_1.24.0                           
-#> [133] bitops_1.0-9                                       
-#> [134] glmnet_5.0                                         
-#> [135] scales_1.4.0                                       
-#> [136] illuminaio_0.54.0                                  
-#> [137] purrr_1.2.2                                        
-#> [138] crayon_1.5.3                                       
-#> [139] rlang_1.3.0                                        
-#> [140] KEGGREST_1.52.2
+#>   [2] jsonlite_2.0.0                                     
+#>   [3] magrittr_2.0.5                                     
+#>   [4] GenomicFeatures_1.64.0                             
+#>   [5] farver_2.1.2                                       
+#>   [6] rmarkdown_2.31                                     
+#>   [7] fs_2.1.0                                           
+#>   [8] BiocIO_1.22.0                                      
+#>   [9] ragg_1.5.2                                         
+#>  [10] vctrs_0.7.3                                        
+#>  [11] multtest_2.68.0                                    
+#>  [12] memoise_2.0.1                                      
+#>  [13] Rsamtools_2.28.0                                   
+#>  [14] DelayedMatrixStats_1.34.0                          
+#>  [15] RCurl_1.98-1.19                                    
+#>  [16] askpass_1.2.1                                      
+#>  [17] htmltools_0.5.9                                    
+#>  [18] S4Arrays_1.12.0                                    
+#>  [19] curl_7.1.0                                         
+#>  [20] Rhdf5lib_2.0.0                                     
+#>  [21] SparseArray_1.12.2                                 
+#>  [22] rhdf5_2.56.0                                       
+#>  [23] sass_0.4.10                                        
+#>  [24] nor1mix_1.3-3                                      
+#>  [25] bslib_0.11.0                                       
+#>  [26] desc_1.4.3                                         
+#>  [27] plyr_1.8.9                                         
+#>  [28] cachem_1.1.0                                       
+#>  [29] GenomicAlignments_1.48.0                           
+#>  [30] lifecycle_1.0.5                                    
+#>  [31] IlluminaHumanMethylationEPICanno.ilm10b4.hg19_0.6.0
+#>  [32] pkgconfig_2.0.3                                    
+#>  [33] Matrix_1.7-5                                       
+#>  [34] R6_2.6.1                                           
+#>  [35] fastmap_1.2.0                                      
+#>  [36] MatrixGenerics_1.24.0                              
+#>  [37] digest_0.6.39                                      
+#>  [38] siggenes_1.86.0                                    
+#>  [39] reshape_0.8.10                                     
+#>  [40] AnnotationDbi_1.74.0                               
+#>  [41] S4Vectors_0.50.1                                   
+#>  [42] textshaping_1.0.5                                  
+#>  [43] GenomicRanges_1.64.0                               
+#>  [44] RSQLite_3.53.3                                     
+#>  [45] base64_2.0.2                                       
+#>  [46] labeling_0.4.3                                     
+#>  [47] httr_1.4.8                                         
+#>  [48] abind_1.4-8                                        
+#>  [49] compiler_4.6.1                                     
+#>  [50] beanplot_1.3.1                                     
+#>  [51] bit64_4.8.2                                        
+#>  [52] withr_3.0.3                                        
+#>  [53] S7_0.2.2                                           
+#>  [54] BiocParallel_1.46.0                                
+#>  [55] DBI_1.3.0                                          
+#>  [56] HDF5Array_1.40.0                                   
+#>  [57] MASS_7.3-65                                        
+#>  [58] openssl_2.4.2                                      
+#>  [59] DelayedArray_0.38.2                                
+#>  [60] rjson_0.2.23                                       
+#>  [61] tools_4.6.1                                        
+#>  [62] otel_0.2.0                                         
+#>  [63] rentrez_1.2.4                                      
+#>  [64] glue_1.8.1                                         
+#>  [65] quadprog_1.5-8                                     
+#>  [66] h5mread_1.4.0                                      
+#>  [67] restfulr_0.0.17                                    
+#>  [68] nlme_3.1-169                                       
+#>  [69] rhdf5filters_1.24.0                                
+#>  [70] grid_4.6.1                                         
+#>  [71] generics_0.1.4                                     
+#>  [72] gtable_0.3.6                                       
+#>  [73] tzdb_0.5.0                                         
+#>  [74] preprocessCore_1.74.0                              
+#>  [75] hms_1.1.4                                          
+#>  [76] data.table_1.18.4                                  
+#>  [77] xml2_1.6.0                                         
+#>  [78] XVector_0.52.0                                     
+#>  [79] BiocGenerics_0.58.1                                
+#>  [80] pillar_1.11.1                                      
+#>  [81] limma_3.68.4                                       
+#>  [82] genefilter_1.94.0                                  
+#>  [83] splines_4.6.1                                      
+#>  [84] lattice_0.22-9                                     
+#>  [85] survival_3.8-6                                     
+#>  [86] rtracklayer_1.72.0                                 
+#>  [87] bit_4.6.0                                          
+#>  [88] GEOquery_2.80.0                                    
+#>  [89] annotate_1.90.0                                    
+#>  [90] tidyselect_1.2.1                                   
+#>  [91] locfit_1.5-9.12                                    
+#>  [92] Biostrings_2.80.1                                  
+#>  [93] bookdown_0.47                                      
+#>  [94] IRanges_2.46.0                                     
+#>  [95] Seqinfo_1.2.0                                      
+#>  [96] SummarizedExperiment_1.42.0                        
+#>  [97] stats4_4.6.1                                       
+#>  [98] xfun_0.60                                          
+#>  [99] Biobase_2.72.0                                     
+#> [100] scrime_1.3.7                                       
+#> [101] statmod_1.5.2                                      
+#> [102] matrixStats_1.5.0                                  
+#> [103] yaml_2.3.12                                        
+#> [104] evaluate_1.0.5                                     
+#> [105] codetools_0.2-20                                   
+#> [106] cigarillo_1.2.0                                    
+#> [107] tibble_3.3.1                                       
+#> [108] minfi_1.58.0                                       
+#> [109] BiocManager_1.30.27                                
+#> [110] cli_3.6.6                                          
+#> [111] bumphunter_1.54.0                                  
+#> [112] xtable_1.8-8                                       
+#> [113] systemfonts_1.3.2                                  
+#> [114] jquerylib_0.1.4                                    
+#> [115] Rcpp_1.1.2                                         
+#> [116] png_0.1-9                                          
+#> [117] XML_3.99-0.23                                      
+#> [118] readr_2.2.0                                        
+#> [119] pkgdown_2.2.1                                      
+#> [120] blob_1.3.0                                         
+#> [121] mclust_6.1.3                                       
+#> [122] sparseMatrixStats_1.24.0                           
+#> [123] bitops_1.0-9                                       
+#> [124] scales_1.4.0                                       
+#> [125] illuminaio_0.54.0                                  
+#> [126] purrr_1.2.2                                        
+#> [127] crayon_1.5.3                                       
+#> [128] rlang_1.3.0                                        
+#> [129] KEGGREST_1.52.2
 ```

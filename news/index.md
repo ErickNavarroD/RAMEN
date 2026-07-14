@@ -1,8 +1,47 @@
 # Changelog
 
+## RAMEN 2.1.0
+
+This minor version presents a couple of changes that improve the
+integration of RAMEN with GenomicRanges objects and Bioconductor: -
+[`findVML()`](https://ericknavarrod.github.io/RAMEN/reference/findVML.md)
+outputs a GRanges object for the identified VML instead of a data
+frame. - Downstream functions (i.e.,
+[`summarizeVML()`](https://ericknavarrod.github.io/RAMEN/reference/summarizeVML.md),
+[`findCisSNPs()`](https://ericknavarrod.github.io/RAMEN/reference/findCisSNPs.md),
+[`selectVariables()`](https://ericknavarrod.github.io/RAMEN/reference/selectVariables.md),
+[`medCorVMR()`](https://ericknavarrod.github.io/RAMEN/reference/medCorVMR.md)
+and
+[`nullDistGE()`](https://ericknavarrod.github.io/RAMEN/reference/nullDistGE.md))
+now take GRanges objects as an input, instead of data frames. The
+argument name changed from “VML_df” to “VML”. When appropriate, the
+output is now also a GRanges object. -
+[`summarizeVML()`](https://ericknavarrod.github.io/RAMEN/reference/summarizeVML.md)
+now outputs a matrix instead of a data frame.
+
+In addition to that, the Vignette has been improved. New sections have
+been added to provide guidance and recommendations to the users (e.g
+regarding data pre-processing andexpectations, as RAMEN expects all data
+to be alread cleaned, quality checked, and pre-processed). Also, some
+sections have been improved to provide clearer instructions.
+
+This minor version also has multiple improvements to the code, which
+present no changes in the user front but have a positive impact on the
+internal functioning of the package, such as:
+
+- Optimized examples with reduced running time.
+- Reduced dependencies in the package. The installation time has been
+  significantly reduced.
+- Implemented internal helper functions to improve the readability of
+  the code and improve its debugging.
+- Reduced data casting and conditionals inside the functions.
+- Improved error messages across all functions.
+
+These changes were motivated by the rOpenSci peer review process.
+
 ## RAMEN 2.0.1 - June 30, 2026
 
-This minor version presents no changes from the user perspective. Code
+This patch version presents no changes from the user perspective. Code
 improvements have been made to the package to address comments and
 suggestions from the editor of the rOpenSci peer review process. These
 include:

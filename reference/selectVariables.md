@@ -8,7 +8,7 @@ VML using LASSO. See details below for more information.
 
 ``` r
 selectVariables(
-  VML_df,
+  VML_wSNPs,
   genotype_matrix,
   environmental_matrix,
   covariates = NULL,
@@ -19,19 +19,17 @@ selectVariables(
 
 ## Arguments
 
-- VML_df:
+- VML_wSNPs:
 
-  A data frame converted from a GRanges object. Recommended to use the
-  output of *RAMEN::findCisSNPs()*. Must have one VML per row, and
-  contain the following columns: "VML_index" (a unique ID for each VML
-  in VML_df AS CHARACTERS) and "SNP" (a column with a list as
-  observation, containing the name of the SNPs surrounding the
-  corresponding VML). The SNPs contained in the "SNP" column must be
-  present in the object that is indicated in the genotype_matrix
-  argument, and it must contain all the VML contained in
-  summarized_methyl_VML. VML with no surrounding SNPs must have an empty
-  list in the SNP column (either list(NULL), list(NA), list("") or
-  list(character(0)) ).
+  GRanges object produced by *RAMEN::findCisSNPs()*. Must contain the
+  following metadata columns: "VML_index" (a unique ID for each VML in
+  VML_df AS CHARACTERS) and "SNP" (a column with a list as observation,
+  containing the name of the SNPs surrounding the corresponding VML).
+  The SNPs contained in the "SNP" column must be present in the object
+  that is indicated in the genotype_matrix argument. VML_wSNPs must
+  contain all the VML contained in summarized_methyl_VML. VML with no
+  surrounding SNPs must have an empty list in the SNP column (either
+  list(NULL), list(NA), list("") or list(character(0))).
 
 - genotype_matrix:
 
@@ -59,12 +57,12 @@ selectVariables(
 
 - summarized_methyl_VML:
 
-  A data frame containing each individual's VML summarized methylation.
-  It is suggested to use the output of RAMEN::summarizeVML().Rows must
+  A matrix containing each individual's VML summarized methylation. It
+  is suggested to use the output of *RAMEN::summarizeVML()*.Rows must
   reflects individuals, and columns VML The names of the columns must
   correspond to the index of said VML, and it must match the index of
-  VML_df\$VML_index. The names of the rows must correspond to the sample
-  IDs, and must match with the IDs of the other matrices.
+  VML_wSNPs\$VML_index. The names of the rows must correspond to the
+  sample IDs, and must match with the IDs of the other matrices.
 
 - seed:
 
@@ -133,22 +131,24 @@ using the *seed* argument. Please note that setting a seed inside of
 this function modifies the seed globally (which is R's default
 behavior).
 
-\#' This function supports parallel computing for increased speed. To do
-so, you have to set the parallel back-end in your R session before
-running the function (e.g., *doParallel::registerDoParallel(4)*). After
-that, the function can be run as usual. It is recommended to also set
+This function supports parallel computing for increased speed. To do so,
+you have to set the parallel back-end in your R session before running
+the function (e.g., *doParallel::registerDoParallel(4)*). After that,
+the function can be run as usual. It is recommended to also set
 options(future.globals.maxSize= +Inf). Please make sure that your data
 has no NAs and it's all numerical, since the LASSO implementation we use
 does not support missing or non-numerical values.
 
 Note: If you want to conduct the variable selection step only in one
-data set (i.e., only in the genotype), you can set the argument
-*environmental_matrix = NULL*.
+data set (e.g., only in the genotype), you can set the other argument to
+NULL (e.g., *environmental_matrix = NULL*).
 
 ## Examples
 
 ``` r
 ## Find VML in test data
+# Set the parallel backend to use 2 workers
+doParallel::registerDoParallel(2)
 VML <- RAMEN::findVML(
   methylation_data = RAMEN::test_methylation_data,
   array_manifest = "IlluminaHumanMethylationEPICv1",
@@ -164,7 +164,8 @@ VML <- RAMEN::findVML(
 #> Applying correlation filter to Variable Methylated Regions...
 ## Find cis SNPs around VML
 VML_with_cis_snps <- RAMEN::findCisSNPs(
-  VML_df = VML$VML,
+  # Use only 5 for demonstration purposes
+  VML = VML$VML[1:5, ],
   genotype_information = RAMEN::test_genotype_information,
   distance = 1e6
 )
@@ -173,12 +174,12 @@ VML_with_cis_snps <- RAMEN::findCisSNPs(
 ## Summarize methylation levels in VML
 summarized_methyl_VML <- RAMEN::summarizeVML(
   methylation_data = RAMEN::test_methylation_data,
-  VML_df = VML_with_cis_snps
+  VML = VML_with_cis_snps
 )
 
 ## Select relevant genotype and environmental variables
 selected_vars <- RAMEN::selectVariables(
-  VML_df = VML_with_cis_snps,
+  VML_wSNPs = VML_with_cis_snps,
   genotype_matrix = RAMEN::test_genotype_matrix,
   environmental_matrix = RAMEN::test_environmental_matrix,
   covariates = RAMEN::test_covariates,
