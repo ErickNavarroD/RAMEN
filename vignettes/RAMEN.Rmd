@@ -357,7 +357,7 @@ appropriate for statistical analyses (see Pan Du, *et al.*, 2010,
 Now, there are a couple of options that we provide to define Highly Variable 
 Probes, which are the building blocks of VML. Let's talk about two of the moreimportant ones: 
 
-### var_method
+### Note on argument: var_method
 
 We need to chose a metric to quantify the variability of each probe across 
 individuals. Different metrics exist for this purpose, each one with its own 
@@ -409,7 +409,7 @@ fine-tuning parameter rather than a game-changer.
 knitr::include_graphics("hvps_mad_var.png")
 ```
 
-### var_distribution
+### Note on argument: var_distribution
 
 The second argument that we are going to discuss is var_distribution. There are
 two options that you can choose from: "all" and "ultrastable". The "all" draws a
@@ -538,8 +538,8 @@ variables while keeping most of the important ones.
 
 There is not a clear consensus on how close a SNP has to be from a DNAme site to
 be considered *cis* - the distance threshold tend to go from few kb to 1 
-megabase. We recommend to use a 1 Mb window to cast a wide net and catch most 
-potentially relevant SNPs.
+megabase. We recommend to include SNPs within 500 kb to 1 Mb to capture SNPs
+with a high potential to associate with DNAme.
 
 ```{r}
 # Take a look at the structure of the genotype information data set, which
