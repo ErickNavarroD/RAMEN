@@ -328,7 +328,19 @@ RAMEN identifies 2 categories of VML:
   guidance on which correlation threshold to use, we recommend checking the 
   Supplementary Figure 1 of the CoMeBack R package (Gatev et al., 2020) where a 
   simulation to empirically determine a default guidance specification for a 
-  correlation threshold parameter dependent on sample size is done.
+  correlation threshold parameter dependent on sample size is done. Modelling 
+  DNAme variability through regions rather than individual CpGs provides several
+  methodological advantages in association studies, since CpGs display a 
+  significant correlation for co-methylation when they are close (≤ 1 kilobase).
+  Some of these advantages include increasing statistical power by testing 
+  redundant probes only once, reducing false-positives driven by one problematic
+  probe in a region, and improving comparability between studies that analyze
+  the same genomic region but measure distinct CpGs due to microarray design
+  differences [42]. In contrast with Differentially Methylated Regions (DMRs),
+  a different class of regional construct used in the field, VMRs denote regions
+  with high inter-individual variability in methylation levels within a single
+  population, while DMRs represent regions where DNA methylation differs
+  significantly across a variable of interest [42].
   
   -   sparse Variably Methylated Probe (sVMP): Genomic loci that are composed of
   a Highly Variable Probe that has no nearby probes measured in the array 

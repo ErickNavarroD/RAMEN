@@ -53,7 +53,18 @@ map_revmap_names <- function(positions, manifest_hvp) {
 #' through regions rather than individual CpGs provides several methodological
 #' advantages in association studies, since CpGs display a significant
 #' correlation for co-methylation when they are close (less than or equal to 1
-#' kilobase)
+#' kilobase). Modelling DNAme variability through regions rather than individual
+#' CpGs provides several methodological advantages in association studies, since
+#' CpGs display a significant correlation for co-methylation when they are close
+#' (≤ 1 kilobase). Some of these advantages include increasing statistical power
+#' by testing redundant probes only once, reducing false-positives driven by one
+#' problematic probe in a region, and improving comparability between studies
+#' that analyze the same genomic region but measure distinct CpGs due to
+#' microarray design differences. In contrast with Differentially Methylated
+#' Regions (DMRs), a different class of regional construct used in the field,
+#' VMRs denote regions with high inter-individual variability in methylation
+#' levels within a single population, while DMRs represent regions where DNA
+#' methylation differs significantly across a variable of interest.
 #'
 #' In addition to traditional VMRs, we also identified sparse Variably
 #' Methylated Probes (sVMPs), a second type of VML that takes into account the
