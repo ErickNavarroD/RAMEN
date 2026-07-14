@@ -10,6 +10,7 @@
 #' for the G, E and GxE components (when applicable). If a VML has no variables
 #' selected in the selected_variables object, it will be returned with "B"
 #' (basal) as the best model (interpreted as no G or E associated effect).
+#' For guidance on interpretation, please build and read the package's vignette.
 #'
 #' This function supports parallel computing for increased speed. To do so, you
 #' have to set the parallel backend in your R session before running the
@@ -62,15 +63,15 @@
 #' **Analysis of variance and variance decomposition**
 #'
 #' Finally, the variance is decomposed and the relative R2 contribution of each
-#'  of the variables of interest (G, E and GxE) is reported. This decomposition
-#'  is done using the relaimpo R package, using the Lindeman, Merenda and Gold
-#'  (lmg) method, which is based on the heuristic approach of averaging the
-#'  relative R contribution of each variable over all input orders in the linear
-#'   model. The estimation of the partitioned R2 of each factor in the models
-#'   was conducted keeping the covariates always in the model as first entry
-#'   (i.e., the variables specified in covariates did not change order). For
-#'   further information, we suggest the users to read the documentation and
-#'   publication of the relaimpo R package (Grömping, 2006).
+#' of the variables of interest (G, E and GxE) is reported. This decomposition
+#' is done using the relaimpo R package, using the Lindeman, Merenda and Gold
+#' (lmg) method, which is based on the heuristic approach of averaging the
+#' relative R contribution of each variable over all input orders in the linear
+#' model. The estimation of the partitioned R2 of each factor in the models
+#' was conducted keeping the covariates always in the model as first entry
+#' (i.e., the variables specified in covariates did not change order). For
+#' further information, we suggest the users to read the documentation and
+#' publication of the relaimpo R package (Grömping, 2006).
 #'
 #' @param selected_variables A data frame obtained with *RAMEN::selectVariables()*.
 #' This data frame must contain three columns: 'VML_index' with characters of
