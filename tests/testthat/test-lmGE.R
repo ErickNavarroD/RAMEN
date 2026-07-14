@@ -1,6 +1,5 @@
 test_that("lmGE output structure is correct", {
-  # Set the parallel backend to use 2 workers
-  doParallel::registerDoParallel(2)
+  foreach::registerDoSEQ()
   lmge_res <- RAMEN::lmGE(
     selected_variables = selected_variables_test[1:5, ],
     summarized_methyl_VML = summarized_methyl_VML_test,
@@ -8,6 +7,21 @@ test_that("lmGE output structure is correct", {
     environmental_matrix = RAMEN::test_environmental_matrix,
     covariates = RAMEN::test_covariates,
     model_selection = "AIC"
+  )
+  expect_true(is.data.frame(lmge_res))
+  expect_equal(ncol(lmge_res), 13)
+  expect_equal(nrow(lmge_res), 5)
+})
+
+test_that("lmGE works with BIC", {
+  foreach::registerDoSEQ()
+  lmge_res <- RAMEN::lmGE(
+    selected_variables = selected_variables_test[1:5, ],
+    summarized_methyl_VML = summarized_methyl_VML_test,
+    genotype_matrix = RAMEN::test_genotype_matrix,
+    environmental_matrix = RAMEN::test_environmental_matrix,
+    covariates = RAMEN::test_covariates,
+    model_selection = "BIC"
   )
   expect_true(is.data.frame(lmge_res))
   expect_equal(ncol(lmge_res), 13)

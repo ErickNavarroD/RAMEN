@@ -1,5 +1,5 @@
-# Set the parallel backend to use 2 workers
-doParallel::registerDoParallel(2)
+# Use sequential evaluation so that the coverage metric is correct
+foreach::registerDoSEQ()
 
 suppressMessages(VML_test <- RAMEN::findVML(
   methylation_data = RAMEN::test_methylation_data,
@@ -21,7 +21,6 @@ summarized_methyl_VML_test <- RAMEN::summarizeVML(
   VML = VML_test$VML,
   methylation_data = test_methylation_data
 )
-
 
 suppressMessages(selected_variables_test <- RAMEN::selectVariables(
   VML_wSNPs = VML_cis_snps_test,
