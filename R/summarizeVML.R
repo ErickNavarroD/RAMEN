@@ -48,7 +48,7 @@ summarizeVML <- function(VML,
   argument_check(methylation_data, "data.frame")
   # Add a VML index to each region if not already existing
   if (!"VML_index" %in% colnames(S4Vectors::mcols(VML))) {
-    S4Vectors::mcols(VML)$VML_index = paste0("VML", seq_len(length(VML)))
+    S4Vectors::mcols(VML)$VML_index <- paste0("VML", seq_len(length(VML)))
   }
 
   if (!all(unique(unlist(VML$probes)) %in% rownames(methylation_data))) {

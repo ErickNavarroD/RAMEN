@@ -71,7 +71,7 @@ findCisSNPs <- function(VML, genotype_information, distance = 1e6) {
 
   # Add a VML index to each region if not already existing
   if (!"VML_index" %in% colnames(S4Vectors::mcols(VML))) {
-    S4Vectors::mcols(VML)$VML_index = paste0("VML", seq_len(length(VML)))
+    S4Vectors::mcols(VML)$VML_index <- paste0("VML", seq_len(length(VML)))
   }
 
   #### Identify the SNPs that are present in each VML ####
