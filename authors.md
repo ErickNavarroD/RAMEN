@@ -14,7 +14,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/ErickNavarroD/RAMEN/blob/main/inst/CITATION)
+[`inst/CITATION`](https://github.com/ErickNavarroD/RAMEN/blob/v2.0.1/inst/CITATION)
 
 Navarro-Delgado E, Edwards K, Fu M, Merrill S, Konwar C, MacIsaac J, Lin
 D, Mandhane P, Simons E, Subbarao P, Moraes T, Lahti J, Miller G, Binder

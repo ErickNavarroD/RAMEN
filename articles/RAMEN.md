@@ -1201,7 +1201,7 @@ sessionInfo()
 #>  [44] S4Vectors_0.50.1                                   
 #>  [45] textshaping_1.0.5                                  
 #>  [46] GenomicRanges_1.64.0                               
-#>  [47] RSQLite_3.53.2                                     
+#>  [47] RSQLite_3.53.3                                     
 #>  [48] base64_2.0.2                                       
 #>  [49] labeling_0.4.3                                     
 #>  [50] httr_1.4.8                                         
@@ -1258,7 +1258,7 @@ sessionInfo()
 #> [101] Seqinfo_1.2.0                                      
 #> [102] SummarizedExperiment_1.42.0                        
 #> [103] stats4_4.6.1                                       
-#> [104] xfun_0.59                                          
+#> [104] xfun_0.60                                          
 #> [105] Biobase_2.72.0                                     
 #> [106] scrime_1.3.7                                       
 #> [107] statmod_1.5.2                                      
@@ -1278,14 +1278,14 @@ sessionInfo()
 #> [121] xtable_1.8-8                                       
 #> [122] systemfonts_1.3.2                                  
 #> [123] jquerylib_0.1.4                                    
-#> [124] Rcpp_1.1.1-1.1                                     
+#> [124] Rcpp_1.1.2                                         
 #> [125] png_0.1-9                                          
 #> [126] XML_3.99-0.23                                      
 #> [127] parallel_4.6.1                                     
 #> [128] readr_2.2.0                                        
-#> [129] pkgdown_2.2.0                                      
+#> [129] pkgdown_2.2.1                                      
 #> [130] blob_1.3.0                                         
-#> [131] mclust_6.1.2                                       
+#> [131] mclust_6.1.3                                       
 #> [132] sparseMatrixStats_1.24.0                           
 #> [133] bitops_1.0-9                                       
 #> [134] glmnet_5.0                                         
@@ -1293,6 +1293,6 @@ sessionInfo()
 #> [136] illuminaio_0.54.0                                  
 #> [137] purrr_1.2.2                                        
 #> [138] crayon_1.5.3                                       
-#> [139] rlang_1.2.0                                        
+#> [139] rlang_1.3.0                                        
 #> [140] KEGGREST_1.52.2
 ```
