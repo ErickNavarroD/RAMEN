@@ -31,6 +31,7 @@ Roxygen: list(markdown = TRUE)
 Suggests: 
     BiocStyle,
     knitr,
+    magick,
     rmarkdown,
     IlluminaHumanMethylation450kanno.ilmn12.hg19,
     IlluminaHumanMethylationEPICanno.ilm10b4.hg19,

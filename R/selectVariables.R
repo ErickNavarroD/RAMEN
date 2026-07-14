@@ -176,7 +176,11 @@ selectVariables <- function(VML_wSNPs,
   i <- NULL # To avoid R CMD check note about undefined global variable
   #### Run LASSO ####
   lasso_results <- foreach::foreach(i = VML_wSNPs$VML_index,
-                                    .combine = "rbind") %dorng% {
+                                    .combine = "rbind",
+                                    .packages = c("GenomicRanges",
+                                                  "S4Vectors",
+                                                  "IRanges",
+                                                  "glmnet")) %dorng% {
     #### Prepare data sets ####
     VML_i <- VML_wSNPs[VML_wSNPs$VML_index == i]
     # Select summarized VML information
