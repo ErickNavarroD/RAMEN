@@ -99,6 +99,7 @@ best model from a different category, and the explained variance decomposed
 for the G, E and GxE components (when applicable). If a VML has no variables
 selected in the selected_variables object, it will be returned with "B"
 (basal) as the best model (interpreted as no G or E associated effect).
+For guidance on interpretation, please build and read the package's vignette.
 }
 \details{
 This function supports parallel computing for increased speed. To do so, you
