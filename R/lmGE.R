@@ -215,7 +215,8 @@ lmGE <- function(selected_variables,
       selected_genot %in% empty_lists))
   # Select the winning model
   winning_models <- foreach::foreach(i = seq_len(nrow(selected_variables)),
-                                     .combine = "rbind") %dopar% { # For every VML
+                                     .combine = "rbind",
+                                     .export = "empty_lists") %dopar% { # For every VML
     #### Prepare data sets ####
     # Create the data frame with all the information for each VML
     VML_i <- selected_variables[i, ]
