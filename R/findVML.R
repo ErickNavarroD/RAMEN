@@ -1,24 +1,24 @@
-#'  Map revmap column to probe names after reducing a GenomicRanges object
-#'
-#'  Given a revmap row (e.g. 1 5 6), we map those positions to their
-#'  corresponding probe names (and end up with something like "cg00000029",
-#'  "cg00000158", "cg00000165".This is a helper function of findVML()).
-#'
-#' @param positions A revmap row in the form of a vector
-#' @param manifest_hvp the manifest of the highly variable probes used in the
-#' findVML() function with the probes as row names
-#'
-#' @return a vector with the names of the probes that conform one reduced region
-#'
-#' @examples
-#' \dontrun{
-#' target <- data.frame(row.names = c("a", "b", "c", "d"),
-#'                      values = c(1, 1, 1, 1))
-#' query <- c(2, 1)
-#'
-#' map_revmap_names(positions = query, manifest_hvp = target)
-#' ## Expected output: c("b", "a")
-#' }
+# Map revmap column to probe names after reducing a GenomicRanges object
+
+# Given a revmap row (e.g. 1 5 6), we map those positions to their
+# corresponding probe names (and end up with something like "cg00000029",
+# "cg00000158", "cg00000165".This is a helper function of findVML()).
+
+# @param positions A revmap row in the form of a vector
+# @param manifest_hvp the manifest of the highly variable probes used in the
+# findVML() function with the probes as row names
+
+# @return a vector with the names of the probes that conform one reduced region
+
+# @examples
+# \dontrun{
+# target <- data.frame(row.names = c("a", "b", "c", "d"),
+#                      values = c(1, 1, 1, 1))
+# query <- c(2, 1)
+#
+# map_revmap_names(positions = query, manifest_hvp = target)
+# ## Expected output: c("b", "a")
+# }
 map_revmap_names <- function(positions, manifest_hvp) {
   # We start with 1 5 6
   # We want to end with cg00000029,  cg00000158 cg00000165
