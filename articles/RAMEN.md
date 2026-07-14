@@ -498,6 +498,10 @@ VML <- RAMEN::findVML(
   max_distance = 1000
 )
 #> Identifying Highly Variable Probes...
+#> Warning: replacing previous import 'S4Arrays::makeNindexFromArrayViewport' by
+#> 'DelayedArray::makeNindexFromArrayViewport' when loading 'SummarizedExperiment'
+#> Warning: replacing previous import 'S4Arrays::makeNindexFromArrayViewport' by
+#> 'DelayedArray::makeNindexFromArrayViewport' when loading 'HDF5Array'
 #> Setting options('download.file.method.GEOquery'='auto')
 #> Setting options('GEOquery.inmemory.gpl'=FALSE)
 #> Identifying sparse Variable Methylated Probes
