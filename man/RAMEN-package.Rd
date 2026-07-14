@@ -13,7 +13,7 @@ Using population data, RAMEN identifies which genetic (G), environmental (E), ad
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://ericknavarrod.github.io/RAMEN/ }
+  \item \url{https://ericknavarrod.github.io/RAMEN/} 
   \item \url{https://github.com/ErickNavarroD/RAMEN/}
   \item Report bugs at \url{https://github.com/ErickNavarroD/RAMEN/issues}
 }
@@ -24,6 +24,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Erick I. Navarro-Delgado \email{erick.delgado@ubc.ca} (\href{https://orcid.org/0000-0003-1040-3519}{ORCID})
   \item Keegan Korthauer \email{keegan@stat.ubc.ca} (\href{https://orcid.org/0000-0002-4565-1654}{ORCID})
   \item Michael S. Kobor \email{michael.kobor@ubc.ca} (\href{https://orcid.org/0000-0003-4140-1743}{ORCID})
 }
