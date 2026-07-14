@@ -53,7 +53,7 @@ Imports:
     stats
 VignetteBuilder: knitr
 Depends: 
-    R (>= 4.2.0)
+    R (>= 4.5.0)
 LazyData: true
 URL: 
     https://ericknavarrod.github.io/RAMEN/ ,
