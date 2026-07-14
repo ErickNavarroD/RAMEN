@@ -180,7 +180,8 @@ selectVariables <- function(VML_wSNPs,
                                     .packages = c("GenomicRanges",
                                                   "S4Vectors",
                                                   "IRanges",
-                                                  "glmnet")) %dorng% {
+                                                  "glmnet"),
+                                    .export = c("empty_lists") %dorng% {
     #### Prepare data sets ####
     VML_i <- VML_wSNPs[VML_wSNPs$VML_index == i]
     # Select summarized VML information
