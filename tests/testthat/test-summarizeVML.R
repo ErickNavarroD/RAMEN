@@ -63,4 +63,14 @@ test_that("summarizeVML throws errors when expected", {
     ),
     "Please make sure the input methylation_data belongs to the data.frame class."
   )
+  VML_test_probes = VML_test$VML
+  VML_test_probes$probes <- "a"
+  expect_error(
+    RAMEN::summarizeVML(
+      VML = VML_test_probes,
+      methylation_data = test_methylation_data
+    ) |>
+      suppressWarnings(),
+    "Please make sure the 'probes' column in the VML object is a list"
+  )
 })
