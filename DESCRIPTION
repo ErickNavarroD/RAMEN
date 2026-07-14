@@ -26,6 +26,7 @@ Authors@R: c(
 Description: Using population data, RAMEN identifies which genetic (G), environmental (E), additive (G+E) or interaction (GxE) model better explains DNA methylation levels in genome-wide locations with high DNA methylation variability.
 License: GPL (>= 3)
 Encoding: UTF-8
+biocViews: Software
 Roxygen: list(markdown = TRUE)
 Suggests: 
     BiocStyle,
