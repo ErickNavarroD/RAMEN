@@ -11,11 +11,13 @@ test_that("findVML output structure is correct", {
   expect_true("VML" %in% names(VML_test))
   expect_true("highly_variable_probes" %in% names(VML_test))
   expect_true("var_score_threshold" %in% names(VML_test))
-  expect_true(is.data.frame(VML_test$VML))
+  expect_true(is(VML_test$VML, "GRanges"))
   expect_true(is.data.frame(VML_test$highly_variable_probes))
 })
 
 test_that("findVML handles a different var_method option", {
+  # Set the parallel backend to use 2 workers
+  doParallel::registerDoParallel(2)
   VML_result_mad <- RAMEN::findVML(
     methylation_data = RAMEN::test_methylation_data,
     array_manifest = "IlluminaHumanMethylationEPICv1",
@@ -36,18 +38,123 @@ test_that("findVML handles a different var_method option", {
 })
 
 test_that("findVML throws errors when expected", {
+  #### methylation_data ####
   expect_error(
     RAMEN::findVML(
-      methylation_data = RAMEN::test_methylation_data,
+      methylation_data = as.matrix(RAMEN::test_methylation_data),
       array_manifest = "IlluminaHumanMethylationEPICv1",
-      cor_threshold = 1000,
-      var_method = "ultrastable",
+      cor_threshold = 0,
+      var_method = "variance",
       var_distribution = "ultrastable",
       var_threshold_percentile = 0.99,
       max_distance = 1000
     ) |>
       suppressMessages(),
-    "'cor_threshold' must be of type 'numeric' and from 0 to 1"
+    "Please make sure the input methylation_data belongs to the data.frame class."
+  )
+  #### array_manifest ####
+  expect_error(
+    RAMEN::findVML(
+      methylation_data = RAMEN::test_methylation_data,
+      array_manifest = "a",
+      cor_threshold = 0,
+      var_method = "variance",
+      var_distribution = "ultrastable",
+      var_threshold_percentile = 0.99,
+      max_distance = 1000
+    ) |>
+      suppressMessages(),
+    paste("Please make sure the input array_manifest is one of the following",
+          "options: IlluminaHumanMethylation450k, IlluminaHumanMethylationEPICv1,",
+          "IlluminaHumanMethylationEPICv2 . Otherwise, please provide a custom",
+          "manifest as a data frame."),
+    fixed = TRUE
+  )
+  expect_error(
+    RAMEN::findVML(
+      methylation_data = RAMEN::test_methylation_data,
+      array_manifest = data.frame(),
+      cor_threshold = 0,
+      var_method = "variance",
+      var_distribution = "ultrastable",
+      var_threshold_percentile = 0.99,
+      max_distance = 1000
+    ) |>
+      suppressMessages(),
+    paste("The object array_manifest does not have the required columns: chr,",
+          "pos, strand . Otherwise, provide a string with one of the supported",
+          "human microarrays ('IlluminaHumanMethylation450k',",
+          "'IlluminaHumanMethylationEPICv1', or 'IlluminaHumanMethylationEPICv2')."),
+    fixed = TRUE
+  )
+  #### cor_threshold ####
+  expect_error(
+    RAMEN::findVML(
+      methylation_data = RAMEN::test_methylation_data,
+      array_manifest = "IlluminaHumanMethylationEPICv1",
+      cor_threshold = "1000",
+      var_method = "variance",
+      var_distribution = "ultrastable",
+      var_threshold_percentile = 0.99,
+      max_distance = 1000
+    ) |>
+      suppressMessages(),
+    "Please make sure the input cor_threshold belongs to the numeric class."
+  )
+  expect_error(
+    RAMEN::findVML(
+      methylation_data = RAMEN::test_methylation_data,
+      array_manifest = "IlluminaHumanMethylationEPICv1",
+      cor_threshold = 1000,
+      var_method = "variance",
+      var_distribution = "ultrastable",
+      var_threshold_percentile = 0.99,
+      max_distance = 1000
+    ) |>
+      suppressMessages(),
+    "'cor_threshold' must be a value between 0 and 1 (inclusive)",
+    fixed = TRUE
+  )
+  #### var_method ####
+  expect_error(
+    RAMEN::findVML(
+      methylation_data = RAMEN::test_methylation_data,
+      array_manifest = "IlluminaHumanMethylationEPICv1",
+      cor_threshold = 0,
+      var_method = 1,
+      var_distribution = "ultrastable",
+      var_threshold_percentile = 0.99,
+      max_distance = 1000
+    ) |>
+      suppressMessages(),
+    "Please make sure the input var_method belongs to the character class."
+  )
+  expect_error(
+    RAMEN::findVML(
+      methylation_data = RAMEN::test_methylation_data,
+      array_manifest = "IlluminaHumanMethylationEPICv1",
+      cor_threshold = 0,
+      var_method = c("variance", "mad"),
+      var_distribution = "ultrastable",
+      var_threshold_percentile = 0.99,
+      max_distance = 1000
+    ) |>
+      suppressMessages(),
+    "Please make sure the input var_method is a character object of length 1"
+  )
+  #### var_distribution ####
+  expect_error(
+    RAMEN::findVML(
+      methylation_data = RAMEN::test_methylation_data,
+      array_manifest = "IlluminaHumanMethylationEPICv1",
+      cor_threshold = 0,
+      var_method = "variance",
+      var_distribution = 1,
+      var_threshold_percentile = 0.99,
+      max_distance = 1000
+    ) |>
+      suppressMessages(),
+    "Please make sure the input var_distribution belongs to the character class."
   )
   expect_error(
     RAMEN::findVML(
@@ -60,55 +167,85 @@ test_that("findVML throws errors when expected", {
       max_distance = 1000
     ) |>
       suppressMessages(),
-    "'var_distribution' must be one of 'all' or 'ultrastable'"
+    "Please make sure the input var_distribution is one of the following options: ultrastable, all"
   )
+  #### var_threshold_percentile ####
   expect_error(
     RAMEN::findVML(
-      methylation_data = as.matrix(RAMEN::test_methylation_data),
+      methylation_data = RAMEN::test_methylation_data,
       array_manifest = "IlluminaHumanMethylationEPICv1",
       cor_threshold = 0,
       var_method = "variance",
       var_distribution = "ultrastable",
-      var_threshold_percentile = 0.99,
+      var_threshold_percentile = "0.99",
       max_distance = 1000
     ) |>
       suppressMessages(),
-    "The methylation_data object must be a data frame with samples as columns and probes as rows."
-  )
-  expect_error(
-    RAMEN::findVML(
-      methylation_data = RAMEN::test_methylation_data,
-      array_manifest = "a",
-      cor_threshold = 0,
-      var_method = "variance",
-      var_distribution = "ultrastable",
-      var_threshold_percentile = 0.99,
-      max_distance = 1000
-    ) |>
-      suppressMessages()
+    "Please make sure the input var_threshold_percentile belongs to the numeric class."
   )
   expect_error(
     RAMEN::findVML(
       methylation_data = RAMEN::test_methylation_data,
       array_manifest = "IlluminaHumanMethylationEPICv1",
       cor_threshold = 0,
-      var_method = "a",
+      var_method = "variance",
       var_distribution = "ultrastable",
-      var_threshold_percentile = 0.99,
+      var_threshold_percentile = 100,
       max_distance = 1000
     ) |>
       suppressMessages(),
-    "The method must be either 'mad' or 'variance'. Please select one of those options"
+    "'var_threshold_percentile' must be a value between 0 and 1 (inclusive)",
+    fixed = TRUE
+  )
+  #### max_distance ####
+  expect_error(
+    RAMEN::findVML(
+      methylation_data = RAMEN::test_methylation_data,
+      array_manifest = "IlluminaHumanMethylationEPICv1",
+      cor_threshold = 0,
+      var_method = "variance",
+      var_distribution = "ultrastable",
+      var_threshold_percentile = 0.99,
+      max_distance = "1000"
+    ) |>
+      suppressMessages(),
+    "Please make sure the input max_distance belongs to the numeric class."
+  )
+  #### Low number of ultrastable probes ####
+  expect_error(
+    RAMEN::findVML(
+      methylation_data = RAMEN::test_methylation_data[1:5, ],
+      array_manifest = "IlluminaHumanMethylationEPICv1",
+      cor_threshold = 0,
+      var_method = "variance",
+      var_distribution = "ultrastable",
+      var_threshold_percentile = 0.99,
+      max_distance = 1000) |>
+      suppressMessages(),
+    paste("Your data set should contain more than 25 ultrastable probes",
+          "(RAMEN::ultrastable_cpgs) to compute a variance threshold. If",
+          "not, please get the",
+          "variability threshold based on all the probes in your data set",
+          "(var_distribution = 'all', var_threshold_percentile = 0.9)."),
+    fixed = TRUE
   )
 })
 
 test_that("findVML works with EPICv2 probes", {
+  # Set the parallel backend to use 2 workers
+  doParallel::registerDoParallel(2)
   epic2_methylation_data <- RAMEN::test_methylation_data
   rownames(epic2_methylation_data) <- data.frame(IlluminaHumanMethylationEPICv2anno.20a1.hg38::Locations) |>
     dplyr::filter(chr == "chr21") |>
-    dplyr::arrange(chr, pos) |> # Make sure to extract neighbouring probes to have VML
+    dplyr::arrange(chr, pos) |>
     dplyr::slice_head(n = nrow(RAMEN::test_methylation_data)) |>
     rownames()
+  epicv2_ultrastable_cpgs <- IlluminaHumanMethylationEPICv2anno.20a1.hg38::Other |>
+    data.frame() |>
+    dplyr::filter(Methyl450_Loci %in% RAMEN::ultrastable_cpgs) |>
+    rownames()
+  # Add artificially ultrastable probes
+  rownames(epic2_methylation_data)[1:30] = epicv2_ultrastable_cpgs[1:30]
 
   VML_epic2 <- RAMEN::findVML(
     methylation_data = epic2_methylation_data,
@@ -119,13 +256,16 @@ test_that("findVML works with EPICv2 probes", {
     var_threshold_percentile = 0.99,
     max_distance = 1000
   ) |>
+    suppressWarnings() |>
     suppressMessages()
   expect_true(is.list(VML_epic2))
-  expect_true(is.data.frame(VML_epic2$VML))
-  expect_equal(ncol(VML_epic2$VML), 10)
+  expect_true(is(VML_epic2$VML, "GRanges"))
+  expect_equal(ncol(S4Vectors::mcols(VML_epic2$VML)), 5)
 })
 
 test_that("findVML works with var_distribution = 'all' and mad score", {
+  # Set the parallel backend to use 2 workers
+  doParallel::registerDoParallel(2)
   VML_allvar <- RAMEN::findVML(
     methylation_data = RAMEN::test_methylation_data,
     array_manifest = "IlluminaHumanMethylationEPICv1",
@@ -137,22 +277,21 @@ test_that("findVML works with var_distribution = 'all' and mad score", {
   ) |>
     suppressMessages()
   expect_true(is.list(VML_allvar))
-  expect_true(is.data.frame(VML_allvar$VML))
-  expect_equal(ncol(VML_allvar$VML), 10)
+  expect_true(is(VML_allvar$VML, "GRanges"))
+  expect_equal(ncol(S4Vectors::mcols(VML_allvar$VML)), 5)
 })
 
 test_that("sVMPs have no correlation", {
-  sVMPs <- VML_test$VML |>
-    dplyr::filter(type == "sVMP") |>
-    dplyr::pull(median_correlation)
-  expect_true(all(is.na(sVMPs)))
+  sVMPs <- VML_test$VML[VML_test$VML$type == "sVMP"]
+  expect_true(all(is.na(sVMPs$median_correlation)))
 })
 
 test_that("correlation is computed correctly", {
-  VML_test_cor <- VML_test$VML |>
-    dplyr::filter(type == "VMR") |>
-    dplyr::arrange(n_VMPs) |>
-    dplyr::slice_tail(n = 1) # Get the VMR with highest number of HVPs
+  vmr_gr <- VML_test$VML[VML_test$VML$type == "VMR"]
+  # Order by n_VMPs ascending, then take the last one (highest n_VMPs)
+  vmr_gr <- vmr_gr[order(vmr_gr$n_VMPs)]
+  VML_test_cor <- vmr_gr[length(vmr_gr)]
+  # get the probes
   probes <- unlist(VML_test_cor$probes)
   methylation_subset <- RAMEN::test_methylation_data[probes, ]
   cor_matrix <- cor(t(methylation_subset))

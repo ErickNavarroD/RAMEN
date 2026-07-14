@@ -18,16 +18,14 @@ Review](https://badges.ropensci.org/743_status.svg)](https://github.com/ropensci
 
 ## Overview
 
-Regional Association of Methylome variability with the Exposome and
-geNome (RAMEN) is an R package which goal is to estimate the
-contribution of genetic variants and environmental exposures to DNA
-methylation variability at a genome-wide scale. RAMEN takes advantage of
-the fact that DNA methylation levels at nearby CpG sites are often
-correlated, and uses this information to identify Variable Methylated
-Loci (VML) from microarray DNA methylation data. Then, using genomic and
-exposomic data, it can identify which model out of the following
-explains best the DNA methylation variability at each VML: genetic (G),
-environmental (E), additive (G+E) or interactive (GxE).
+**Regional Association of Methylome variability with the Exposome and
+geNome** **(RAMEN)** is an R package which goal is to estimate the
+contribution of genetic variants and environmental exposures to loci
+with high DNA methylation (DNAme) variability at a genome-wide scale
+using population data. Characterizing the factors that contribute to
+DNAme variability is important because DNAme is a key epigenetic
+mechanism that regulates gene expression and plays an important role in
+development, disease, and environmental adaptation.
 
 RAMEN provides a Findable, Accesible, Interoperable and Reusable (FAIR)
 workflow to conduct gene-environment contribution analyses to
@@ -37,9 +35,18 @@ of traditional statistical methods and machine learning approaches,
 RAMEN is designed to be computationally efficient and user-friendly,
 allowing researchers to gain insights into the complex interplay between
 genetics, environment and DNA methylation variability. The package
-includes a detailed tutorial, and individual functions that could be
-useful for other applications beyond the gene-environment contribution
-analysis.
+includes a detailed
+[tutorial](https://ericknavarrod.github.io/RAMEN/articles/RAMEN.html),
+and individual functions that could be useful for other applications
+beyond the gene-environment contribution analysis.
+
+RAMEN takes advantage of the fact that DNA methylation levels at nearby
+CpG sites are often correlated, and uses this information to identify
+Variable Methylated Loci (VML) from microarray DNA methylation data.
+Then, integrating genomic and exposomic data, it can identify which
+model out of the following explains best the DNA methylation variability
+at each VML: genetic (G), environmental (E), additive (G+E) or
+interactive (GxE).
 
 ## Installation
 
@@ -47,13 +54,18 @@ You can install the latest version of RAMEN from
 [GitHub](https://github.com/) with:
 
 ``` r
-# install.packages("devtools")
+## Install dependencies
 # install.packages("BiocManager")
 # BiocManager::install("S4Vectors")
 # BiocManager::install("IRanges")
 # BiocManager::install("GenomicRanges")
+## If using any of these Illumina microarrays, pick one: 
+# BiocManager::install("IlluminaHumanMethylation450kanno.ilmn12.hg19")
+# BiocManager::install("IlluminaHumanMethylationEPICanno.ilm10b4.hg19")
+# BiocManager::install("IlluminaHumanMethylationEPICv2anno.20a1.hg38")
 
-pak::pak("ErickNavarroD/RAMEN")
+## Install the RAMEN package from GitHub
+BiocManager::install("ErickNavarroD/RAMEN")
 ```
 
 ## Usage
@@ -103,6 +115,13 @@ library(dplyr)
 #> 
 #>     intersect, setdiff, setequal, union
 library(ggplot2)
+library(doParallel)
+#> Loading required package: foreach
+#> Loading required package: iterators
+#> Loading required package: parallel
+
+# Set the parallel backend to use 2 workers
+doParallel::registerDoParallel(2)
 
 VML <- RAMEN::findVML(
   methylation_data = RAMEN::test_methylation_data,
@@ -119,23 +138,27 @@ VML <- RAMEN::findVML(
 #> Identifying sparse Variable Methylated Probes
 #> Identifying Variable Methylated Regions...
 #> Applying correlation filter to Variable Methylated Regions...
-#> Warning: executing %dopar% sequentially: no parallel backend registered
 
-head(VML$VML) # Take a look at the identified VML data frame
-#>   VML_index type seqnames    start      end width strand       probes n_VMPs
-#> 1      VML1  VMR    chr21 10990119 10990903   785      + cg098720....      2
-#> 2      VML2  VMR    chr21 11109021 11109336   316      + cg007508....      2
-#> 3      VML3  VMR    chr21 31799091 31799248   158      + cg245007....      2
-#> 4      VML4  VMR    chr21 32715908 32716792   885      + cg164170....      2
-#> 5      VML5  VMR    chr21 15955548 15955699   152      - cg147721....      2
-#> 6      VML6  VMR    chr21 26573136 26573196    61      - cg111120....      2
-#>   median_correlation
-#> 1          0.6099180
-#> 2          0.6261681
-#> 3          0.7279154
-#> 4          0.6932442
-#> 5          0.8120654
-#> 6          0.6173683
+head(VML$VML) # Take a look at the identified VML GRanges object
+#> GRanges object with 6 ranges and 5 metadata columns:
+#>       seqnames            ranges strand |    n_VMPs                probes
+#>          <Rle>         <IRanges>  <Rle> | <numeric>                <list>
+#>   [1]    chr21 10990119-10990903      + |         2 cg09872009,cg05437132
+#>   [2]    chr21 11109021-11109336      + |         2 cg00750806,cg12301579
+#>   [3]    chr21 31799091-31799248      + |         2 cg24500711,cg07621949
+#>   [4]    chr21 32715908-32716792      + |         2 cg16417027,cg14151498
+#>   [5]    chr21 15955548-15955699      - |         2 cg14772146,cg07412745
+#>   [6]    chr21 26573136-26573196      - |         2 cg11112002,cg23973918
+#>       median_correlation        type   VML_index
+#>                <numeric> <character> <character>
+#>   [1]           0.609918         VMR        VML1
+#>   [2]           0.626168         VMR        VML2
+#>   [3]           0.727915         VMR        VML3
+#>   [4]           0.693244         VMR        VML4
+#>   [5]           0.812065         VMR        VML5
+#>   [6]           0.617368         VMR        VML6
+#>   -------
+#>   seqinfo: 1 sequence from an unspecified genome; no seqlengths
 ```
 
 2.  Summarize the regional methylation state of each VML with
@@ -143,7 +166,7 @@ head(VML$VML) # Take a look at the identified VML data frame
 
 ``` r
 summarized_methyl_VML <- RAMEN::summarizeVML(
-  VML_df = VML$VML,
+  VML = VML$VML,
   methylation_data = test_methylation_data
 )
 
@@ -161,7 +184,7 @@ summarized_methyl_VML[1:5, 1:5]
 
 ``` r
 VML_cis_snps <- RAMEN::findCisSNPs(
-  VML_df = VML$VML,
+  VML = VML$VML,
   genotype_information = RAMEN::test_genotype_information,
   distance = 1e+06
 )
@@ -169,20 +192,33 @@ VML_cis_snps <- RAMEN::findCisSNPs(
 
 # Take a look at the result
 head(VML_cis_snps)
-#>   VML_index type seqnames    start      end width strand       probes n_VMPs
-#> 1      VML1  VMR    chr21 10990119 10990903   785      + cg098720....      2
-#> 2      VML2  VMR    chr21 11109021 11109336   316      + cg007508....      2
-#> 3      VML3  VMR    chr21 31799091 31799248   158      + cg245007....      2
-#> 4      VML4  VMR    chr21 32715908 32716792   885      + cg164170....      2
-#> 5      VML5  VMR    chr21 15955548 15955699   152      - cg147721....      2
-#> 6      VML6  VMR    chr21 26573136 26573196    61      - cg111120....      2
-#>   median_correlation surrounding_SNPs          SNP
-#> 1          0.6099180                1 21:10873....
-#> 2          0.6261681                1 21:10873....
-#> 3          0.7279154              659 21:30813....
-#> 4          0.6932442              855 21:31718....
-#> 5          0.8120654              726 21:14957....
-#> 6          0.6173683              788 21:25582....
+#> GRanges object with 6 ranges and 7 metadata columns:
+#>       seqnames            ranges strand |    n_VMPs                probes
+#>          <Rle>         <IRanges>  <Rle> | <numeric>                <list>
+#>   [1]    chr21 10990119-10990903      + |         2 cg09872009,cg05437132
+#>   [2]    chr21 11109021-11109336      + |         2 cg00750806,cg12301579
+#>   [3]    chr21 31799091-31799248      + |         2 cg24500711,cg07621949
+#>   [4]    chr21 32715908-32716792      + |         2 cg16417027,cg14151498
+#>   [5]    chr21 15955548-15955699      - |         2 cg14772146,cg07412745
+#>   [6]    chr21 26573136-26573196      - |         2 cg11112002,cg23973918
+#>       median_correlation        type   VML_index surrounding_SNPs
+#>                <numeric> <character> <character>        <integer>
+#>   [1]           0.609918         VMR        VML1                1
+#>   [2]           0.626168         VMR        VML2                1
+#>   [3]           0.727915         VMR        VML3              659
+#>   [4]           0.693244         VMR        VML4              855
+#>   [5]           0.812065         VMR        VML5              726
+#>   [6]           0.617368         VMR        VML6              788
+#>                                                         SNP
+#>                                                      <list>
+#>   [1]                                       21:10873592:G:A
+#>   [2]                                       21:10873592:G:A
+#>   [3]   21:30813322:G:A,21:30860437:G:A,21:30862803:T:C,...
+#>   [4] 21:31718195:C:T,21:31719083:AAG:A,21:31719372:C:T,...
+#>   [5]   21:14957973:A:G,21:15167527:T:C,21:15169567:C:T,...
+#>   [6]   21:25582143:A:G,21:25586702:G:A,21:25587960:G:T,...
+#>   -------
+#>   seqinfo: 1 sequence from an unspecified genome; no seqlengths
 ```
 
 4.  Conduct a LASSO-based feature selection strategy to identify
@@ -191,14 +227,13 @@ head(VML_cis_snps)
 
 ``` r
 selected_variables <- RAMEN::selectVariables(
-  VML_df = VML_cis_snps,
+  VML_wSNPs = VML_cis_snps,
   genotype_matrix = RAMEN::test_genotype_matrix,
   environmental_matrix = RAMEN::test_environmental_matrix,
   covariates = RAMEN::test_covariates,
   summarized_methyl_VML = summarized_methyl_VML,
   seed = 1
 )
-#> Loading required package: foreach
 #> Loading required package: rngtools
 
 head(selected_variables)
@@ -227,27 +262,18 @@ lmge_res <- RAMEN::lmGE(
 
 # Check the output
 head(lmge_res)
-#>   VML_index model_group    variables tot_r_squared g_r_squared e_r_squared
-#> 1      VML1         G+E 21:10873....     0.5527507   0.1996156   0.3420620
-#> 2      VML2         G+E 21:10873....     0.5115764   0.2095645   0.2714356
-#> 3      VML3         GxE 21:32782....     0.5680092   0.2717880   0.2039656
-#> 4      VML4           E          E43     0.3008107          NA   0.2282407
-#> 5      VML5         G+E 21:15671....     0.7548714   0.4246781   0.2232954
-#> 6      VML6         G+E 21:27306....     0.5885708   0.2317301   0.1985512
-#>   gxe_r_squared      AIC second_winner delta_aic delta_r_squared basal_AIC
-#> 1            NA 144.6841           GxE 1.0497027    -0.013945293  164.4893
-#> 2            NA 148.7250           GxE 1.3455746    -0.010539189  165.2905
-#> 3    0.06543422 148.7964           G+E 0.9072693     0.043959423  167.1613
-#> 4            NA 156.8403          <NA>        NA              NA  163.3152
-#> 5            NA 131.9394           GxE 1.5262724    -0.003840405  166.7269
-#> 6            NA 141.4738           GxE 1.6975735    -0.004126734  158.9477
-#>   basal_rsquared
-#> 1     0.01107306
-#> 2     0.03057637
-#> 3     0.02682137
-#> 4     0.07256996
-#> 5     0.10689789
-#> 6     0.15828947
+#> # A tibble: 6 × 13
+#>   VML_index model_group variables tot_r_squared g_r_squared e_r_squared
+#>   <chr>     <chr>       <list>            <dbl>       <dbl>       <dbl>
+#> 1 VML1      G+E         <chr [2]>         0.553       0.200       0.342
+#> 2 VML2      G+E         <chr [2]>         0.512       0.210       0.271
+#> 3 VML3      GxE         <chr [2]>         0.568       0.272       0.204
+#> 4 VML4      E           <chr [1]>         0.301      NA           0.228
+#> 5 VML5      G+E         <chr [2]>         0.755       0.425       0.223
+#> 6 VML6      G+E         <chr [2]>         0.589       0.232       0.199
+#> # ℹ 7 more variables: gxe_r_squared <dbl>, AIC <dbl>, second_winner <chr>,
+#> #   delta_aic <dbl>, delta_r_squared <dbl>, basal_AIC <dbl>,
+#> #   basal_rsquared <dbl>
 ```
 
 6.  Simulate a null distribution of G and E effects on DNAme variability
@@ -256,7 +282,7 @@ head(lmge_res)
 
 ``` r
 null_dist <- RAMEN::nullDistGE(
-  VML_df = VML_cis_snps,
+  VML_wSNPs = VML_cis_snps,
   genotype_matrix = RAMEN::test_genotype_matrix,
   environmental_matrix = RAMEN::test_environmental_matrix,
   summarized_methyl_VML = summarized_methyl_VML,
@@ -316,7 +342,14 @@ final_res %>%
   ggplot2::theme_classic()
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-7-1.png" alt="" width="100%" />
+
+It is worth mentioning that RAMEN assumes that all data sets (genome,
+exposome and methylome) have undergone quality control, pre-processing
+and normalization steps when required. The choice of methods for these
+steps are out of the scope of this package, but we provide some
+resources and guidance in the
+[tutorial](https://ericknavarrod.github.io/RAMEN/articles/RAMEN.html).
 
 ## Variations to the standard workflow
 

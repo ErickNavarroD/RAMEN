@@ -1,6 +1,6 @@
 Package: RAMEN
 Title: RAMEN: Regional Association of Methylome variability with the Exposome and geNome
-Version: 2.0.1
+Version: 2.1.0
 Authors@R: c(
     person("Erick I.", "Navarro-Delgado", 
             email = "erick.delgado@ubc.ca", 
@@ -13,12 +13,21 @@ Authors@R: c(
     person("Michael S.", "Kobor", 
             email = "michael.kobor@ubc.ca",
             role = "aut",
-            comment = c(ORCID = "0000-0003-4140-1743")))
-Description: R package that identifies which genetic (G), environmental (E), additive (G+E) or interaction (GxE) effect better explains DNA methylation levels in Variable Methylated Loci using microarray data.
+            comment = c(ORCID = "0000-0003-4140-1743")),
+    person("Lluís", "Revilla Sancho", 
+            email = "lluis.revilla@gmail.com",
+            role = "rev",
+            comment = c(ORCID = "0000-0001-9747-2570")),
+    person("Ulduz", "Vafadarshamasbi", 
+            email = "vafadar.u@uq.edu.au",
+            role = "rev",
+            comment = c(ORCID = "0000-0002-8370-8084"))
+            )
+Description: Using population data, RAMEN identifies which genetic (G), environmental (E), additive (G+E) or interaction (GxE) model better explains DNA methylation levels in genome-wide locations with high DNA methylation variability.
 License: GPL (>= 3)
 Encoding: UTF-8
+biocViews: Software
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 Suggests: 
     BiocStyle,
     knitr,
@@ -28,6 +37,7 @@ Suggests:
     IlluminaHumanMethylationEPICv2anno.20a1.hg38,
     ggplot2,
     tidyr,
+    doParallel,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Imports: 
@@ -37,17 +47,16 @@ Imports:
     GenomicRanges,
     glmnet,
     IRanges,
-    iterators,
-    lifecycle,
-    magrittr,
+    methods,
     relaimpo,
     S4Vectors,
-    stats,
-    stringr,
-    tibble
+    stats
 VignetteBuilder: knitr
 Depends: 
     R (>= 4.2.0)
 LazyData: true
-URL: https://ericknavarrod.github.io/RAMEN/
+URL: 
+    https://ericknavarrod.github.io/RAMEN/ ,
+    https://github.com/ErickNavarroD/RAMEN/
 BugReports: https://github.com/ErickNavarroD/RAMEN/issues
+Config/roxygen2/version: 8.0.0

@@ -6,13 +6,11 @@ test_environmental_matrix <- matrix(rnorm(100 * sample_size, 0, 1),
   nrow = sample_size,
   ncol = 100
 )
-rownames(test_environmental_matrix) <- paste("ID",
-  as.character(1:sample_size),
-  sep = ""
+rownames(test_environmental_matrix) <- paste0("ID",
+  as.character(1:sample_size)
 )
-colnames(test_environmental_matrix) <- paste("E",
-  as.character(1:100),
-  sep = ""
+colnames(test_environmental_matrix) <- paste0("E",
+  as.character(1:100)
 )
 
 usethis::use_data(test_environmental_matrix, overwrite = TRUE)

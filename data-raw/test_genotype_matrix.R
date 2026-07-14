@@ -14,9 +14,8 @@ test_genotype_matrix <- matrix(
   ncol = sample_size,
   nrow = nrow(test_genotype_information)
 )
-colnames(test_genotype_matrix) <- paste("ID",
-  as.character(1:sample_size),
-  sep = ""
+colnames(test_genotype_matrix) <- paste0("ID",
+  as.character(1:sample_size)
 )
 rownames(test_genotype_matrix) <- test_genotype_information$ID
 

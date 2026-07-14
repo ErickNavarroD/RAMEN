@@ -5,7 +5,7 @@ test_covariates <- matrix(rnorm(sample_size, 0, 1),
   nrow = sample_size,
   ncol = 1
 )
-rownames(test_covariates) <- paste("ID", as.character(1:sample_size), sep = "")
+rownames(test_covariates) <- paste0("ID", as.character(1:sample_size))
 colnames(test_covariates) <- "covar1"
 
 usethis::use_data(test_covariates, overwrite = TRUE)

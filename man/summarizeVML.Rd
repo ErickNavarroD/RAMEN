@@ -4,29 +4,41 @@
 \alias{summarizeVML}
 \title{Summarize the methylation states of Variable Methylated Loci (VML)}
 \usage{
-summarizeVML(VML_df, methylation_data)
+summarizeVML(VML, methylation_data)
 }
 \arguments{
-\item{VML_df}{A GRanges-like data frame. Must contain the following columns:
-"seqnames", "start", "end" and "probes" (containing lists as elements, where each contains a vector with the probes constituting the VML). This is the "VML" object returned by the \emph{findVML()} function.}
+\item{VML}{GRanges object. Must contain a metadata column named "probes",
+where each element contains a vector with the probes constituting the
+VML.}
 
-\item{methylation_data}{A data frame containing M or B values, with samples as columns and probes as rows. Row names must be the CpG probe IDs.}
+\item{methylation_data}{A data frame containing M or B values, with samples
+as columns and probes as rows. Data is expected to have already passed
+through quality control and cleaning steps. Rows must be the CpG probe IDs.}
 }
 \value{
-A data frame with samples as rows, and VML as columns. The value inside each cell corresponds to the summarized methylation value of said VML in the corresponding individual. The column names correspond to the VML_index.
+A matrix with samples as rows, and VML as columns. The value
+inside each cell corresponds to the summarized methylation value of said VML
+in the corresponding individual. The column names correspond to the VML_index.
 }
 \description{
-This function computes a representative methylation score for each Variable Methylated Locus (VML) in a dataset. It returns a data frame with the median methylation of each region per individual.
-For each VML in a dataset, returns a  with the median methylation of that region (columns) per individual (rows) as representative score.
+This function computes a representative methylation score for each Variable
+Methylated Locus (VML) in a dataset. It returns a data frame with the median
+methylation of each region per individual. For each VML in a dataset, returns
+a  with the median methylation of that region (columns) per individual
+(rows) as representative score.
 }
 \details{
-This function supports parallel computing for increased speed. To do so, you have to set the parallel backend in your R session BEFORE running the function (e.g., \emph{doParallel::registerDoParallel(4)}). After that,
-the function can be run as usual.
+This function supports parallel computing for increased speed. To do so, you
+have to set the parallel backend in your R session BEFORE running the
+function (e.g., \emph{doParallel::registerDoParallel(4)}). After that, the
+function can be run as usual.
 }
 \examples{
 ## Find VML in test data
-VML <- RAMEN::findVML(
-  methylation_data = RAMEN::test_methylation_data,
+# Set the parallel backend to use 2 workers
+doParallel::registerDoParallel(2)
+VML <- findVML(
+  methylation_data = test_methylation_data,
   array_manifest = "IlluminaHumanMethylationEPICv1",
   cor_threshold = 0,
   var_method = "variance",
@@ -36,9 +48,10 @@ VML <- RAMEN::findVML(
 )
 
 ## Summarize methylation states of the found VML
-summarized_VML <- RAMEN::summarizeVML(
-  VML_df = VML$VML,
-  methylation_data = RAMEN::test_methylation_data
+summarized_VML <- summarizeVML(
+  # Use only 5 for demonstration purposes
+  VML = VML$VML[1:5, ],
+  methylation_data = test_methylation_data
 )
 
 }

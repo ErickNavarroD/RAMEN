@@ -8,12 +8,13 @@
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-R package that identifies which genetic (G), environmental (E), additive (G+E) or interaction (GxE) effect better explains DNA methylation levels in Variable Methylated Loci using microarray data.
+Using population data, RAMEN identifies which genetic (G), environmental (E), additive (G+E) or interaction (GxE) model better explains DNA methylation levels in genome-wide locations with high DNA methylation variability.
 }
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://ericknavarrod.github.io/RAMEN/}
+  \item \url{https://ericknavarrod.github.io/RAMEN/} 
+  \item \url{https://github.com/ErickNavarroD/RAMEN/}
   \item Report bugs at \url{https://github.com/ErickNavarroD/RAMEN/issues}
 }
 
@@ -23,8 +24,15 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Erick I. Navarro-Delgado \email{erick.delgado@ubc.ca} (\href{https://orcid.org/0000-0003-1040-3519}{ORCID})
   \item Keegan Korthauer \email{keegan@stat.ubc.ca} (\href{https://orcid.org/0000-0002-4565-1654}{ORCID})
   \item Michael S. Kobor \email{michael.kobor@ubc.ca} (\href{https://orcid.org/0000-0003-4140-1743}{ORCID})
+}
+
+Other contributors:
+\itemize{
+  \item Lluís Revilla Sancho \email{lluis.revilla@gmail.com} (\href{https://orcid.org/0000-0001-9747-2570}{ORCID}) [reviewer]
+  \item Ulduz Vafadarshamasbi \email{vafadar.u@uq.edu.au} (\href{https://orcid.org/0000-0002-8370-8084}{ORCID}) [reviewer]
 }
 
 }
