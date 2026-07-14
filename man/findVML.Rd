@@ -106,7 +106,7 @@ correlation for co-methylation when they are close (less than or equal to 1
 kilobase). Modelling DNAme variability through regions rather than individual
 CpGs provides several methodological advantages in association studies, since
 CpGs display a significant correlation for co-methylation when they are close
-(≤ 1 kilobase). Some of these advantages include increasing statistical power
+(less than 1 kilobase). Some of these advantages include increasing statistical power
 by testing redundant probes only once, reducing false-positives driven by one
 problematic probe in a region, and improving comparability between studies
 that analyze the same genomic region but measure distinct CpGs due to
