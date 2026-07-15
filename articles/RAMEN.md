@@ -194,6 +194,13 @@ structure:
   row). This can be done using the ComBat function from the [sva
   package](https://bioconductor.org/packages/release/bioc/html/sva.html).
 
+We recommend using M values over Beta values, since M value
+distributions provide more statistically valid properties for linear
+modelling, such as being approximately homoscedastic, unbounded, and
+with a lower compression at the methylated and unmethylated values (for
+more details see [Pan Du, *et al.*, BMC Bioinformatics,
+2010](https://doi.org/10.1186/1471-2105-11-587)).
+
 #### Exposome data
 
 The exposome is a highly heterogeneous data set, as it can encompass
@@ -1539,7 +1546,7 @@ sessionInfo()
 #>  [96] yaml_2.3.12                                        
 #>  [97] evaluate_1.0.5                                     
 #>  [98] codetools_0.2-20                                   
-#>  [99] cigarillo_1.2.0                                    
+#>  [99] cigarillo_1.2.1                                    
 #> [100] tibble_3.3.1                                       
 #> [101] minfi_1.58.0                                       
 #> [102] BiocManager_1.30.27                                

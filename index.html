@@ -84,7 +84,7 @@
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
-<p>For a detailed tutorial on how to use RAMEN, please check the package’s vignette or <a href="https://ericknavarrod.github.io/RAMEN/articles/RAMEN.html">website</a>. Altogether, RAMEN provides a workflow that takes a set of individuals with genome, exposome and DNA methylome information, and generates an estimation of the contribution of genetic variants and environmental exposures to its DNA methylation variability. Functions that conduct computationally intensive tasks are compatible with parallel computing.</p>
+<p>For a detailed tutorial on how to use RAMEN, please check the package’s vignette, which you can build locally by running <code>BiocManager::install("ErickNavarroD/RAMEN",  build_vignettes = TRUE)</code> or see externally in its <a href="https://ericknavarrod.github.io/RAMEN/articles/RAMEN.html">website</a>. Altogether, RAMEN provides a workflow that takes a set of individuals with genome, exposome and DNA methylome information, and generates an estimation of the contribution of genetic variants and environmental exposures to its DNA methylation variability. Functions that conduct computationally intensive tasks are compatible with parallel computing.</p>
 <p><img src="reference/figures/RAMEN_pipeline.png" width="600"></p>
 <p>In brief, the standard workflow consists of the following steps:</p>
 <ol style="list-style-type: decimal">
@@ -233,6 +233,60 @@
 <span>  summarized_methyl_VML <span class="op">=</span> <span class="va">summarized_methyl_VML</span>,</span>
 <span>  seed <span class="op">=</span> <span class="fl">1</span></span>
 <span><span class="op">)</span></span>
+<span><span class="co">#&gt; Loading required package: stats4</span></span>
+<span><span class="co">#&gt; Loading required package: BiocGenerics</span></span>
+<span><span class="co">#&gt; Loading required package: generics</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'generics'</span></span>
+<span><span class="co">#&gt; The following object is masked from 'package:dplyr':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     explain</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     as.difftime, as.factor, as.ordered, intersect, is.element, setdiff,</span></span>
+<span><span class="co">#&gt;     setequal, union</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'BiocGenerics'</span></span>
+<span><span class="co">#&gt; The following object is masked from 'package:dplyr':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     combine</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     IQR, mad, sd, var, xtabs</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     anyDuplicated, aperm, append, as.data.frame, basename, cbind,</span></span>
+<span><span class="co">#&gt;     colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,</span></span>
+<span><span class="co">#&gt;     get, grep, grepl, is.unsorted, lapply, Map, mapply, match, mget,</span></span>
+<span><span class="co">#&gt;     order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,</span></span>
+<span><span class="co">#&gt;     rbind, Reduce, rownames, sapply, saveRDS, table, tapply, unique,</span></span>
+<span><span class="co">#&gt;     unsplit, which.max, which.min</span></span>
+<span><span class="co">#&gt; Loading required package: S4Vectors</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'S4Vectors'</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:dplyr':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     first, rename</span></span>
+<span><span class="co">#&gt; The following object is masked from 'package:utils':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     findMatches</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     expand.grid, I, unname</span></span>
+<span><span class="co">#&gt; Loading required package: IRanges</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'IRanges'</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:dplyr':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     collapse, desc, slice</span></span>
+<span><span class="co">#&gt; Loading required package: Seqinfo</span></span>
+<span><span class="co">#&gt; Loading required package: Matrix</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'Matrix'</span></span>
+<span><span class="co">#&gt; The following object is masked from 'package:S4Vectors':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     expand</span></span>
+<span><span class="co">#&gt; Loaded glmnet 5.0</span></span>
 <span><span class="co">#&gt; Loading required package: rngtools</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">selected_variables</span><span class="op">)</span></span>

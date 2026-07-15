@@ -56,7 +56,9 @@ BiocManager::install("ErickNavarroD/RAMEN")
 ## Usage
 
 For a detailed tutorial on how to use RAMEN, please check the package’s
-vignette or
+vignette, which you can build locally by running
+`BiocManager::install("ErickNavarroD/RAMEN", build_vignettes = TRUE)` or
+see externally in its
 [website](https://ericknavarrod.github.io/RAMEN/articles/RAMEN.html).
 Altogether, RAMEN provides a workflow that takes a set of individuals
 with genome, exposome and DNA methylome information, and generates an
@@ -225,6 +227,60 @@ selected_variables <- RAMEN::selectVariables(
   summarized_methyl_VML = summarized_methyl_VML,
   seed = 1
 )
+#> Loading required package: stats4
+#> Loading required package: BiocGenerics
+#> Loading required package: generics
+#> 
+#> Attaching package: 'generics'
+#> The following object is masked from 'package:dplyr':
+#> 
+#>     explain
+#> The following objects are masked from 'package:base':
+#> 
+#>     as.difftime, as.factor, as.ordered, intersect, is.element, setdiff,
+#>     setequal, union
+#> 
+#> Attaching package: 'BiocGenerics'
+#> The following object is masked from 'package:dplyr':
+#> 
+#>     combine
+#> The following objects are masked from 'package:stats':
+#> 
+#>     IQR, mad, sd, var, xtabs
+#> The following objects are masked from 'package:base':
+#> 
+#>     anyDuplicated, aperm, append, as.data.frame, basename, cbind,
+#>     colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,
+#>     get, grep, grepl, is.unsorted, lapply, Map, mapply, match, mget,
+#>     order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
+#>     rbind, Reduce, rownames, sapply, saveRDS, table, tapply, unique,
+#>     unsplit, which.max, which.min
+#> Loading required package: S4Vectors
+#> 
+#> Attaching package: 'S4Vectors'
+#> The following objects are masked from 'package:dplyr':
+#> 
+#>     first, rename
+#> The following object is masked from 'package:utils':
+#> 
+#>     findMatches
+#> The following objects are masked from 'package:base':
+#> 
+#>     expand.grid, I, unname
+#> Loading required package: IRanges
+#> 
+#> Attaching package: 'IRanges'
+#> The following objects are masked from 'package:dplyr':
+#> 
+#>     collapse, desc, slice
+#> Loading required package: Seqinfo
+#> Loading required package: Matrix
+#> 
+#> Attaching package: 'Matrix'
+#> The following object is masked from 'package:S4Vectors':
+#> 
+#>     expand
+#> Loaded glmnet 5.0
 #> Loading required package: rngtools
 
 head(selected_variables)
