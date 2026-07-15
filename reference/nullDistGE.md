@@ -142,8 +142,8 @@ time. For further information please read the RAMEN paper
 ## Examples
 
 ``` r
-# Set the parallel backend to use 2 workers
-doParallel::registerDoParallel(2)
+# Evaluate sequentially
+foreach::registerDoSEQ()
 ## Find VML in test data
 VML <- findVML(
   methylation_data = test_methylation_data,

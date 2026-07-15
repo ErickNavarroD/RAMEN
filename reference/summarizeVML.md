@@ -42,8 +42,8 @@ the function can be run as usual.
 
 ``` r
 ## Find VML in test data
-# Set the parallel backend to use 2 workers
-doParallel::registerDoParallel(2)
+# Evaluate sequentially
+foreach::registerDoSEQ()
 VML <- findVML(
   methylation_data = test_methylation_data,
   array_manifest = "IlluminaHumanMethylationEPICv1",

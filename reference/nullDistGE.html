@@ -179,8 +179,8 @@ please read the RAMEN paper (https://doi.org/10.1186/s13059-025-03864-4).</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Set the parallel backend to use 2 workers</span></span></span>
-<span class="r-in"><span><span class="fu">doParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/doParallel/man/registerDoParallel.html" class="external-link">registerDoParallel</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Evaluate sequentially</span></span></span>
+<span class="r-in"><span><span class="fu">foreach</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/foreach/man/registerDoSEQ.html" class="external-link">registerDoSEQ</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co">## Find VML in test data</span></span></span>
 <span class="r-in"><span><span class="va">VML</span> <span class="op">&lt;-</span> <span class="fu"><a href="findVML.html">findVML</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  methylation_data <span class="op">=</span> <span class="va">test_methylation_data</span>,</span></span>
