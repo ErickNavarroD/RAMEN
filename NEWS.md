@@ -1,4 +1,4 @@
-# RAMEN 2.1.0
+# RAMEN 2.1.0 - July 14, 2026
 
 This minor version presents a couple of changes that improve the integration of
 RAMEN with GenomicRanges objects and Bioconductor: 
