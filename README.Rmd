@@ -76,8 +76,11 @@ BiocManager::install("ErickNavarroD/RAMEN")
 
 ## Usage
 
-For a detailed tutorial on how to use RAMEN, please check the package's vignette
-or [website](https://ericknavarrod.github.io/RAMEN/articles/RAMEN.html). 
+For a detailed tutorial on how to use RAMEN, please check the package's vignette, 
+which you can build locally by running 
+` BiocManager::install("ErickNavarroD/RAMEN",  build_vignettes = TRUE)`
+or see externally in its 
+[website](https://ericknavarrod.github.io/RAMEN/articles/RAMEN.html). 
 Altogether, RAMEN provides a workflow that takes a set of individuals 
 with genome, exposome and DNA methylome information, and generates an estimation
 of the contribution of genetic variants and environmental exposures to its DNA 
