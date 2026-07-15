@@ -127,8 +127,8 @@ Note: If you want to conduct the variable selection step only in one data set
 }
 \examples{
 ## Find VML in test data
-# Set the parallel backend to use 2 workers
-doParallel::registerDoParallel(2)
+# Evaluate sequentially
+foreach::registerDoSEQ()
 VML <- RAMEN::findVML(
   methylation_data = RAMEN::test_methylation_data,
   array_manifest = "IlluminaHumanMethylationEPICv1",

@@ -114,8 +114,8 @@ distribution and reduces the computational time. For further information
 please read the RAMEN paper (https://doi.org/10.1186/s13059-025-03864-4).
 }
 \examples{
-# Set the parallel backend to use 2 workers
-doParallel::registerDoParallel(2)
+# Evaluate sequentially
+foreach::registerDoSEQ()
 ## Find VML in test data
 VML <- findVML(
   methylation_data = test_methylation_data,
